@@ -1,0 +1,79 @@
+#!/bin/sh
+
+TARGET=webkitgtk
+VERSION=2.4.9
+SOURCE=${TARGET}-${VERSION}.tar.xz
+SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
+MARCH=$( uname -m )
+
+
+#--- Check for dependency (but only warn) 
+DEP=(gst-plugins-base gtk2 icu libgudev libsecret libsoup libwebp mesa ruby sqlite)
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget http://webkitgtk.org/releases/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/tmp
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+#rm -rf $SOURCEDIR
+#tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+sed -i '/generate-gtkdoc --rebase/s:^:# :' GNUmakefile.in
+
+#mkdir build2
+
+pushd build2
+#../configure --prefix=/usr \
+#            --with-gtk=2.0 \
+#            --disable-webkit2 \
+#            --disable-geolocation
+make
+popd
+
+make -C build2 DESTDIR=$PKGDIR install
+
+rm -rf $PKGDIR/usr/share/gtk-doc/html/webkit{,dom}gtk-1.0
+if [ -e $PKGDIR/usr/share/gtk-doc/html/webkitdomgtk ]; then
+   mv -v $PKGDIR/usr/share/gtk-doc/html/webkitdomgtk{,-1.0}
+fi
+if [ -e $PKGDIR/usr/share/gtk-doc/html/webkitgtk ]; then
+   mv -v $PKGDIR/usr/share/gtk-doc/html/webkitgtk{,-1.0}
+fi
+
+
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+
+mv ${PKGNAME}_package.tar.xz $TARGETDIR

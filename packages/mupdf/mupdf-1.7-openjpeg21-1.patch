@@ -1,0 +1,47 @@
+Submitted By:            Igor Živković
+Date:                    2014-11-17
+Initial Package Version: 1.6
+Upstream Status:         Unknown
+Origin:                  Debian
+Description:             Fixes build with OpenJPEG version >= 2.1.
+
+diff -Naur mupdf-1.6-source.orig/Makerules mupdf-1.6-source/Makerules
+--- mupdf-1.6-source.orig/Makerules	2014-09-30 13:25:12.000000000 +0200
++++ mupdf-1.6-source/Makerules	2014-11-17 18:45:27.202705119 +0100
+@@ -75,8 +75,8 @@
+ 
+ SYS_FREETYPE_CFLAGS = $(shell pkg-config --cflags freetype2)
+ SYS_FREETYPE_LIBS = $(shell pkg-config --libs freetype2)
+-SYS_OPENJPEG_CFLAGS = $(shell pkg-config --cflags libopenjp2)
+-SYS_OPENJPEG_LIBS = $(shell pkg-config --libs libopenjp2)
++SYS_OPENJPEG_CFLAGS = -I/usr/include/openjpeg-2.1
++SYS_OPENJPEG_LIBS = -lopenjp2
+ SYS_JBIG2DEC_LIBS = -ljbig2dec
+ SYS_JPEG_LIBS = -ljpeg
+ SYS_ZLIB_LIBS = -lz
+diff -Naur mupdf-1.6-source.orig/source/fitz/load-jpx.c mupdf-1.6-source/source/fitz/load-jpx.c
+--- mupdf-1.6-source.orig/source/fitz/load-jpx.c	2014-09-30 13:25:12.000000000 +0200
++++ mupdf-1.6-source/source/fitz/load-jpx.c	2014-11-17 18:45:27.202705119 +0100
+@@ -1,13 +1,5 @@
+ #include "mupdf/fitz.h"
+ 
+-/* Without the definition of OPJ_STATIC, compilation fails on windows
+- * due to the use of __stdcall. We believe it is required on some
+- * linux toolchains too. */
+-#define OPJ_STATIC
+-#ifndef _MSC_VER
+-#define OPJ_HAVE_STDINT_H
+-#endif
+-
+ #include <openjpeg.h>
+ 
+ static void fz_opj_error_callback(const char *msg, void *client_data)
+@@ -117,7 +109,7 @@
+ 	opj_stream_set_read_function(stream, fz_opj_stream_read);
+ 	opj_stream_set_skip_function(stream, fz_opj_stream_skip);
+ 	opj_stream_set_seek_function(stream, fz_opj_stream_seek);
+-	opj_stream_set_user_data(stream, &sb);
++	opj_stream_set_user_data(stream, &sb, NULL);
+ 	/* Set the length to avoid an assert */
+ 	opj_stream_set_user_data_length(stream, size);
+ 

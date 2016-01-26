@@ -1,0 +1,79 @@
+#!/bin/sh
+
+TARGET=cups
+VERSION=2.1.0
+SOURCE=${TARGET}-${VERSION}-source.tar.bz2
+SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
+MARCH=$( uname -m )
+
+
+#--- Check for dependency (but only warn) 
+DEP=(gnutls colord dbus libusb cups-filters)
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget http://www.cups.org/software/2.1.0/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/tmp
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+sed -i "s:555:755:g;s:444:644:g" Makedefs.in
+sed -i "/MAN.*.EXT/s:.gz::g" config-scripts/cups-manpages.m4
+sed -i "/LIBGCRYPTCONFIG/d" config-scripts/cups-ssl.m4 
+sed -i 's@else /\* HAVE_AVAHI \*/@elif defined (HAVE_AVAHI)@' test/ippserver.c
+
+aclocal  -I config-scripts
+autoconf -I config-scripts
+
+./configure --libdir=/usr/lib            \
+            --with-rcdir=/tmp/cupsinit   \
+            --with-system-groups=lpadmin \
+            --with-docdir=/usr/share/cups/doc-2.1.0 &&
+
+make
+make BUILDROOT=$PKGDIR install || exit 1
+
+rm -rf $PKGDIR/tmp/cupsinit
+rm -rf $PKGDIR/usr/share/cups/banners
+rm -rf $PKGDIR/usr/share/cups/data/testprint
+
+mkdir -p $PKGDIR/run/
+mv $PKGDIR/var/run/* $PKGDIR/run/
+
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+
+mv ${PKGNAME}_package.tar.xz $TARGETDIR

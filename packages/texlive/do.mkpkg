@@ -1,0 +1,121 @@
+#!/bin/sh
+
+TARGET=texlive
+VERSION=20150521
+SOURCE=${TARGET}-${VERSION}-source.tar.xz
+SOURCEDIR=$TARGET-$VERSION-source        # Usually $TARGET-$VERSION
+MARCH=$( uname -m )
+
+
+#--- Check for dependency (but only warn) 
+DEP=(ghostscript fontconfig freetype2 harfbuzz icu poppler python2 )
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget ftp://tug.org/texlive/historic/2015/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/tmp
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+export TEXARCH=$(uname -m | sed -e 's/i.86/i386/' -e 's/$/-linux/')
+mkdir texlive-build
+cd texlive-build 
+
+../configure --prefix=/opt/texlive/2015                      \
+            --bindir=/opt/texlive/2015/bin/$TEXARCH         \
+            --datarootdir=/opt/texlive/2015                 \
+            --includedir=/opt/texlive/2015/include          \
+            --infodir=/opt/texlive/2015/texmf-dist/doc/info \
+            --libdir=/opt/texlive/2015/lib                  \
+            --mandir=/opt/texlive/2015/texmf-dist/doc/man   \
+            --disable-native-texlive-build                  \
+            --disable-static --enable-shared                \
+            --with-system-cairo                             \
+            --with-system-fontconfig                        \
+            --with-system-freetype2                         \
+            --with-system-gmp                               \
+            --with-system-icu                               \
+            --with-system-libgs                             \
+            --with-system-libpng                            \
+            --without-system-graphite2                      \
+            --with-system-mpfr                              \
+            --with-system-pixman                            \
+            --with-system-poppler                           \
+            --with-system-zlib 
+
+make
+make DESTDIR=$PKGDIR install-strip
+#make DESTDIR=$PKGDIR texlinks
+# Manual Linking
+ln -s aleph $PKGDIR/opt/texlive/2015/bin/x86_64-linux/lamed
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/amstex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/cslatex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/pdfcslatex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/csplain
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/pdfcsplain
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/eplain
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/jadetex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/pdfjadetex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/latex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/pdflatex
+ln -s luatex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/dvilualatex
+ln -s luatex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/lualatex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/lollipop
+ln -s luatex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/lualollipop
+ln -s xetex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/xelollipop
+ln -s luatex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/dviluatex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/mex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/pdfmex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/utf8mex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/mllatex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/mltex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/etex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/pdfetex
+ln -s eptex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/platex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/texsis
+ln -s euptex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/uplatex
+ln -s xetex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/xelatex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/xmltex
+ln -s pdftex $PKGDIR/opt/texlive/2015/bin/x86_64-linux/pdfxmltex
+
+
+mkdir -pv $PKGDIR/opt/texlive/${TEXYEAR}/tlpkg/TeXLive/ &&
+install -v -m444 ../texk/tests/TeXLive/* $PKGDIR/opt/texlive/${TEXYEAR}/tlpkg/TeXLive/
+
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+
+mv ${PKGNAME}_package.tar.xz $TARGETDIR

@@ -1,0 +1,104 @@
+#!/bin/sh
+
+TARGET=wpa-supplicant
+VERSION=2.4
+SOURCE=wpa_supplicant-${VERSION}.tar.gz
+SOURCEDIR=wpa_supplicant-$VERSION        # Usually $TARGET-$VERSION
+MARCH=$( uname -m )
+
+
+#--- Check for dependency (but only warn) 
+MAKEQT=1
+DEP=(libnl openssl qt4)
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         if [ "$dep" == "qt4" ]; then
+            MAKEQT=0
+         fi
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget http://hostap.epitest.fi/releases/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/tmp
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+
+cat $CWD/config.default > wpa_supplicant/.config || exit 1
+
+# other fixes
+sed -e "s@wpa_supplicant -u@& -s -O /var/run/wpa_supplicant@g" -i wpa_supplicant/dbus/*.service.in
+sed -e "s@wpa_supplicant -u@& -s -O /var/run/wpa_supplicant@g" -i wpa_supplicant/systemd/wpa_supplicant.service.in
+
+cd wpa_supplicant
+
+make BINDIR=/sbin LIBDIR=/lib
+
+if [ $MAKEQT -eq 1 ]; then
+   pushd wpa_gui-qt4 &&
+   qmake-qt4 wpa_gui.pro &&
+   make &&
+   popd
+fi
+
+# copy files
+mkdir -p $PKGDIR/bin
+install -v -m755 wpa_{cli,passphrase,supplicant} $PKGDIR/sbin/
+mkdir -p $PKGDIR/usr/share/man/man{5,8}
+install -v -m644 doc/docbook/wpa_supplicant.conf.5 $PKGDIR/usr/share/man/man5/
+install -v -m644 doc/docbook/wpa_{cli,passphrase,supplicant}.8 $PKGDIR/usr/share/man/man8/
+
+mkdir -p $PKGDIR/lib/systemd/system
+install -v -m644 systemd/*.service $PKGDIR/lib/systemd/system/
+
+mkdir -p $PKGDIR/usr/share/dbus-1/system-services
+install -v -m644 dbus/fi.{epitest.hostap.WPASupplicant,w1.wpa_supplicant1}.service \
+   $PKGDIR/usr/share/dbus-1/system-services/
+mkdir -p $PKGDIR/etc/dbus-1/system.d
+install -v -m644 dbus/dbus-wpa_supplicant.conf \
+   $PKGDIR/etc/dbus-1/system.d/wpa_supplicant.conf
+
+if [ $MAKEQT -eq 1 ]; then
+   mkdir -p $PKGDIR/usr/bin
+   mkdir -p $PKGDIR/usr/share/{applications,pixmaps}
+   install -v -m755 wpa_gui-qt4/wpa_gui $PKGDIR/usr/bin/ &&
+   install -v -m644 doc/docbook/wpa_gui.8 $PKGDIR/usr/share/man/man8/ &&
+   install -v -m644 wpa_gui-qt4/wpa_gui.desktop $PKGDIR/usr/share/applications/ &&
+   install -v -m644 wpa_gui-qt4/icons/wpa_gui.svg $PKGDIR/usr/share/pixmaps/
+fi
+
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+
+mv ${PKGNAME}_package.tar.xz $TARGETDIR

@@ -1,0 +1,456 @@
+# NAME                              VERSION     
+lfs                                 7.8
+   linux                            4.1.15
+   man-pages                        4.02
+   glibc                            2.22
+   zlib                             1.2.8
+   file                             5.24
+   binutil                          2.25.1
+   gmp                              6.0.0a
+   mpfr                             3.1.3
+   mpc                              1.0.3
+   gcc                              5.2.0
+   bzip2                            1.0.6
+   pkg-config                       0.28
+   ncurses                          6.0
+   attr                             2.4.47
+   acl                              2.2.52
+   libcap                           2.24
+   sed                              4.2.2
+   shadow                           4.2.1
+   psmisc                           22.21
+   procps-ng                        3.3.11
+   e2fsprogs                        1.42.13
+   coreutils                        8.24
+   iana-etc                         2.30
+   m4                               1.4.17
+   flex                             2.5.39
+   bison                            3.0.4
+   grep                             2.21
+   readline                         6.3
+   bash                             4.3.30
+   bc                               1.06.95
+   libtools                         2.4.6
+   gdbm                             1.11
+   expat                            2.1.0
+   inetutils                        1.9.4
+   perl                             5.22.0
+   XML::Parser                      2.44
+   autoconf                         2.69
+   automake                         1.15
+   diffutils                        3.3
+   gawk                             4.1.3
+   findutils                        4.4.2
+   gettext                          0.19.5.1
+   intltool                         0.51.0
+   gperf                            3.0.4
+   groff                            1.22.3
+   xz                               5.2.1
+   grub                             2.02~beta2
+   less                             458
+   gzip                             1.6
+   iproute2                         4.2.0
+   kbd                              2.0.3
+   kmod                             21
+   libpipeline                      1.4.1
+   make                             4.1
+   patch                            2.7.5
+   systemd                          224
+   dbus                             1.8.20            ***
+   util-linux                       2.27
+   man-db                           2.7.2
+   tar                              1.28
+   texinfo                          6.0
+   vim                              7.4               ***
+
+### BLFS -----------------------------------------------------------------
+
+# NAME                              VERSION
+## Network
+wget                                1.16.3
+   gnutls                           3.4.5
+      nettle                        3.1.1
+         openssl                    1.0.2d
+      p11-kit                       0.23.1
+         libffi                     3.2.1
+         libtasn1                   4.7
+         ca-certificates            0.0
+            (openssl)               1.0.2d
+wireless-tools                      29
+wpa_supplicant                      2.4
+   (qt) +
+   libnl                            3.2.25
+   (openssl)
+openssh                             7.1p1
+   (openssl)
+
+## Libraries
+glib                                2.46 
+   python2                          2.7.10
+      (libffi)
+polkit                              0.113
+   (glib)
+   linux-pam                        1.2.1 
+   JS                               17.0.0 
+      (libffi)
+      nspr                          4.10.8
+      (python2)
+      zip                           3.0 
+         unzip                      6.0
+unrar                               5.3.5
+
+## X11
+xorg-libs                           - 
+   fontconfig                       2.11.1
+      freetype                      2.6 
+         (harfbuzz) --> First install without it: See below
+         libpng                     1.6.18
+   libxcb                           1.11 
+      libXau                        1.0.8 
+         xorg-protocols             - 
+            xorg-util-macros        1.19.0 
+      xcb-proto                     1.11
+         (python2)
+xorg-apps                           - 
+   Mesa                             11.0.2  
+      wayland                       1.9.0
+         (libffi)
+      libdrm                        2.4.65
+      (xorg-libs)
+   xbitmaps                         1.1.1
+      (xorg-util-macros)
+   xcb-util                         0.4.0
+      (libxcb)
+   (libpng)
+xorg-server                         1.17.2
+   (Nettle)
+   (OpenSSL)
+   libepoxy                         1.3.1 
+      (mesa)
+   xcb-util-keysyms                 0.4.0 
+      (libxcb)
+   libgcrypt                        1.6.4
+      libgpg-error                  1.20 
+   libpciaccess                     0.13.4
+   pixman                           0.32.8
+      (libpng)
+   xorg-fonts                       -
+      xcursor-themes                1.0.4
+         (xorg-apps) 
+   xkeyboard-config                 2.15
+      libxslt                       1.1.28
+         libxml2                    2.9.2
+            (python2) 
+xinit                               1.3.4
+   twm                              1.0.9
+      (Xorg-server)
+   xclock                           1.0.7
+      (Xorg-apps)
+   xterm                            320
+      (Xorg-apps)
+xf86-input-evdev                    2.9.2
+   (Xorg-server)
+   libevdev                         1.4.4
+      (python2)
+xf86-input-synaptics                1.8.2
+   (Xorg-server)
+   (libevdev)
+xf86-video-fbdev                    0.4.4
+   (Xorg-server)
+xf86-video-ati                      7.5.0
+   (Xorg-server)
+xf86-video-vesa                     2.3.4
+   (Xorg-server)
+harfbuzz                            1.0.3 
+   (glib)
+   cairo                            1.14.2
+      (libpng)
+      (pixman)
+   (freetype) --> re-install after installing harfbuzz
+   icu                              56.1 
+gtk2                                2.24.28
+   atk                              2.18.0 
+      (gobject-introspection)
+      (glib)
+   pango                            1.38.0
+      (gobject-introspection)
+      (fontconfig) - with harfbuzz
+      (glib)
+      (cairo)
+   gdk-pixbuf                       2.32.1
+      (gobject-introspection)
+      (glib)
+      (libjpeg-turbo)
+      (libpng)
+      (libtiff)
+gtk3                                3.18.2
+   (pango)
+   (gdk-pixbuf)
+   (wayland)
+   libxkbcommon                     0.5.0
+      (xkeyboard-config)
+   at-spi2-atk                      2.18.1
+      at-spi2-core                  2.18.1
+         (dbus)
+         (glib)
+         (xorg-libs)
+      (atk)
+qt                                  4.8.7
+   (xorg-libs)
+   (mesa)
+   (gtk2)
+   (alsa-lib)
+   (openssl)
+   (sqlite)
+   (dbus)
+   (icu)
+ttf-sazanami                        20040629
+ttf-terminus                        4.40
+
+## System tools
+pciutils                            3.4.0
+udisk2                              2.1.6
+   libatasmart                      0.19
+   libgudev                         230 
+      gobject-introspection         1.46.0 
+         (glib)
+   (libxslt)
+   (polkit) 
+cups                                2.1.0
+   (gnutls) 
+   (libusb)
+   colord                           1.2.12
+      sqlite                        3.9.2
+      dbus                          1.8.20
+      (glib)
+      lcms2                         2.7
+         (libjpeg-turbo)
+         libtiff                    4.0.6
+            jbigkit                 2.1
+      (libgudev)
+      libgusb                       0.2.6
+         libusb                     1.0.20
+      (polkit)
+which                               2.21
+ntfs-3g                             2015.3.14
+   libfuse                          2.9.4
+
+iptables                            1.4.21
+
+## Multimedia / Graphics
+alsa-utils                          1.0.29
+   alsa-lib                         1.0.29
+alsa-tools                          1.0.29
+   (alsa-lib)
+alsa-plugins                        1.0.29
+   (alsa-lib)
+alsa-firmware                       1.0.29
+   (alsa-tools)
+pnmixer                             0.6.1
+imagemagick                         6.9.3-0
+
+## X Applications
+rxvt-unicode                        9.21
+dillo                               3.0.5
+   fltk                             1.3.3
+      (xorg-libs)
+      (libpng)
+      libjpeg-turbo                 1.4.2
+         nasm                       2.11.08
+      hicolor-icon-theme            0.15
+conky                               1.9.0
+gsimplecal                          2.1
+   (gtk2)
+gmrun                               0.9.2
+   popt                             1.16
+   (gtk2)
+vim                                 7.4
+   (gtk2)
+google-chrome                       ---
+   nss                              3.20
+      (nspr)
+      (sqlite)
+   gconf                            3.2.6
+      dbus-glib                     0.104
+         (dbus)
+      (polkit)
+      (libxml2)
+   libexif                          0.6.21
+   (gtk2)
+   (cups)
+openbox                             3.6.1
+   (pango)
+   imlib2                           1.4.7
+      (xorg-libs)
+      (libpng)
+      giflib                        5.1.1
+      (libjpeg-turbo)
+      (libtiff)
+   librsvg                          2.40.10
+      libcroco                      0.6.8
+         (glib)
+         (libxml2)
+      (gdk-pixbuf)
+      (pango)
+tint2                               0.12.2
+   cmake                            3.3.2
+      (qt) +
+      curl                          7.45.0
+         (openssl)
+         (gnutls)
+      libarchive                    3.1.2
+         (libxml2)
+         (nettle)
+         (openssl)
+   (librsvg)
+   (imlib2)
+   startup-notification             0.12
+      (xorg-libs)
+      (xcb-util)
+pidgin                              2.10.11
+   (gtk2)
+   (libgcrypt)
+   (gnutls)
+   (nss)
+deadbeef                            0.6.2
+   ffmpeg                           2.7.1
+      fdk-aac                       0.1.4
+      (freetype2)
+      lame                          3.99.5
+         (nasm)
+      libvorbis                     1.3.5
+         libogg                     1.3.2
+      x264                          20141218-2245
+   libmad                           0.15.1b
+   faad2                            2.7
+lxappearance                        0.6.1
+   (gtk2)
+   (dbus-glib)
+viewnior*                           1.3
+   shared-mime-info                 1.4
+      (glib)
+      (libxml2)
+   (gdk-pixbuf)
+   (gtk2)
+   (glib)
+pcmanfm                             1.2.3
+   libfm                            1.2.3
+      (gtk2)
+      menu-cache                    1.0.0
+         libfm-extra                1.2.3
+            (glib)
+thunar                              1.6.10
+   exo                              0.10.6
+      libxfce4ui                    4.12.1
+         (gtk2)
+         xfconf                     4.12.0
+            (dbus-glib)
+            libxfce4util            4.12.1
+               (glib)
+      URI                           1.69
+midori                              0.5.11
+   (cmake)
+   gcr                              3.16.0
+      (glib)
+      (libgcrypt)
+      (libtasn)
+      (p11-kit)
+   libnotify                        0.7.6
+      (gtk3)
+   (webkitgtk)
+   (vala)
+   (librsvg)
+
+## MISC
+cups-filters                        1.0.74
+   (cups)
+   (glib)
+   IJS                              0.35
+   poppler                          0.35.0
+      (fontconfig)                     
+      (cairo)
+      openjpeg                      1.5.2
+         (libtiff)                     
+         (libpng)
+         (lcms2)
+   qpdf                             5.1.3
+      pcre                          8.37
+canon-mg5620-printer                5.00
+   (cups)
+   (cups-filters)
+splix                               2.0.0
+   (cups)
+   (cups-filters)
+dropbox                             3.12.6
+git                                 2.4.4
+   (curl)
+   (openssl)
+   (pcre)
+   tk                               8.6.4
+      tcl                           8.6.4
+      (xorg-libs)
+webkitgtk                           2.4.9
+   gst-plugins-base                 1.6.0
+      gstreamer                     1.6.0
+         (glib)
+         (gobject-introspection)
+   (gtk2) or (gtk3)
+   (icu)
+   (libgudev)
+   libsecret                        0.18.3
+      (glib)
+      vala                          0.28.1
+         (glib)
+   libsoup                          2.52.1
+      glib-networking               2.46.0
+         (gnutls)
+         gsettings-desktop-schemas  3.18.0
+            (glib)
+      (libxml2)
+      (sqlite)
+      (vala)
+   libwebp                          0.4.3
+      (libjpeg-turbo)
+      (libpng)
+      (libtiff)
+   (mesa)
+   ruby                             2.2.3
+   (sqlite)
+   (which)
+ghostscript                         9.16
+   (freetype2)
+   (libjpeg-turbo)
+   (libpng)
+   (libtiff)
+   (lcms2)
+texlive                             20150521
+   (ghostscript)
+   (fontconfig)
+   (freetype2)
+   (icu)
+   (poppler)
+   (python2)
+mupdf                               1.7
+   (libjpeg-turb)
+   openjpeg2                        2.1.0
+      (cmake)
+      (lcms2)
+      (libpng)
+      (libtiff)
+   (curl)
+galculator                          2.1.4
+   (gtk2)
+gnumeric                            1.12.22
+   adwaita-icon-theme               3.18.0
+      (gtk3)
+      (hicolor-icon-theme)
+      (librsvg)
+   rarian                           0.8.1
+      (libxslt)
+   goffice                          0.10.22
+      (gtk3)
+      (librsvg)
+      (which)
+      libgsf                        1.14.33
+         (glib)
+         (libxml2)
