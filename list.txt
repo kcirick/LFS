@@ -1,0 +1,618 @@
+### LFS
+###-----------------------------------------------------------------------
+# NAME                              VERSION                                      2016-05-23
+
+lfs                                 7.9-systemd             Y
+   linux                            4.4.8                   S        /usr/src/linux
+   man-pages                        4.04                    
+   glibc                            2.23                    
+   zlib                             1.2.8                   
+   file                             5.25                     
+   binutil                          2.26                     
+   gmp                              6.1.0                    
+   mpfr                             3.1.3                    
+   mpc                              1.0.3                    
+   gcc                              5.3.0                   Y 
+   bzip2                            1.0.6                    
+   pkg-config                       0.29                     
+   ncurses                          6.0                      
+   attr                             2.4.47                   
+   acl                              2.2.52                   
+   libcap                           2.25                     
+   sed                              4.2.2                    
+   shadow                           4.2.1                   Y
+      linux-pam                     1.2.1                   Y                    1.3.0 (Skip)
+   psmisc                           22.21                    
+   iana-etc                         2.30                     
+   m4                               1.4.17                   
+   bison                            3.0.4                    
+   flex                             2.6.0                    
+   grep                             2.23                     
+   readline                         6.3                      
+   bash                             4.3.30                   
+   bc                               1.06.95                  
+   libtools                         2.4.6                    
+   gdbm                             1.11                     
+   gperf                            3.0.4                    
+   expat                            2.1.0                    
+   inetutils                        1.9.4                    
+   perl                             5.22.1                   
+   XML::Parser                      2.44                     
+   intltool                         0.51.0                   
+   autoconf                         2.69                     
+   automake                         1.15                     
+   xz                               5.2.2                    
+   kmod                             22                       
+   gettext                          0.19.7                   
+   systemd                          229                     Y
+      (linux-pam)
+      (polkit)                                        * runtime
+   procps-ng                        3.3.11                   
+   e2fsprogs                        1.43                    Y 
+   coreutils                        8.25                     
+   diffutils                        3.3                      
+   gawk                             4.1.3                    
+   findutils                        4.6.0                    
+   groff                            1.22.3                   
+   grub                             2.02~beta2               
+   less                             481                      
+   gzip                             1.6                      
+   iproute2                         4.4.0                    
+   kbd                              2.0.3                    
+   libpipeline                      1.4.1                    
+   make                             4.1                      
+   patch                            2.7.5                    
+   dbus                             1.10.6                  Y
+      (xorg-libs)
+   util-linux                       2.27.1                   
+   man-db                           2.7.5                    
+   tar                              1.28                     
+   texinfo                          6.1                      
+   vim                              7.4                     Y
+      (gtk2)
+pfstool                             1.2                     Y
+
+
+### BLFS 
+###-----------------------------------------------------------------------
+# NAME                              VERSION
+
+## --- Network -----------------------------------------------------------
+wireless-tools                      29                      Y
+wpa_supplicant                      2.5                     Y
+   (qt4) +
+   libnl                            3.2.27                  Y
+   openssl                          1.0.2h                  Y
+wget                                1.17.1                  Y
+   gnutls                           3.4.9                   Y
+      nettle                        3.2                     Y
+         (openssl)
+      p11-kit                       0.23.2                  Y
+         libffi                     3.2.1                   Y
+         libtasn1                   4.8                     Y
+         ca-certificates            0.0                     Y
+            (openssl)
+openssh                             7.2p2                   Y
+   (openssl)
+iptables                            1.6.0                   Y
+
+## --- Libraries ---------------------------------------------------------
+glib                                2.48.0                  Y
+   pcre                             8.38                    Y
+   python2                          2.7.11                  Y
+      (libffi)
+polkit                              0.113                   Y
+   (glib)
+   (linux-pam)
+   JS                               17.0.0                  Y
+      (libffi)
+      nspr                          4.12                    Y
+      (python2)
+      zip                           3.0                     Y
+         unzip                      6.0                     Y
+unrar                               5.3.11                  Y
+python3                             3.5.1                   Y
+   (libffi)
+
+## --- X11 ---------------------------------------------------------------
+xorg-libs                           -                       Y
+   fontconfig                       2.11.1                  Y
+      freetype2                     2.6.3                   Y
+         (harfbuzz) --> First install without it: See below 
+         libpng                     1.6.21                  Y
+         which                      2.21                    Y
+   libxcb                           1.11.1                  Y
+      libXau                        1.0.8                   Y
+         xorg-protocols             -                       Y
+            xorg-util-macros        1.19.0                  Y
+      xcb-proto                     1.11                    Y
+         (python2)
+xorg-apps                           -                       Y
+   mesa                             11.2.2                  Y
+      libdrm                        2.4.68                  Y
+         libpciaccess               0.13.4                  Y                    
+      (xorg-libs)
+   xbitmaps                         1.1.1                   Y
+      (xorg-util-macros)
+   xcb-util                         0.4.0                   Y
+      (libxcb)
+   (libpng)
+xorg-server                         1.18.3                  Y
+   (nettle)
+   (openssl)
+   libepoxy                         1.3.1                   Y
+      (mesa)
+   xcb-util-keysyms                 0.4.0                   Y
+      (libxcb)
+   libgcrypt                        1.6.5                   Y
+      libgpg-error                  1.22                    Y
+   (libpciaccess)
+   pixman                           0.34.0                  Y
+      (libpng)
+   xorg-fonts                       -                       Y
+      xcursor-themes                1.0.4                   Y
+         (xorg-apps) 
+   xkeyboard-config                 2.17                    Y
+      libxslt                       1.1.28                  Y
+         libxml2                    2.9.3                   Y
+            (python2) 
+xinit                               1.3.4                   Y
+   (xorg-libs)
+   twm                              1.0.9                   Y
+      (xorg-server)
+   xclock                           1.0.7                   Y
+      (xorg-libs)
+   xterm                            324                     Y
+      (xorg-apps)
+libinput                            1.3.0                   Y
+   mtdev                            1.1.5                   Y
+   libevdev                         1.5.1                   Y
+      (python2)
+xf86-input-evdev                    2.10.2                  Y
+   (xorg-server)
+   (mtdev)
+   (libevdev)
+xf86-video-fbdev                    0.4.4                   Y
+   (xorg-server)
+xf86-video-intel                    0340718                 Y
+   (xorg-server)
+   (xcb-util)
+xf86-video-vesa                     2.3.4                   Y
+   (xorg-server)
+harfbuzz                            1.2.7                   Y
+   (glib)
+   (freetype) --> re-install after installing harfbuzz
+   icu                              57.1                    Y
+gtk2                                2.24.30                 Y
+   hicolor-icon-theme               0.15                    Y
+   atk                              2.20.0                  Y
+      (glib)
+      gobject-introspection         1.48.0                  Y
+         (glib)
+         (python2)
+   pango                            1.40.1                  Y
+      (gobject-introspection)
+      (fontconfig) - with harfbuzz
+      (glib)
+      cairo                         1.14.6                  Y
+         (libpng)
+         (pixman)
+   gdk-pixbuf                       2.34.0                  Y
+      (gobject-introspection)
+      (xorg-libs)
+      (glib)
+      libjpeg-turbo                 1.4.2                   Y
+         nasm                       2.12.01                 Y
+      (libpng)
+      libtiff                       4.0.6                   Y
+         (libjpeg-turbo)
+         jbigkit                    2.1                     Y
+   (cups)
+gtk3                                3.20.4                  Y
+   (hicolor-icon-theme)
+   (pango)
+   (gdk-pixbuf)
+   libxkbcommon                     0.6.1                   Y
+      (xkeyboard-config)
+      (libxcb)
+   at-spi2-atk                      2.20.1                  Y
+      at-spi2-core                  2.20.3                  Y
+         (gobject-introspection)
+         (dbus)
+         (glib)
+         (xorg-libs)
+      (atk)
+   (cups)
+gtkmm3                              3.20.1                  Y
+   (gtk3)
+   atkmm                            2.24.2                  Y
+      (atk)
+      glibmm                        2.48.1                  Y
+         (glib)
+         libsigc++                  2.8.0                   Y
+   pangomm                          2.40.0                  Y
+      cairomm                       1.12.0                  Y
+         (cairo)
+         (libsigc++)
+      (glibmm)
+      (pango)
+qt                                  4.8.7                   Y
+   (xorg-libs)
+   (gtk2)
+   (mesa)
+   (openssl)
+   sqlite                           3.13.0                  Y
+   (dbus)
+   (icu)
+ttf-sazanami                        20040629                Y
+ttf-terminus                        4.40                    Y
+ohsnap-font                         1.8.0                   Y
+gtk-engines                         2.20.2                  Y
+   (gtk2)
+adwaita-icon-theme                  3.18.0                  Y
+   (gtk3)
+xdotool                             3.20150503.1            Y
+xfontsel                            1.0.5                   Y
+   (xorg-libs)
+xdg-utils                           1.1.1                   Y
+   xmlto                            0.0.28                  Y
+      docbook-xml                   4.5                     Y
+         (libxml2)
+         (unzip)
+         sgml-common                0.6.3                   Y
+      docbook-xsl                   1.79.1                  Y
+         (libxml2)
+      (libxslt)
+   links                            2.12                    Y
+
+## --- System tools ------------------------------------------------------
+pciutils                            3.5.1                   Y
+udisks2                             2.1.7                   Y
+   libatasmart                      0.19                    Y
+   libgudev                         230                     Y
+   (libxslt)
+   (systemd) 
+bluez                               5.39                    Y
+   (dbus)
+   (glib)
+   libical                          2.0.0                   Y
+      (cmake)
+rfkill                              0.5                     Y
+alsa-utils                          1.1.0                   Y                    1.1.1 (Skip)
+   alsa-lib                         1.1.0                   Y                    1.1.1 (Skip)
+alsa-tools                          1.1.0                   Y
+   (alsa-lib)
+alsa-plugins                        1.1.0                   Y                    1.1.1 (Skip)
+   (alsa-lib)
+alsa-firmware                       1.0.29                  Y
+   (alsa-tools)
+pulseaudio                          8.0                     Y
+   json-c                           0.12                    Y
+   (libsndfile)
+   (alsa-lib)
+   speex                            1.2rc2                  Y
+   (dbus)
+   sbc                              1.3                     Y
+   (bluez)
+   (gtk3)
+pavucontrol                         3.0                     Y
+   (gtkmm3)
+   (pulseaudio)
+   libcanberra                      0.30                    Y
+      (alsa-lib)
+      (gtk3)
+      (pulseaudio)
+      (libvorbis)
+      (gstreamer)
+dbus-python                         1.2.4                   Y
+   dbus-glib                        0.106                   Y
+      (dbus)
+   (python2)
+cups                                2.1.3                   Y
+   (gnutls)
+   (dbus)
+   (libusb)
+   colord                           1.2.12                  Y
+      (sqlite)
+      (dbus)
+      (glib)
+      lcms2                         2.7                     Y
+         (libjpeg-turbo)
+         (libtiff)
+      (libgudev)
+      libgusb                       0.2.9                   Y
+         (libusb)
+         usbutils                   008                     Y
+            libusb                  1.0.20                  Y
+            (python2)
+      (systemd)
+cups-filters                        1.8.3                   Y
+   avahi                            0.6.32                  Y
+      (glib)
+      (gtk2)
+      (gobject-introspection)
+      libdaemon                     0.14                    Y
+   (cups)
+   (glib)
+   ijs                              0.35                    Y
+   (lcms2)
+   poppler                          0.43.0                  Y
+      (fontconfig)                     
+      (cairo)
+      (libjpeg-turbo)
+      openjpeg2                     2.1.0                   Y
+         (cmake)
+         (libtiff)                     
+         (libpng)
+         (lcms2)
+   qpdf                             6.0.0                   Y
+      (pcre)
+a2ps                                4.14                    Y
+   psutils                          p17                     Y
+canon-mg5620-printer                5.00                    Y
+   (cups)
+   (cups-filters)
+canon-mg5620-scanner                3.00                    Y
+splix                               2.0.0                   Y
+   (cups)
+   (cups-filters)
+dconf-editor                        3.18.2                  Y
+   dconf                            0.24.0                  Y
+      (gtk3)
+      (libxml2)
+      (libxslt)
+scim-anthy                          1.2.7                   Y
+   scim                             1.4.15                  Y
+      (gtk2)
+   anthy                            9100h                   Y
+lm-sensors                          3.4.0                   Y
+   (which)
+lsof                                4.89                    Y
+   libtirpc                         1.0.1                   Y
+sudo                                1.8.16                  Y
+   (linux-pam)
+
+## --- X Applications ----------------------------------------------------
+rxvt-unicode                        9.22                    Y
+   (xorg-libs)
+   (gdk-pixbuf)
+dillo                               3.0.5                   Y
+   fltk                             1.3.3                   Y
+      (xorg-libs)
+      (libpng)
+      (libjpeg-turbo)
+      (hicolor-icon-theme)
+gsimplecal                          2.1                     Y
+   (gtk2)
+gmrun                               0.9.2                   Y
+   popt                             1.16                    Y
+   (gtk2)
+google-chrome                       ---                     YB
+   nss                              3.24                    Y
+      (nspr)
+      (sqlite)
+   gconf                            3.2.6                   Y
+      (dbus-glib)
+      (polkit)
+      (libxml2)
+   libexif                          0.6.21                  Y
+   (gtk2)
+   (cups)
+   (alsa-lib)
+openbox                             3.6.1                   Y
+   (pango)
+   (dbus)
+   imlib2                           1.4.9                   Y
+      (xorg-libs)
+      (libpng)
+      giflib                        5.1.4                   Y
+      (libjpeg-turbo)
+      (libtiff)
+   librsvg                          2.40.15                 Y
+      libcroco                      0.6.11                  Y
+         (glib)
+         (libxml2)
+      (gdk-pixbuf)
+      (pango)
+tint2                               0.12.11                 Y
+   cmake                            3.5.2                   Y
+      (qt) +
+      libarchive                    3.2.0                   Y
+         (libxml2)
+         (nettle)
+      curl                          7.49.0                  Y
+         (openssl)
+         (gnutls)
+         (ca-certificates)
+   (imlib2)
+   startup-notification             0.12                    Y
+      (xorg-libs)
+      (xcb-util)
+   ninja                            1.7.1                   Y
+      (python2)
+lxdm                                0.5.3                   Y
+   (gtk3)
+   (librsvg)
+   (linux-pam)
+   iso-codes                        3.68                    Y
+pidgin                              2.10.12                 Y
+   (gtk2)
+   (libgcrypt)
+   (gnutls)
+   gst-plugins-good                 1.8.1                   Y
+      gst-plugins-base              1.8.1                   Y
+         (alsa-lib)
+         gstreamer                  1.8.1                   Y
+            (glib)
+audacious-plugins                   3.7.2                   Y
+   audacious                        3.7.2                   Y
+      (gtk2)
+      (libxml2)
+      (alsa-lib)
+      (dbus)
+      (pulseaudio)
+   ffmpeg                           3.0.2                   Y
+      (pulseaudio)
+      (gnutls)
+      libass                        0.13.2                  Y
+         (freetype2)
+         fribidi                    0.19.7                  Y
+      fdk-aac                       0.1.4                   Y
+      (freetype2)
+      lame                          3.99.5                  Y
+         (nasm)
+      libvorbis                     1.3.5                   Y
+         libogg                     1.3.2                   Y
+      libvpx                        1.5.0                   Y
+         yasm                       1.3.0                   Y
+      x264                          20160220-2245           Y
+         (yasm)
+      x265                          1.9                     Y
+         (cmake)
+         (yasm)
+   libmad                           0.15.1b                 Y
+   mpg123                           1.23.3                  Y
+   faad2                            2.7                     Y
+   libsndfile                       1.0.26                  Y
+   neon                             0.30.1                  Y
+mpv                                 0.17.0                  Y
+   (alsa-lib)
+   luajit                           2.0.4                   Y
+   (ffmpeg)
+   (libmad)
+   (faad2)
+   (lcm2)
+   (libass)
+   youtube-dl                       20160326                Y
+      (python2)
+lxappearance                        0.6.2                   Y
+   (gtk2)
+   (dbus-glib)
+viewnior                            1.6                     Y
+   gnome-common                     3.18.0                  Y
+   exiv2                            0.25                    Y
+   shared-mime-info                 1.6                     Y
+      (glib)
+      (libxml2)
+   (gdk-pixbuf)
+   (gtk2)
+   (glib)
+thunar                              1.6.10                  Y
+   exo                              0.10.7                  Y
+      libxfce4ui                    4.12.1                  Y
+         (gtk2)
+         xfconf                     4.12.0                  Y
+            (dbus-glib)
+            libxfce4util            4.12.1                  Y
+               (glib)
+            (startup-notification)
+      perl-uri                      1.71                    Y
+   (libgudev)
+   (libexif)
+   libnotify                        0.7.6                   Y
+      (gtk3)
+      xfce4-notifyd                 0.2.4       *runtime    Y
+   gvfs                             1.26.2                  Y
+      (dbus)
+      (glib)
+      (gtk3)
+      (libgudev)
+      libsecret                     0.18.4                  Y
+      (systemd)
+      (udisks2)
+thunar-voluman                      0.8.1                   Y
+   (thunar)
+pnmixer                             0.6.1                   Y
+imagemagick                         7.0.1-6                 Y
+   (many)
+dropbox                             3.20.1                  YB
+git                                 2.8.2                   Y
+   (curl)
+   (openssl)
+   (python2)
+   (pcre)
+   tk                               8.6.5                   Y
+      tcl                           8.6.5                   Y
+      (xorg-libs)
+ghostscript                         9.18                    Y                    9.19 (Skip)
+   (freetype2)
+   (libjpeg-turbo)
+   (libpng)
+   (libtiff)
+   (lcms2)
+texlive                             20150521                Y
+   (ghostscript)
+   (fontconfig)
+   (freetype2)
+   (icu)
+   (poppler)
+   (python2)
+   libpaper                         1.1.24                  Y
+evince                              3.14.1                  Y
+   (gtk3)
+   (adwaita-icon-theme)
+   itstool                          2.0.2                   Y
+      (docbook-xml) 
+      (python2)  
+   (gobject-instrospection)
+   (poppler)
+galculator                          2.1.4                   Y
+   (gtk2)
+leafpad                             0.8.18.1                Y
+   (gtk2)
+xarchiver                           0.5.4                   Y
+   (gtk2)
+gimp                                2.8.16                  Y
+   (gtk2)
+   gegl                             0.3.6                   Y
+      json-glib                     1.2.0                   Y
+         (glib)
+         (gobject-introspection)
+      babl                          0.1.16                  Y
+   pygtk                            2.24.0                  Y
+      pygobject2                    2.28.6                  Y
+         (glib)
+         (gobject-introspection)
+         py2cairo                   1.10.0                  Y
+            (python2)
+            (cairo)
+      (atk)
+      (py2cairo)
+      (pango)
+      (gtk2)
+hexchat                             2.12.1                  Y
+   (glib)
+   (openssl)
+   (gtk2)
+   (dbus-glib)
+   (gdk-pixbuf)
+florence                            0.6.3                   Y
+   (gtk3)
+   (libxml2)
+   (librsvg)
+   (gstreamer)
+libreoffice                         5.1.2.2                 YB                   5.1.3.2  (Skip)
+root                                6.06.02                 S        /home/rueno/.local/root
+glista                              0.4                     Y
+   (gtk2)
+homebank                            5.0.8                   Y
+   (gtk3)
+   (hicolor-icon-theme)
+   (librsvg)
+   libofx                           0.9.10                  Y
+      (curl)
+      opensp                        1.5.2                   Y
+         (xmlto)
+         (docbook-xsl)
+   (shared-mime-info)
+
+
+
+### UNINSTALLED
+###-----------------------------------------------------------------------
+slim                                1.3.6                   Y
+   (linux-pam)
+   (xorg-libs)
+   (libpng)
+   (libjpeg-turbo)
+   (cmake)

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-TARGET=lfs
-VERSION=7.9systemd
+TARGET=pfstool
+VERSION=1.3
 MARCH=$( uname -m )
 
 
@@ -31,23 +31,13 @@ TARGETDIR=$CWD
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
 
-mkdir -p $PKGDIR/etc
-cat > $PKGDIR/etc/os-release << "EOF"
-NAME="Linux From Scratch"
-VERSION="7.9-systemd"
-ID=lfs
-PRETTY_NAME="Linux From Scratch 7.9-systemd"
-EOF
+mkdir -p $PKGDIR/usr/sbin
+cp $CWD/pfstool $PKGDIR/usr/sbin
 
-cat > /etc/lsb-release << "EOF"
-DISTRIB_ID="Linux From Scratch"
-DISTRIB_RELEASE="7.9-systemd"
-DISTRIB_CODENAME="valkyrie"
-DISTRIB_DESCRIPTION="Linux From Scratch"
-EOF
 
-echo 7.9-systemd > $PKGDIR/etc/lfs-release
-
+#--- Should not have to touch below this
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
