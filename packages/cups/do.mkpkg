@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=cups
-VERSION=2.1.0
+VERSION=2.1.3
 SOURCE=${TARGET}-${VERSION}-source.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -23,9 +23,16 @@ for dep in ${DEP[@]}; do
    fi
 done
 
+read -p ">>> Do the lp and lpadmin groups and users exist? [y/N]: " ans
+if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+   continue
+else
+   exit 1
+fi
+
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://www.cups.org/software/2.1.0/$SOURCE
+   wget http://www.cups.org/software/$VERSION/$SOURCE
 fi
 
 
@@ -47,15 +54,15 @@ chown -R root:root .
 sed -i "s:555:755:g;s:444:644:g" Makedefs.in
 sed -i "/MAN.*.EXT/s:.gz::g" config-scripts/cups-manpages.m4
 sed -i "/LIBGCRYPTCONFIG/d" config-scripts/cups-ssl.m4 
-sed -i 's@else /\* HAVE_AVAHI \*/@elif defined (HAVE_AVAHI)@' test/ippserver.c
 
 aclocal  -I config-scripts
 autoconf -I config-scripts
 
+CC=gcc \
 ./configure --libdir=/usr/lib            \
             --with-rcdir=/tmp/cupsinit   \
             --with-system-groups=lpadmin \
-            --with-docdir=/usr/share/cups/doc-2.1.0 &&
+            --with-docdir=/usr/share/cups/doc-${VERSION} &&
 
 make
 make BUILDROOT=$PKGDIR install || exit 1
@@ -66,6 +73,7 @@ rm -rf $PKGDIR/usr/share/cups/data/testprint
 
 mkdir -p $PKGDIR/run/
 mv $PKGDIR/var/run/* $PKGDIR/run/
+rm -rf $PKGDIR/var/run
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

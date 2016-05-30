@@ -8,7 +8,7 @@ MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(xorg-libs mesa gtk2 alsa-lib openssl sqlite dbus icu)
+DEP=(xorg-libs gtk2 mesa openssl sqlite dbus icu)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -54,7 +54,6 @@ ln -sfnv $TARGET-$VERSION $PKGDIR/opt/qt4
             -confirm-license             \
             -opensource                  \
             -release                     \
-            -fast                        \
             -dbus-linked                 \
             -openssl-linked              \
             -system-sqlite               \
@@ -72,7 +71,7 @@ ln -sfnv $TARGET-$VERSION $PKGDIR/opt/qt4
             -optimized-qmake            
 
 make
-make DESTDIR=$PKGDIR install
+make INSTALL_ROOT=$PKGDIR install
 rm -rf $QT4PREFIX/tests
 
 find $QT4PREFIX/lib/pkgconfig -name "*.pc" -exec perl -pi -e "s, -L$PWD/?\S+,,g" {} \;

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=libtasn1
-VERSION=4.7
+VERSION=4.8
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnu.org/gnu/libtasn1/$SOURCE
+   wget http://ftp.gnu.org/gnu/$TARGET/$SOURCE
 fi
 
 
@@ -33,7 +33,7 @@ CWD=$(pwd)
 TMPDIR=/tmp
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=/packages/packages
+TARGETDIR=$CWD
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
@@ -48,6 +48,7 @@ chown -R root:root .
 
 make
 make DESTDIR=$PKGDIR install
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

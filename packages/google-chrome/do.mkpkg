@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=google-chrome
-VERSION=stable-$(date +'%m-%d-%Y')
+VERSION=51.0.2704.63
 SOURCE=google-chrome-stable_current_amd64.deb
 SOURCEDIR=
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(nss gconf cups)
+DEP=(nss gconf libexif gtk2 cups alsa-lib)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -48,17 +48,15 @@ chmod 0755 .
 chmod 4711 opt/google/chrome/chrome-sandbox
 
 rm -rf etc
+rm -rf opt/google/chrome/cron
 
-sed -i 's,libnss3.so.1d,libnss3.so\x00\x00\x00,g;
-        s,libnssutil3.so.1d,libnssutil3.so\x00\x00\x00,g;
-        s,libsmime3.so.1d,libsmime3.so\x00\x00\x00,g;
-        s,libssl3.so.1d,libssl3.so\x00\x00\x00,g;
-        s,libplds4.so.0d,libplds4.so\x00\x00\x00,g;
-        s,libplc4.so.0d,libplc4.so\x00\x00\x00,g;
-        s,libnspr4.so.0d,libnspr4.so\x00\x00\x00,g;' opt/google/chrome/chrome
-
-sed -i -e 's#Icon=google-chrome#Icon=/opt/google/chrome/product_logo_256.png#' \
-      $PKGDIR/opt/google/chrome/google-chrome.desktop
+#sed -i 's,libnss3.so.1d,libnss3.so\x00\x00\x00,g;
+#        s,libnssutil3.so.1d,libnssutil3.so\x00\x00\x00,g;
+#        s,libsmime3.so.1d,libsmime3.so\x00\x00\x00,g;
+#        s,libssl3.so.1d,libssl3.so\x00\x00\x00,g;
+#        s,libplds4.so.0d,libplds4.so\x00\x00\x00,g;
+#        s,libplc4.so.0d,libplc4.so\x00\x00\x00,g;
+#        s,libnspr4.so.0d,libnspr4.so\x00\x00\x00,g;' opt/google/chrome/chrome
 
 
 mkdir -p $PKGDIR/install

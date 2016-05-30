@@ -2,17 +2,16 @@
 
 QT4BINDIR=/opt/qt4/bin
 
-cat > /usr/share/applications/designer-qt4.desktop << EOF
+cat > /usr/share/applications/assistant-qt4.desktop << EOF
 [Desktop Entry]
-Name=Qt4 Designer
-Comment=Design GUIs for Qt4 applications
-Exec=$QT4BINDIR/designer
-Icon=designer-qt4.png
-MimeType=application/x-designer;
+Name=Qt4 Assistant
+Comment=Shows Qt4 documentation and examples
+Exec=$QT4BINDIR/assistant
+Icon=assistant-qt4.png
 Terminal=false
 Encoding=UTF-8
 Type=Application
-Categories=Qt;Development;
+Categories=Qt;Development;Documentation;
 EOF
 
 cat > /usr/share/applications/designer-qt4.desktop << EOF

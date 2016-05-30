@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-ln -sfnv ../cups/doc-2.1.0 /usr/share/doc/cups-2.1.0
+ln -sfnv ../cups/doc-2.1.3 /usr/share/doc/cups-2.1.3
 
 echo "ServerName /var/run/cups/cups.sock" > /etc/cups/client.conf
 

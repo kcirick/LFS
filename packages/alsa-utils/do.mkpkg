@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=alsa-utils
-VERSION=1.0.29
+VERSION=1.1.0
 SOURCE=${TARGET}-${VERSION}.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -46,7 +46,9 @@ chown -R root:root .
 
 ./configure --prefix=/usr \
             --disable-alsaconf \
-            --disable-xmlto
+            --disable-bat \
+            --disable-xmlto \
+            --with-curses=ncursesw
 
 make
 make DESTDIR=$PKGDIR install

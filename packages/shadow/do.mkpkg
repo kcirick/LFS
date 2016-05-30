@@ -1,0 +1,72 @@
+#!/bin/sh
+
+TARGET=shadow
+VERSION=4.2.1
+SOURCE=${TARGET}-${VERSION}.tar.xz
+SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
+MARCH=$( uname -m )
+
+
+#--- Check for dependency (but only warn) 
+DEP=(linux-pam)
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget http://pkg-shadow.alioth.debian.org/releases/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/tmp
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+sed -i 's/groups$(EXEEXT) //' src/Makefile.in 
+find man -name Makefile.in -exec sed -i 's/groups\.1 / /' {} \;
+
+sed -i -e 's@#ENCRYPT_METHOD DES@ENCRYPT_METHOD SHA512@' \
+       -e 's@/var/spool/mail@/var/mail@' etc/login.defs
+
+sed -i 's/1000/999/' etc/useradd
+
+./configure --sysconfdir=/etc --with-group-name-max-length=32
+
+make
+make DESTDIR=$PKGDIR install
+
+mkdir -p $PKGDIR/bin
+mv -v $PKGDIR/usr/bin/passwd $PKGDIR/bin
+
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+
+mv ${PKGNAME}_package.tar.xz $TARGETDIR

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=git
-VERSION=2.4.4
+VERSION=2.8.2
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(curl openssl python2 tcl pcre tk)
+DEP=(curl openssl python2 pcre tk)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

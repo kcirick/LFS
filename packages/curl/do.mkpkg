@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=curl
-VERSION=7.45.0
+VERSION=7.49.0
 SOURCE=${TARGET}-${VERSION}.tar.lzma
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(openssl gnutls)
+DEP=(openssl gnutls ca-certificates)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -44,14 +44,18 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr --disable-static --enable-threaded-resolver
+./configure --prefix=/usr \
+            --disable-static \
+            --enable-threaded-resolver \
+            --with-ca-bundle=/etc/ssl/ca-bundle.crt
 
 make
 make DESTDIR=$PKGDIR install
 
 find docs \( -name Makefile\* -o -name \*.1 -o -name \*.3 \) -exec rm {} \;
-install -v -dm755 $PKGDIR/usr/share/doc/curl-7.45.0
-cp -rv docs/*     $PKGDIR/usr/share/doc/curl-7.45.0
+install -v -dm755 $PKGDIR/usr/share/doc/$TARGET-$VERSION
+cp -rv docs/*     $PKGDIR/usr/share/doc/$TARGET-$VERSION
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=gtk2
-VERSION=2.24.28
+VERSION=2.24.30
 SOURCE=gtk+-${VERSION}.tar.xz
 SOURCEDIR=gtk+-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(atk pango gdk-pixbuf)
+DEP=(atk pango gdk-pixbuf hicolor-icon-theme)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

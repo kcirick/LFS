@@ -3,12 +3,12 @@
 TARGET=conky
 VERSION=1.9.0
 SOURCE=${TARGET}-${VERSION}.tar.bz2
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
+SOURCEDIR=$TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(xorg-apps)
+DEP=(xorg-libs)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/conky/$SOURCE
+   wget http://downloads.sourceforge.net/$TARGET/$SOURCE
 fi
 
 
@@ -44,6 +44,7 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+
 ./configure --prefix=/usr \
             --libdir=/usr/lib \
             --sysconfdir=/etc \
@@ -53,6 +54,8 @@ chown -R root:root .
 make
 make DESTDIR=$PKGDIR install-strip
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 

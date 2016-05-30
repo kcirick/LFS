@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=cups-filters
-VERSION=1.0.74
+VERSION=1.8.3
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(cups glib ijs poppler qpdf)
+DEP=(cups glib ijs lcms2 poppler qpdf libjpeg-turbo libpng libtiff)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -53,12 +53,12 @@ sed -i "s:cups.service:org.cups.cupsd.service:g" utils/cups-browsed.service
             --disable-static                \
             --with-gs-path=/usr/bin/gs      \
             --with-pdftops-path=/usr/bin/gs \
-            --docdir=/usr/share/doc/cups-filters-1.0.74 
+            --docdir=/usr/share/doc/$TARGET-$VERSION
 
 make
 make DESTDIR=$PKGDIR install
 
-mkdir -p $PKGDIR/lib/systemd/system/cups-browsed.service
+mkdir -p $PKGDIR/lib/systemd/system/
 install -v -m644 utils/cups-browsed.service $PKGDIR/lib/systemd/system/cups-browsed.service
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

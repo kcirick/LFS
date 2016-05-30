@@ -23,9 +23,16 @@ for dep in ${DEP[@]}; do
    fi
 done
 
+read -p ">>> Does polkitd group and user exist? [y/N]: " ans
+if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+   continue
+else
+   eixt 1
+fi
+
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://www.freedesktop.org/software/polkit/releases/$SOURCE
+   wget http://www.freedesktop.org/software/$TARGET/releases/$SOURCE
 fi
 
 

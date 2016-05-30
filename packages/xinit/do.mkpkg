@@ -8,7 +8,7 @@ MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(twm xterm xclock)
+DEP=(xorg-libs twm xterm xclock)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -44,10 +44,7 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr/X11 \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --disable-static \
+./configure $XORG_CONFIG \
             --with-xinitdir=/etc/X11/xinit
 
 make

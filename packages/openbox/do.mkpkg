@@ -8,7 +8,7 @@ MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(pango imlib2 librsvg)
+DEP=(xorg-libs pango dbus imlib2 librsvg)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

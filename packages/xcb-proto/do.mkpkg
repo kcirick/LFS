@@ -44,9 +44,7 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr/X11 \
-            --sysconfdir=/etc \
-            --localstatedir=/var 
+./configure $XORG_CONFIG
 
 make DESTDIR=$PKGDIR install
 

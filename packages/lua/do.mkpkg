@@ -1,0 +1,77 @@
+#!/bin/sh
+
+TARGET=lua
+VERSION=5.3.2
+SOURCE=${TARGET}-${VERSION}.tar.gz
+SOURCEDIR=$TARGET-$VERSION
+PATCH=${TARGET}-${VERSION}-shared_library-1.patch
+MARCH=$( uname -m )
+
+
+#--- Check for dependency (but only warn) 
+DEP=()
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget http://www.lua.org/ftp/$SOURCE
+fi
+if [ ! -s $PATCH ]; then
+   wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/tmp
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+cp $CWD/lua.pc .
+
+patch -Np1 -i $CWD/$PATCH
+sed -i '/#define LUA_ROOT/s:/usr/local/:/usr/:' src/luaconf.h
+
+make MYCFLAGS="-DLUA_COMPAT_5_2 -DLUA_COMPAT_5_1" linux
+make TO_LIB="liblua.so liblua.so.5.3 liblua.so.5.3.2" \
+     INSTALL_DATA="cp -d" \
+     INSTALL_TOP=$PKGDIR/usr \
+     INSTALL_INC=$PKGDIR/include/lua \
+     INSTALL_MAN=/usr/share/man/man1  \
+     install
+
+install -v -m644 -D lua.pc $PKGDIR/usr/lib/pkgconfig/lua.pc
+
+
+#--- Should not have to touch below this
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+
+mv ${PKGNAME}_package.tar.xz $TARGETDIR

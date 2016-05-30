@@ -7,5 +7,3 @@ echo "   fmtutil-sys --all"
 echo "   mtxrun --generate"
 echo ""
 
-echo "... and update /etc/ld.so.conf!"
-

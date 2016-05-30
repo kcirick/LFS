@@ -1,10 +1,10 @@
 #!/bin/sh
 
 TARGET=mupdf
-VERSION=1.7
+VERSION=1.8
 SOURCE=${TARGET}-${VERSION}-source.tar.gz
 SOURCEDIR=$TARGET-$VERSION-source        # Usually $TARGET-$VERSION
-PATCH=mupdf-1.7-openjpeg21-1.patch
+PATCH=${TARGET}-${VERSION}-openjpeg21-1.patch
 MARCH=$( uname -m )
 
 
@@ -54,7 +54,7 @@ rm -rf thirdparty/jpeg
 rm -rf thirdparty/openjpeg
 rm -rf thirdparty/zlib
 
-patch -Np1 -i $CWD/mupdf-1.7-openjpeg21-1.patch
+patch -Np1 -i $CWD/$PATCH
 
 make build=release
 

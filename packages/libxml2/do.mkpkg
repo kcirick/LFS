@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=libxml2
-VERSION=2.9.2
+VERSION=2.9.3
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -43,11 +43,6 @@ rm -rf $SOURCEDIR
 tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
-
-sed -e /xmlInitializeCatalog/d \
-    -e 's/((ent->checked =.*&&/(((ent->checked == 0) ||\
-          ((ent->children == NULL) \&\& (ctxt->options \& XML_PARSE_NOENT))) \&\&/' \
-    -i parser.c
 
 ./configure --prefix=/usr --disable-static --with-history
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=iptables
-VERSION=1.4.21
+VERSION=1.6.0
 SOURCE=${TARGET}-${VERSION}.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -46,6 +46,7 @@ chown -R root:root .
 
 ./configure --prefix=/usr \
             --sbindir=/sbin \
+            --disable-nftables \
             --enable-libipq \
             --with-xtlibdir=/lib/xtables
 

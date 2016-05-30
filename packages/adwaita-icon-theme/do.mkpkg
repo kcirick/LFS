@@ -8,7 +8,7 @@ MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gtk3 hicolor-icon-theme librsvg)
+DEP=(gtk3)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

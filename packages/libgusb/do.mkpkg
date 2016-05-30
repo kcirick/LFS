@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=libgusb
-VERSION=0.2.6
+VERSION=0.2.9
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libusb)
+DEP=(libusb usbutils)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

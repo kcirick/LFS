@@ -1,11 +1,12 @@
 # LFS
 Stuff for LFS
 
-### pfstool
-PFS = Packages From Scratch
-Also a part of lfs package
+
+### install-scripts/
+Directory with LFS install scripts
+ - Still empty
+
 
 ### packages/ 
-Directory with individual packages
-
+Directory with package-building scripts
 

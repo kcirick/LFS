@@ -1,9 +1,10 @@
 #!/bin/sh
 
 TARGET=ghostscript
-VERSION=9.16
+VERSION=9.18
 SOURCE=${TARGET}-${VERSION}.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
+DATAFILE=${TARGET}-fonts-std-8.11.tar.gz
 MARCH=$( uname -m )
 
 
@@ -25,7 +26,10 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.ghostscript.com/public/$SOURCE
+   wget https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs918/$SOURCE
+fi
+if [ ! -s $DATAFILE ]; then
+   wget  http://downloads.sourceforge.net/gs-fonts/$DATAFILE
 fi
 
 
@@ -45,7 +49,7 @@ cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 sed -i 's/ZLIBDIR=src/ZLIBDIR=$includedir/' configure.ac configure 
-rm -rf expat freetype lcms2 jpeg libpng zlib
+rm -rf freetype lcms2 jpeg libpng zlib
 
 ./configure --prefix=/usr \
             --disable-compile-inits \
@@ -56,6 +60,10 @@ make
 make so
 make DESTDIR=$PKGDIR install
 make DESTDIR=$PKGDIR soinstall
+
+install -v -m644 base/*.h $PKGDIR/usr/include/ghostscript
+ln -v -s ghostscript $PKGDIR/usr/include/ps
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

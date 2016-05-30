@@ -55,10 +55,7 @@ for package in $(cat $CWD/list.txt | awk -F'/' '{print $7}'); do
    tar -xf $CWD/$package || exit 1
    pushd $packagedir
 
-   ./configure --prefix=/usr/X11 \
-               --sysconfdir=/etc \
-               --localstatedir=/var \
-               --disable-static
+   ./configure $XORG_CONFIG
    
    make install
    make DESTDIR=$PKGDIR install

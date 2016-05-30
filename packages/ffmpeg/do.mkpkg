@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=ffmpeg
-VERSION=2.7.1
-SOURCE=${TARGET}-${VERSION}.tar.bz2
+VERSION=3.0.2
+SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(fdk-aac freetype2 lame libvorbis x264 alsa-lib)
+DEP=(fdk-aac freetype2 lame libass libvorbis libvpx x264 x265 alsa-lib gnutls pulseaudio)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -53,18 +53,25 @@ sed -i 's/-lflite"/-lflite -lasound"/' configure
             --disable-static     \
             --enable-shared      \
             --disable-debug      \
+            --enable-libass      \
             --enable-libfdk-aac  \
             --enable-libfreetype \
             --enable-libmp3lame  \
+            --enable-libpulse    \
             --enable-libvorbis   \
+            --enable-libvpx      \
             --enable-libx264     \
+            --enable-libx265     \
             --enable-x11grab     \
+            --enable-gnutls      \
             --docdir=/usr/share/doc/$TARGET-$VERSION
 
 make
 gcc tools/qt-faststart.c -o tools/qt-faststart
 
 make DESTDIR=$PKGDIR install
+
+mkdir -p $PKGDIR/usr/bin
 install -v -m755 tools/qt-faststart $PKGDIR/usr/bin
 
 mkdir -p $PKGDIR/usr/share/doc/$TARGET-$VERSION

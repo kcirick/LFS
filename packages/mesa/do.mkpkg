@@ -1,15 +1,15 @@
 #!/bin/sh
 
 TARGET=mesa
-VERSION=11.0.2
+VERSION=11.2.2
 SOURCE=${TARGET}-${VERSION}.tar.xz
-PATCH=mesa-11.0.2-add_xdemos-1.patch
+PATCH=${TARGET}-${VERSION}-add_xdemos-1.patch
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libdrm xorg-libs wayland)
+DEP=(libdrm xorg-libs)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,7 +26,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget ftp://ftp.freedesktop.org/pub/mesa/11.0.2/$SOURCE
+   wget ftp://ftp.freedesktop.org/pub/$TARGET/$VERSION/$SOURCE
 fi
 if [ ! -s $PATCH ]; then
    wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
@@ -59,8 +59,8 @@ patch -Np1 -i $CWD/$PATCH
    --enable-xa \
    --enable-glx-tls \
    --enable-osmesa \
-   --with-egl-platforms=drm,x11,wayland \
-   --with-gallium-drivers=nouveau,r600,svga,swrast
+   --with-egl-platforms=drm,x11 \
+   --with-gallium-drivers=i915,svga,swrast
 
 make
 make -C xdemos DEMOS_PREFIX=/usr
@@ -68,8 +68,8 @@ make -C xdemos DEMOS_PREFIX=/usr
 make DESTDIR=$PKGDIR install
 make -C xdemos DESTDIR=$PKGDIR install
 
-install -v -dm755 $PKGDIR/usr/share/doc/mesa-11.0.2
-cp -rfv docs/* $PKGDIR/usr/share/doc/mesa-11.0.2
+install -v -dm755 $PKGDIR/usr/share/doc/${TARGET}-${VERSION}
+cp -rfv docs/* $PKGDIR/usr/share/doc/${TARGET}-${VERSION}
 
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

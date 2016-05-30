@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=imagemagick
-VERSION=6.9.3-0
-SOURCE=ImageMagick-${VERSION}.tar.xz
-SOURCEDIR=ImageMagick-$VERSION        # Usually $TARGET-$VERSION
+VERSION=7.0.1.6
+SOURCE=ImageMagick-7.0.1-6.tar.xz
+SOURCEDIR=ImageMagick-7.0.1-6        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(xorg-libs lcms2 libexif libjpeg-turbo libpng librsvg libtiff libwebp openjpeg2 pango ghostscript)
+DEP=(xorg-libs lcms2 libexif libjpeg-turbo libpng librsvg libtiff openjpeg2 pango ghostscript)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -44,6 +44,8 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+sed -i '/seems to be moved/ s/^/true #/' config/ltmain.sh
+
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
             --enable-hdri     \
@@ -52,7 +54,7 @@ chown -R root:root .
             --disable-static
 
 make
-make DOCUMENTATION_PATH=/usr/share/doc/imagemagick-6.9.1 DESTDIR=$PKGDIR install 
+make DOCUMENTATION_PATH=/usr/share/doc/$TARGET-$VERSION DESTDIR=$PKGDIR install 
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

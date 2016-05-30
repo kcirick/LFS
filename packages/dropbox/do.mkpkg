@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=dropbox
-VERSION=3.12.6
+VERSION=3.20.1
 SOURCE=${TARGET}-lnx.x86_64-${VERSION}.tar.gz
 SOURCEDIR=.$TARGET-dist        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -44,10 +44,16 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-mkdir -p $PKGDIR/opt
-mkdir -p $PKGDIR/usr/bin
-cp -R ../.dropbox-dist $PKGDIR/opt/dropbox
-ln -s /opt/dropbox/dropboxd $PKGDIR/usr/bin/dropboxd
+install -d $PKGDIR/opt
+cp -R dropbox-lnx.x86_64-${VERSION} $PKGDIR/opt/dropbox
+
+find $PKGDIR/opt/dropbox -type f -exec chmod 644 {} \;
+chmod 755 $PKGDIR/opt/dropbox/dropboxd
+chmod 755 $PKGDIR/opt/dropbox/dropbox
+
+install -d $PKGDIR/usr/bin
+ln -s ../../opt/dropbox/dropbox $PKGDIR/usr/bin/dropbox
+
 mkdir -p $PKGDIR/usr/share/applications
 cat > $PKGDIR/usr/share/applications/dropbox.desktop << "EOF"
 [Desktop Entry]
@@ -61,6 +67,13 @@ Type=Application
 Categories=Network;
 EOF
 install -D -m644 $CWD/dropbox.png $PKGDIR/usr/share/pixmaps/dropbox.png
+
+install -Dm644 $CWD/dropbox.service $PKGDIR/usr/lib/systemd/user/dropbox.service
+install -Dm644 $CWD/dropbox@.service $PKGDIR/usr/lib/systemd/system/dropbox@.service
+
+rm -f $PKGDIR/opt/dropbox/library.zip
+ln -s dropbox $PKGDIR/opt/dropbox/library.zip
+
 
 #find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
 #  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

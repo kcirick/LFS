@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=pidgin
-VERSION=2.10.11
+VERSION=2.10.12
 SOURCE=${TARGET}-${VERSION}.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gtk2 libgcrypt gnutls nss)
+DEP=(gtk2 libgcrypt gnutls gst-plugins-good)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,6 +26,9 @@ done
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
    wget http://downloads.sourceforge.net/pidgin/$SOURCE
+fi
+if [ ! -s $PATCH ]; then
+   wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
 fi
 
 
@@ -46,9 +49,9 @@ chown -R root:root .
 
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
+            --with-gstreamer=1.0 \
             --disable-avahi     \
             --disable-gtkspell  \
-            --disable-gstreamer \
             --disable-meanwhile \
             --disable-idn       \
             --disable-nm        \

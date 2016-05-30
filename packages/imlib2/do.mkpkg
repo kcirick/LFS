@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=imlib2
-VERSION=1.4.7
+VERSION=1.4.9
 SOURCE=${TARGET}-${VERSION}.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )

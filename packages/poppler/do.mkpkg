@@ -1,14 +1,15 @@
 #!/bin/sh
 
 TARGET=poppler
-VERSION=0.35.0
+VERSION=0.43.0
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
+DATAFILE=poppler-data-0.4.7.tar.gz
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(fontconfig cairo openjpeg)
+DEP=(fontconfig cairo libjpeg-turbo openjpeg2)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,6 +27,9 @@ done
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
    wget http://poppler.freedesktop.org/$SOURCE
+fi
+if [ ! -s $DATAFILE ]; then
+   wget http://poppler.freedesktop.org/$DATAFILE
 fi
 
 
@@ -47,10 +51,19 @@ chown -R root:root .
 ./configure --prefix=/usr         \
             --sysconfdir=/etc     \
             --disable-static      \
-            --enable-xpdf-headers
+            --enable-build-type=release \
+            --enable-cmyk         \
+            --enable-xpdf-headers 
 
 make
 make DESTDIR=$PKGDIR install
+
+
+tar -xf $CWD/$DATAFILE
+cd poppler-data-0.4.7
+
+make DESTDIR=$PKGDIR prefix=/usr install
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

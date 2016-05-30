@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=rxvt-unicode
-VERSION=9.21
+VERSION=9.22
 SOURCE=${TARGET}-${VERSION}.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=(xorg-libs gdk-pixbuf)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

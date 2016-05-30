@@ -68,11 +68,9 @@ for package in $(cat $CWD/list.txt | awk -F'/' '{print $7}'); do
          sed -e 's/\$(CPP) \$(DEFS)/$(CPP) -P $(DEFS)/' -i man/Makefile.in
          ;;
    esac
-   ./configure --prefix=/usr/X11 \
-               --sysconfdir=/etc \
-               --localstatedir=/var \
-               --disable-static
+   ./configure $XORG_CONFIG
    
+   make install
    make DESTDIR=$PKGDIR install
 
    popd

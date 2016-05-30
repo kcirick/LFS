@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=gst-plugins-base
-VERSION=1.6.0
+VERSION=1.8.1
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gstreamer gobject-introspection)
+DEP=(gstreamer alsa-lib)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -45,7 +45,7 @@ cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 ./configure --prefix=/usr \
-            --with-package-name="GStreamer Base Plugins 1.6.0 LFS" \
+            --with-package-name="GStreamer Base Plugins 1.8.1 LFS" \
             --with-package-origin="http://www.linuxfromscratch.org/blfs/view/systemd/"
 
 make

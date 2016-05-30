@@ -49,12 +49,12 @@ sed -i -e '/cat./d' documentation/Makefile
 ./configure --prefix=/usr --enable-shared
 
 make
-make -C documentation html
+#make -C documentation html
 
 make docdir=/usr/share/doc/fltk-1.3.3 DESTDIR=$PKGDIR install
 
 make -C test          docdir=/usr/share/doc/fltk-1.3.3 DESTDIR=$PKGDIR install-linux
-make -C documentation docdir=/usr/share/doc/fltk-1.3.3 DESTDIR=$PKGDIR install-linux
+#make -C documentation docdir=/usr/share/doc/fltk-1.3.3 DESTDIR=$PKGDIR install-linux
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

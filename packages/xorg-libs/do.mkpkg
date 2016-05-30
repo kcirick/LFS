@@ -49,7 +49,6 @@ mkdir -p $PKGDIR
 cd $TMPDIR
 rm -rf $SOURCEDIR
 
-XORG_CONFIG="--prefix=/usr/X11 --sysconfdir=/etc --localstatedir=/var --disable-static"
 
 for package in $(cat $CWD/list.txt | awk -F'/' '{print $7}'); do
    packagedir=${package%.tar.bz2}

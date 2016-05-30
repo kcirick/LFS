@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=nasm
-VERSION=2.11.08
+VERSION=2.12.01
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://www.nasm.us/pub/nasm/releasebuilds/2.11.08/$SOURCE
+   wget http://www.nasm.us/pub/$TARGET/releasebuilds/$VERSION/$SOURCE
 fi
 
 

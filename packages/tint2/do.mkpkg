@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=tint2
-VERSION=0.12.3
-SOURCE=${TARGET}-${VERSION}.tar.xz
+VERSION=0.12.11
+SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(cmake librsvg startup-notification)
+DEP=(cmake imlib2 startup-notification ninja)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,8 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://download.dlackware.com/hosted-sources/tint2/$SOURCE
+   echo "Please download the source manually"
+   exit 1
 fi
 
 
@@ -41,23 +42,22 @@ mkdir -p $PKGDIR
 cd $TMPDIR
 rm -rf $SOURCEDIR
 tar -xvf $CWD/$SOURCE || exit 1
+mv $SOURCEDIR-* $SOURCEDIR
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 mkdir -p build; cd build
 cmake \
-   -DCMAKE_C_FLAGS:STRING="-O2 -fPIC" \
-   -DCMAKE_CXX_FLAGS:STRING="-O2 -fPIC" \
    -DCMAKE_INSTALL_PREFIX=/usr \
    -DMANDIR=/usr/share/man \
    -DDOCDIR=/usr/share/doc/$TARGET-$VERSION \
    -DENABLE_EXAMPLES:BOOL=OFF \
    -DENABLE_TINT2CONF:BOOL=OFF \
-   -DENABLE_BATTERY:BOOL=ON \
-   -DCMAKE_BUILD_TYPE=Release ..
+   -DCMAKE_BUILD_TYPE=Release \
+   -G Ninja ..
 
-make
-make DESTDIR=$PKGDIR install
+ninja
+DESTDIR=$PKGDIR ninja install
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

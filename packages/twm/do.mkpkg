@@ -46,10 +46,7 @@ chown -R root:root .
 
 sed -i -e '/^rcdir =/s,^\(rcdir = \).*,\1/etc/X11/app-defaults,' src/Makefile.in
 
-./configure --prefix=/usr/X11 \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --disable-static
+./configure $XORG_CONFIG
 
 make
 make DESTDIR=$PKGDIR install

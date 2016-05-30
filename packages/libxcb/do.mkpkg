@@ -45,10 +45,7 @@ cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 sed -i "s/pthread-stubs//" configure &&
-./configure --prefix=/usr/X11 \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --disable-static \
+./configure $XORG_CONFIG \
             --enable-xinput \
             --docdir=/usr/share/doc/libxcb-1.11.1
 

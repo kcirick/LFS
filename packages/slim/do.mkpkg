@@ -1,0 +1,79 @@
+#!/bin/sh
+
+TARGET=slim
+VERSION=1.3.6
+SOURCE=${TARGET}-${VERSION}.tar.gz
+SOURCEDIR=$TARGET-$VERSION
+PATCH1=${TARGET}-${VERSION}-add-sessiondir.patch
+PATCH2=${TARGET}-${VERSION}-fix-libslim-libraries.patch
+PATCH3=${TARGET}-${VERSION}-systemd-session.patch
+MARCH=$( uname -m )
+
+
+#--- Check for dependency (but only warn) 
+DEP=(linux-pam xorg-libs libpng libjpeg-turbo cmake)
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget https://downloads.sourceforge.net/project/slim.berlios/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/tmp
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+sed -i 's|set(LIBDIR "/lib")|set(LIBDIR "/usr/lib")|' CMakeLists.txt
+
+patch -Np1 -i $CWD/$PATCH1
+patch -Np1 -i $CWD/$PATCH2
+patch -Np1 -i $CWD/$PATCH3
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_SKIP_RPATH=ON \
+      -DUSE_PAM=yes \
+      -DUSE_CONSOLEKIT=no
+
+make
+make DESTDIR=$PKGDIR install
+
+install -Dm644 $CWD/slim.pam $PKGDIR/etc/pam.d/slim
+install -Dm644 slimlock.conf $PKGDIR/etc/slimlock.conf
+
+
+#--- Should not have to touch below this
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+
+mv ${PKGNAME}_package.tar.xz $TARGETDIR

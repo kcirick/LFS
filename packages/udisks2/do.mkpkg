@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=udisks2
-VERSION=2.1.6
+VERSION=2.1.7
 SOURCE=udisks-${VERSION}.tar.bz2
 SOURCEDIR=udisks-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libatasmart libgudev libxslt polkit)
+DEP=(libatasmart libgudev libxslt polkit systemd)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

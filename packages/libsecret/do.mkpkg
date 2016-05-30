@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=libsecret
-VERSION=0.18.3
+VERSION=0.18.4
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(glib vala libgcrypt gobject-introspection)
+DEP=(glib libgcrypt )
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`

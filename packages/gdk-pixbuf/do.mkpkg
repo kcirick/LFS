@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=gdk-pixbuf
-VERSION=2.32.1
+VERSION=2.34.0
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gobject-introspection glib libjpeg-turbo libpng libtiff)
+DEP=(xorg-libs glib libjpeg-turbo libpng libtiff)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/2.32/$SOURCE
+   wget http://ftp.gnome.org/pub/gnome/sources/$TARGET/2.34/$SOURCE
 fi
 
 

@@ -48,7 +48,7 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-patch -Np1 -i $CWD/$TARGET-$VERSION-fixes-1.patch
+patch -Np1 -i $CWD/$PATCH
 
 sed "s@AM_CONFIG_HEADER@AC_CONFIG_HEADERS@g" -i configure.ac
 touch NEWS AUTHORS ChangeLog

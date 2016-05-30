@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=sqlite
-VERSION=3.9.2
-SOURCE=${TARGET}-autoconf-3090200.tar.gz
-SOURCEDIR=$TARGET-autoconf-3090200        # Usually $TARGET-$VERSION
+VERSION=3.13.0
+SOURCE=${TARGET}-autoconf-3130000.tar.gz
+SOURCEDIR=$TARGET-autoconf-3130000        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget https://www.sqlite.org/2015/$SOURCE
+   wget https://www.sqlite.org/2016/$SOURCE
 fi
 
 
@@ -49,8 +49,8 @@ chown -R root:root .
       -DSQLITE_ENABLE_FTS3=1 \
       -DSQLITE_ENABLE_COLUMN_METADATA=1 \
       -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
-      -DSQLITE_SECURE_DELETE=1"
-
+      -DSQLITE_SECURE_DELETE=1 \
+      -DSQLITE_ENABLE_DBSTAT_VTAB=1"
 
 make
 make DESTDIR=$PKGDIR install

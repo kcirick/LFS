@@ -1,9 +1,10 @@
 #!/bin/sh
 
 TARGET=libpng
-VERSION=1.6.18
+VERSION=1.6.21
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
+PATCH=${TARGET}-${VERSION}-apng.patch.gz
 MARCH=$( uname -m )
 
 
@@ -25,7 +26,10 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/libpng/$SOURCE
+   wget http://downloads.sourceforge.net/$TARGET/$SOURCE
+fi
+if [ ! -s $PATCH ]; then
+   wget http://downloads.sourceforge.net/project/apng/$TARGET/libpng16/$PATCH
 fi
 
 
@@ -44,10 +48,13 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+gzip -cd $CWD/$PATCH | patch -p0
+
 ./configure --prefix=/usr --disable-static
 
 make
 make DESTDIR=$PKGDIR install
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

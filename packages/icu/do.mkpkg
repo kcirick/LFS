@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=icu
-VERSION=56.1
-SOURCE=icu4c-56_1-src.tgz
+VERSION=57.1
+SOURCE=icu4c-57_1-src.tgz
 SOURCEDIR=$TARGET        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://download.icu-project.org/files/icu4c/56.1/$SOURCE
+   wget http://download.icu-project.org/files/icu4c/$VERSION/$SOURCE
 fi
 
 

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=librsvg
-VERSION=2.40.10
+VERSION=2.40.15
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gdk-pixbuf libcroco pango)
+DEP=(gdk-pixbuf libcroco pango gobject-introspection)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -44,7 +44,7 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr --disable-static
+./configure --prefix=/usr --disable-static --disable-gtk-doc 
 
 make
 make DESTDIR=$PKGDIR install

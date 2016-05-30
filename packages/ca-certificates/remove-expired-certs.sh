@@ -10,7 +10,7 @@ mydate()
    local d=$( echo $1 | cut -d" " -f2)
    local m
 
-   if [ ${d} -lt 10]; then 
+   if [ ${d} -lt 10 ]; then 
       d="0${d}"; 
    fi
 
@@ -45,8 +45,9 @@ today=$( date +%Y%m%d )
 for cert in $certs; do
    notafter=$( $OPENSSL x509 -enddate -in "${cert}" -noout )
    date=$( echo ${notafter} | sed 's/^notAfter=//')
+   mydate "$date"
 
-   if [ ${certdata} -lt ${today} ]; then
+   if [ ${certdate} -lt ${today} ]; then
       echo "${cert} expired on ${certdate}! Removing..."
       rm -f "${cert}"
    fi

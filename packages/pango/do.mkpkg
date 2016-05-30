@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=pango
-VERSION=1.38.0
+VERSION=1.40.1
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gobject-introspection fontconfig harfbuzz glib cairo)
+DEP=(fontconfig harfbuzz glib cairo)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnome.org/pub/gnome/sources/pango/1.38/$SOURCE
+   wget http://ftp.gnome.org/pub/gnome/sources/$TARGET/1.40/$SOURCE
 fi
 
 

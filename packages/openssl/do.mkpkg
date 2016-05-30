@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=openssl
-VERSION=1.0.2d
+VERSION=1.0.2h
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 
@@ -9,7 +9,7 @@ MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -51,12 +51,14 @@ chown -R root:root .
          shared \
          zlib-dynamic
 
+make depend
 make
-make INSTALL_PREFIX=$PKGDIR MANDIR=$PKGDIR/usr/share/man MANSUFFIX=ssl install
+make INSTALL_PREFIX=$PKGDIR MANDIR=/usr/share/man MANSUFFIX=ssl install
 
 #install documentations
-mkdir -p $PKGDIR/usr/share/doc/openssl-1.0.2d 
-cp -rfv doc/* $PKGDIR/usr/share/doc/openssl-1.0.2d
+install -dv -m755 $PKGDIR/usr/share/doc/$TARGET-$VERSION 
+cp -rfv doc/* $PKGDIR/usr/share/doc/$TARGET-$VERSION
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

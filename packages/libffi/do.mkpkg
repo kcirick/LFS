@@ -56,7 +56,7 @@ sed -e '/^includedir/ s/=.*$/=@includedir@/' \
 make
 make DESTDIR=$PKGDIR install
 
-mv $PKGDIR/usr/lib64/* $PKGDIR/usr/lib/
+mkdir -p $PKGDIR/usr/lib && mv -v $PKGDIR/usr/lib64/* $PKGDIR/usr/lib/
 rm -rf $PKGDIR/usr/lib64
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
