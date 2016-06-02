@@ -1,14 +1,13 @@
 #!/bin/sh
 
-TARGET=psutils
-VERSION=p17
-SOURCE=${TARGET}-${VERSION}.tar.gz
-SOURCEDIR=$TARGET
-MARCH=$( uname -m )
+TARGET=libglademm
+VERSION=2.6.7
+SOURCE=${TARGET}-${VERSION}.tar.bz2
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=(gtkmm3 libglade)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://pkgs.fedoraproject.org/repo/pkgs/$TARGET/$SOURCE/b161522f3bd1507655326afa7db4a0ad/$SOURCE
+   wget https://download.gnome.org/sources/$TARGET/2.6/$SOURCE
 fi
 
 
@@ -33,7 +32,7 @@ CWD=$(pwd)
 TMPDIR=/tmp
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=$CWD
+TARGETDIR=/packages
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
@@ -45,23 +44,14 @@ cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 
-sed 's@/usr/local@/usr@g' Makefile.unix > Makefile
-sed 's/a4/letter/' -i Makefile
+CXXFLAGS="-g -O2 -std=c++11" \
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
 
-make BINDIR=/usr/bin \
-   INCLUDEDIR=/usr/include/psutils \
-   PERL=/usr/bin/perl \
-   MANDIR=/usr/share/man/man1
+make
+make DESTDIR=$PKGDIR install
 
-install -d -m755 $PKGDIR/usr/bin
-install -d -m755 $PKGDIR/usr/include
-install -d -m755 $PKGDIR/usr/share/man
 
-make BINDIR=$PKGDIR/usr/bin \
-   INCLUDEDIR=$PKGDIR/usr/include/psutils \
-   PERL=/usr/bin/perl \
-   MANDIR=$PKGDIR/usr/share/man/man1 install
-
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -69,6 +59,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

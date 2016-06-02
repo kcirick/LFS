@@ -1,14 +1,14 @@
 #!/bin/sh
 
-TARGET=psutils
-VERSION=p17
-SOURCE=${TARGET}-${VERSION}.tar.gz
-SOURCEDIR=$TARGET
+TARGET=jre
+VERSION=8u91
+SOURCE=${TARGET}-${VERSION}-linux-x64.tar.gz
+SOURCEDIR=${TARGET}1.8.0_91
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,8 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://pkgs.fedoraproject.org/repo/pkgs/$TARGET/$SOURCE/b161522f3bd1507655326afa7db4a0ad/$SOURCE
+   echo ">>> Please download the source manually!"
+   exit 1
 fi
 
 
@@ -44,24 +45,19 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+mkdir -p $PKGDIR/etc/profile.d
+cp $CWD/jre.sh $PKGDIR/etc/profile.d
+chmod 755 $PKGDIR/etc/profile.d/jre.sh
 
-sed 's@/usr/local@/usr@g' Makefile.unix > Makefile
-sed 's/a4/letter/' -i Makefile
+mkdir -p  $PKGDIR/opt/java
+cp -r bin $PKGDIR/opt/java
+cp -r lib $PKGDIR/opt/java
 
-make BINDIR=/usr/bin \
-   INCLUDEDIR=/usr/include/psutils \
-   PERL=/usr/bin/perl \
-   MANDIR=/usr/share/man/man1
+mkdir -p $PKGDIR/usr/share/man
+cp -r man/man1 $PKGDIR/usr/share/man
 
-install -d -m755 $PKGDIR/usr/bin
-install -d -m755 $PKGDIR/usr/include
-install -d -m755 $PKGDIR/usr/share/man
 
-make BINDIR=$PKGDIR/usr/bin \
-   INCLUDEDIR=$PKGDIR/usr/include/psutils \
-   PERL=/usr/bin/perl \
-   MANDIR=$PKGDIR/usr/share/man/man1 install
-
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 

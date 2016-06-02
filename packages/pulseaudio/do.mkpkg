@@ -44,12 +44,20 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+
+#patch -p1 < $CWD/raopv2.patch
+
+./autogen.sh
+
 sed -i "/seems to be moved/s/^/#/" build-aux/ltmain.sh
 
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
             --localstatedir=/var \
+            --enable-avahi \
             --disable-bluez4 \
+            --disable-tcpwrap \
+            --disable-samplerate \
             --disable-rpath
 
 make

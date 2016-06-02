@@ -51,6 +51,7 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+sed -i "/if \".*HAVE_DBUS/s:if :&test :g" configure
 
 ./configure --prefix=/usr \
             --sysconfdir=/etc    \
@@ -58,10 +59,11 @@ chown -R root:root .
             --disable-static     \
             --disable-mono       \
             --disable-monodoc    \
-            --disable-python     \
             --disable-qt3        \
             --disable-qt4        \
+            --enable-dbus        \
             --enable-core-docs   \
+            --enable-compat-libdns_sd \
             --with-distro=none   \
             --with-systemdsystemunitdir=/lib/systemd/system
 
