@@ -95,6 +95,10 @@ wget                                1.17.1                  Y
 openssh                             7.2p2                   Y
    (openssl)
 iptables                            1.6.0                   Y
+tcpdump                             4.7.4                   Y
+   (openssl)
+   libpcap                          1.7.4                   Y
+      (libnl)
 
 ## --- Libraries ---------------------------------------------------------
 glib                                2.48.0                  Y
@@ -271,6 +275,8 @@ xdg-utils                           1.1.1                   Y
          (libxml2)
       (libxslt)
    links                            2.12                    Y
+glu                                 9.0.0                   Y
+   (mesa)
 
 ## --- System tools ------------------------------------------------------
 pciutils                            3.5.1                   Y
@@ -393,6 +399,9 @@ lsof                                4.89                    Y
 sudo                                1.8.16                  Y
    (linux-pam)
 markdown                            1.0.1                   Y
+openmpi                             1.10.2                  Y
+   (gcc)
+   valgrind                         3.11.0                  Y
 
 ## --- X Applications ----------------------------------------------------
 rxvt-unicode                        9.22                    Y
@@ -607,6 +616,7 @@ hexchat                             2.12.1                  Y
    (gdk-pixbuf)
 libreoffice                         5.1.2.2                 YB                   5.1.3.2  (Skip)
 root                                6.06.02                 S        /home/rueno/.local/root
+geant4                              4.10.01                 S        /home/rueno/.local/geant4
 glista                              0.4                     Y
    (gtk2)
 homebank                            5.0.8                   Y
