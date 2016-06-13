@@ -33,7 +33,7 @@ CWD=$(pwd)
 TMPDIR=/tmp
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=$CWD
+TARGETDIR=/packages
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
