@@ -1,14 +1,13 @@
 #!/bin/sh
 
-TARGET=ibus
-VERSION=1.5.11
-SOURCE=${TARGET}-${VERSION}.tar.gz
+TARGET=libcap
+VERSION=2.25
+SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION
-MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(dconf iso-codes gtk2 libnotify python3 pygobject3)
+DEP=(linux-pam)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget https://github.com/ibus/$TARGET/releases/download/$VERSION/$SOURCE
+   wget https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/$SOURCE
 fi
 
 
@@ -33,7 +32,7 @@ CWD=$(pwd)
 TMPDIR=/tmp
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=$CWD
+TARGETDIR=/packages
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
@@ -44,14 +43,24 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+sed -i '/install.*STALIBNAME/d' libcap/Makefile
 
-./configure --prefix=/usr \
-            --sysconfdir=/etc \
-            --enable-python-library \
-            --with-python=python3
+make || exit 1
+make -C pam_cap || exit 1
 
-make
-make DESTDIR=$PKGDIR install
+make RAISE_SETFCAP=no prefix=/usr DESTDIR=$PKGDIR install
+
+mv -vf $PKGDIR/usr/lib64 $PKGDIR/usr/lib
+
+chmod -v 755 $PKGDIR/usr/lib/libcap.so
+
+mkdir -p $PKGDIR/lib
+mv -v $PKGDIR/usr/lib/libcap.so.* $PKGDIR/lib
+
+#mkdir -pv $PKGDIR/lib/security
+#install -v -m755 pam_cap/pam_cap.so $PKGDIR/lib/security/pam_cap.so
+mkdir -pv $PKGDIR/etc/security
+install -v -m644 pam_cap/capability.conf $PKGDIR/etc/security
 
 
 #--- Should not have to touch below this
@@ -62,6 +71,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR
