@@ -1,6 +1,6 @@
 # Installation Instructions
 
- -  Version: 7.9-Systemd [Link](http://www.linuxfromscratch.org/lfs/view/stable-systemd/)
+ -  Version: 9.1-Systemd [Link](http://www.linuxfromscratch.org/lfs/view/stable-systemd/)
  -  Host: Salix Live XFCE 14.1
    - root passwd = "one"
 
@@ -20,29 +20,28 @@
 <a name="chapter2" />
 ## Chapter 2 
 
-### 2.2 Creating a New Partition
+### 2.4 Creating a New Partition
 
 Use gparted to partition the hard drive. eg:
  
 
-	/dev/sda1     ext2     /boot    256 MiB
-	    /sda2     ext4     /home    50  GiB
-	    /sda3     ext4     /        100 GiB
-	    /sda4     ext4       -      Rest
+	/dev/sda1     ext2     /boot    1   GiB
+	    /sda2     ext4     /        250 GiB
+	    /sda3     ext4     /home    Rest
 
 
-### 2.4 Setting the $LFS Variable
+### 2.6/2.7 Setting the $LFS Variable
 
     export LFS=/mnt/lfs
     sudo mkdir $LFS
-    sudo mount /dev/sda3 $LFS
+    sudo mount /dev/sda2 $LFS
 
 If we are mounting directories on separate partitions, mount them:
 
     sudo mkdir $LFS/boot
     sudo mount -t ext2 /dev/sda1 $LFS/boot
     sudo mkdir $LFS/home
-    sudo mount -t ext4 /dev/sda2 $LFS/home
+    sudo mount -t ext4 /dev/sda3 $LFS/home
 
 -----
 <a name="chapter3" />
@@ -55,10 +54,10 @@ Create the source directory
 
 Download the packages and patches
 
-    wget --input-file=list79_files.txt \
+    wget --input-file=list91_files.txt \
          --continue \
          --directory-prefix=$LFS/sources
-    wget --input-file=list79_patches.txt \
+    wget --input-file=list91_patches.txt \
          --continue \
          --directory-prefix=$LFS/sources
 
@@ -79,7 +78,7 @@ You should see the following output:
 
      sudo groupadd lfs
      sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
-     passwd lfs
+     sudo passwd lfs
 
 Enter the password when prompted.
 
@@ -121,7 +120,7 @@ Then load the profile:
 <a name="chapter5" />
 ## Chapter 5
 
- -  follow 79-chapter5.sh
+ -  follow 91-chapter5.sh
    - Perform tests at the end of 5.7 and 5.10
  -  5.36: Changing ownership:
         
@@ -129,7 +128,7 @@ Then load the profile:
 
  -  At the end of the script, create back up of $LFS/tools
 
-        tar -Jcvf tools79.tar.xz $LFS/tools
+        tar -Jcvf tools91.tar.xz $LFS/tools
  
 
 -----
