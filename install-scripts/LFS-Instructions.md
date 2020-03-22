@@ -1,8 +1,8 @@
 # Installation Instructions
 
  -  Version: 9.1-Systemd [Link](http://www.linuxfromscratch.org/lfs/view/stable-systemd/)
- -  Host: Salix Live XFCE 14.1
-   - root passwd = "one"
+ -  Host: Debian Live LXDE 10
+   - Additional software needed: bison, gawk, m4, texinfo, vim, dillo
 
 ## Table of Contents
 1. [Chapter 2](#chapter2)
@@ -84,8 +84,8 @@ Enter the password when prompted.
 
 Next change the ownership of the folders
 
-    chown -v lfs $LFS/sources
-    chown -v lfs $LFS/tools
+    sudo chown -v lfs $LFS/sources
+    sudo chown -v lfs $LFS/tools
 
 Then switch to the *lfs* user:
 
@@ -122,7 +122,7 @@ Then load the profile:
 
  -  follow 91-chapter5.sh
    - Perform tests at the end of 5.7 and 5.10
- -  5.36: Changing ownership:
+ -  5.37: Changing ownership:
         
         chown -R root:root $LFS/tools
 

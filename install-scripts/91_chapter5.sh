@@ -103,7 +103,7 @@ for file in \
    touch $file.orig
 done
 
-case $(uanme -m) in
+case $(uname -m) in
 	x86_64)
 		sed -e '/m64=/s/lib64/lib' \
 			-i.org gcc/config/i386/t-linux64
@@ -144,7 +144,7 @@ tar -xf linux-5.5.3.tar.xz
 cd linux-5.5.3
 make mrproper || exit 1
 make headers || exit 1
-cp -rv dest/include/* /tools/include
+cp -rv usr/include/* /tools/include
 cd $LFS/sources
 rm -rf linux-5.5.3
 
@@ -443,153 +443,161 @@ rm -rf diffutils-3.7
 
 #-----
 echo "# 5.21. File-5.38"
-tar -xf file-5.25.tar.gz
-cd file-5.25
+tar -xf file-5.38.tar.gz
+cd file-5.38
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf file-5.25
+rm -rf file-5.38
 
 #-----
-echo "# 5.21. Findutils-4.6.0"
-tar -xf findutils-4.6.0.tar.gz
-cd findutils-4.6.0
+echo "# 5.22. Findutils-4.7.0"
+tar -xf findutils-4.7.0.tar.xz
+cd findutils-4.7.0
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf findutils-4.6.0
+rm -rf findutils-4.7.0
 
 #-----
-echo "# 5.22. Gawk-4.1.3"
-tar -xf gawk-4.1.3.tar.xz
-cd gawk-4.1.3
+echo "# 5.23. Gawk-5.0.1"
+tar -xf gawk-5.0.1.tar.xz
+cd gawk-5.0.1
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf gawk-4.1.3
+rm -rf gawk-5.0.1
 
 #-----
-echo "# 5.23. Gettext-0.19.7"
-tar -xf gettext-0.19.7.tar.xz
-cd gettext-0.19.7/gettext-tools
-EMACS="no" ./configure --prefix=/tools --disable-shared
-make -C gnulib-lib || exit 1
-make -C intl pluralx.c || exit 1
-make -C src msgfmt || exit 1
-make -C src msgmerge || exit 1
-make -C src xgettext || exit 1
-cp -v src/{msgfmt,msgmerge,xgettext} /tools/bin
+echo "# 5.24. Gettext-0.20.1"
+tar -xf gettext-0.20.1.tar.xz
+cd gettext-0.20.1
+./configure --disable-shared
+make || exit 1
+cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /tools/bin
 cd $LFS/sources
-rm -rf gettext-0.19.7
+rm -rf gettext-0.20.1
 
 #-----
-echo "# 5.24. Grep-2.23"
-tar -xf grep-2.23.tar.xz
-cd grep-2.23
+echo "# 5.25. Grep-3.4"
+tar -xf grep-3.4.tar.xz
+cd grep-3.4
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf grep-2.23
+rm -rf grep-3.4
 
 #-----
-echo "# 5.25. Gzip-1.6"
-tar -xf gzip-1.6.tar.xz
-cd gzip-1.6
+echo "# 5.26. Gzip-1.10"
+tar -xf gzip-1.10.tar.xz
+cd gzip-1.10
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf gzip-1.6
+rm -rf gzip-1.10
 
 #-----
-echo "# 5.27. Make-4.1"
-tar -xf make-4.1.tar.bz2
-cd make-4.1
+echo "# 5.27. Make-4.3"
+tar -xf make-4.3.tar.bz2
+cd make-4.3
 ./configure --prefix=/tools --without-guile
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf make-4.1
+rm -rf make-4.3
 
 #-----
-echo "# 5.28. Patch-2.7.5"
-tar -xf patch-2.7.5.tar.xz
-cd patch-2.7.5
+echo "# 5.28. Patch-2.7.6"
+tar -xf patch-2.7.6.tar.xz
+cd patch-2.7.6
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf patch-2.7.5
+rm -rf patch-2.7.6
 
 #-----
-echo "# 5.29. Perl-5.22.1"
-tar -xf perl-5.22.1.tar.bz2
-cd perl-5.22.1
-sh Configure -des -Dprefix=/tools -Dlibs=-lm
+echo "# 5.29. Perl-5.30.1"
+tar -xf perl-5.30.1.tar.xz
+cd perl-5.30.1
+sh Configure -des -Dprefix=/tools -Dlibs=-lm -Uloclibpth -Ulocincpth
 make || exit 1
-cp -v perl cpan/podlators/pod2man /tools/bin
-mkdir -pv /tools/lib/perl5/5.22.1
-cp -Rv lib/* /tools/lib/perl5/5.22.1
+cp -v perl cpan/podlators/scripts/pod2man /tools/bin
+mkdir -pv /tools/lib/perl5/5.30.1
+cp -Rv lib/* /tools/lib/perl5/5.30.1
 cd $LFS/sources
-rm -rf perl-5.22.1
+rm -rf perl-5.30.1
 
 #-----
-echo "# 5.30. Sed-4.2.2"
-tar -xf sed-4.2.2.tar.bz2
-cd sed-4.2.2
+echo "# 5.30 Python-3.8.1"
+tar -xf Python-3.8.1.tar.xz
+cd Python-3.8.1
+sed -i '/def add_multiarch_paths/a \		return' setup.py
+./configure --prefix=/tools --without-ensurepip
+make || exit 1
+make install || exit 1
+cd $LFS/sources
+rm -rf Python-3.8.1
+
+#-----
+echo "# 5.31. Sed-4.8"
+tar -xf sed-4.8.tar.xz
+cd sed-4.8
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf sed-4.2.2
+rm -rf sed-4.8
 
 #-----
-echo "# 5.31. Tar-1.28"
-tar -xf tar-1.28.tar.xz
-cd tar-1.28
+echo "# 5.32. Tar-1.32"
+tar -xf tar-1.32.tar.xz
+cd tar-1.32
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf tar-1.28
+rm -rf tar-1.32
 
 #-----
-echo "# 5.32. Texinfo-6.1"
-tar -xf texinfo-6.1.tar.xz
-cd texinfo-6.1
+echo "# 5.33. Texinfo-6.7"
+tar -xf texinfo-6.7.tar.xz
+cd texinfo-6.7
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf texinfo-6.1
+rm -rf texinfo-6.7
 
 #-----
-echo "# 5.33. Util-linux-2.27.1"
-tar -xf util-linux-2.27.1.tar.xz
-cd util-linux-2.27.1
+echo "# 5.34. Util-linux-2.35.1"
+tar -xf util-linux-2.35.1.tar.xz
+cd util-linux-2.35.1
 ./configure --prefix=/tools                \
             --without-python               \
             --disable-makeinstall-chown    \
             --without-systemdsystemunitdir \
+	    --without-ncurses              \
             PKG_CONFIG=""
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf util-linux-2.27.1
+rm -rf util-linux-2.35.1
 
 #-----
-echo "# 5.34. Xz-5.2.2"
-tar -xf xz-5.2.2.tar.xz
-cd xz-5.2.2
+echo "# 5.35. Xz-5.2.4"
+tar -xf xz-5.2.4.tar.xz
+cd xz-5.2.4
 ./configure --prefix=/tools
 make || exit 1
 make install || exit 1
 cd $LFS/sources
-rm -rf xz-5.2.2
+rm -rf xz-5.2.4
 
 #-------------------------------------------------------------------------
 echo "Stripping..."
@@ -599,7 +607,7 @@ strip --strip-debug /tools/lib/*
 
 rm -rf /tools/{,share}/{info,man,doc}
 
-echo "Don't forget to do 5.36: Changing Ownership"
+echo "Don't forget to do 5.37: Changing Ownership"
 echo ""
 echo "=== End of Chapter 5 ==="
 echo ""
