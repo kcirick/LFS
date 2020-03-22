@@ -89,9 +89,8 @@ mv -v gmp-6.2.0 gmp
 tar -zxf ../mpc-1.1.0.tar.gz
 mv -v mpc-1.1.0 mpc
 
-for file in \
-   $(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
-   do
+for file in gcc/config/{linux,i386/linux{,64}}.h
+do
    cp -uv $file{,.orig}
    sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' \
        -e 's@/usr@/tools@g' $file.orig > $file
@@ -105,7 +104,7 @@ done
 
 case $(uname -m) in
 	x86_64)
-		sed -e '/m64=/s/lib64/lib' \
+		sed -e '/m64=/s/lib64/lib/' \
 			-i.org gcc/config/i386/t-linux64
 	;;
 esac
@@ -170,7 +169,7 @@ readelf -l a.out | grep ': /tools' > log-5.7.out
 rm -v a.out
 
 echo "Check log-5.7.out. Does it say:"
-echo "   [Requesting program interpreter: /tools/lib/ld-linux.so.2]"
+echo "   [Requesting program interpreter: /tools/lib64/ld-linux-x86-64.so.2]"
 echo
 
 read -p "Press Y to continue: " answer
@@ -231,9 +230,8 @@ cd gcc-9.2.0
 cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
    `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h
 
-for file in \
-   $(find gcc/config -name linux64.h -o -name linux.h)
-   do
+for file in gcc/config/{linux,i386/linux{,64}}.h
+do
    cp -uv $file{,.orig}
    sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&@g' \
        -e 's@/usr@/tools@g' $file.orig > $file
