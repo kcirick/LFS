@@ -218,23 +218,18 @@ sudo mount -vt tmpfs tmpfs $LFS/run
 <li>Use above chroot command to re-login after the end of the script</li>
 </ul>
 
-<h3>6.7 to 6.69</h3>
+<h3>6.7 to 6.78</h3>
 
 <ul>
 <li>follow 79-chapter6.sh
 <ul>
-<li>Perform tests after 6.10 and 6.17</li>
-<li>Set root password at 6.25</li>
+<li>Perform tests after 6.10 and 6.25</li>
 </ul></li>
-<li>Create root password</li>
-<li><p>Remember to run</p>
-
-<pre><code>mv -v /usr/bin/[ /bin
-</code></pre></li>
-<li><p>Run 'logout' to log out before proceeding to section 6.71</p></li>
+<li><p>Create root password</p></li>
+<li><p>Run 'logout' to log out before proceeding to section 6.79</p></li>
 </ul>
 
-<h3>6.71 Stripping Again</h3>
+<h3>6.79 Stripping Again</h3>
 
 <p>Re-enter the chroot environment:</p>
 
@@ -246,7 +241,38 @@ sudo mount -vt tmpfs tmpfs $LFS/run
 
 <p>Then strip:</p>
 
-<pre><code>/tools/bin/find /{,usr/}{bin,lib,sbin} -type f -exec /tools/bin/strip --strip-debug '{}' ';'
+<pre><code>save_lib="ld-2.31.so libc-2.31.so libpthread-2.31.so libthread_db-1.0.so"
+
+cd /lib
+
+for LIB in $save_lib; do
+    objcopy --only-keep-debug $LIB $LIB.dbg
+    strip --strip-unneeded $LIB
+    objcopy --add-gnu-debuglink=$LIB.dbg $LIB
+done
+
+save_usrlib="libquadmath.so.0.0.0 libstdc++.so.6.0.27
+             libitm.so.1.0.0 libatomic.so.1.2.0"
+
+cd /usr/lib
+
+for LIB in $save_usrlib; do
+    objcopy --only-keep-debug $LIB $LIB.dbg
+    strip --strip-unneeded $LIB
+    objcopy --add-gnu-debuglink=$LIB.dbg $LIB
+done
+
+unset LIB save_lib save_usrlib
+</code></pre>
+
+<pre><code>/tools/bin/find /usr/lib -type f -name \*.a \
+-exec /tools/bin/strip --strip-debug {} ';'
+
+/tools/bin/find /lib /usr/lib -type f \( -name \*.so* -a ! -name \*dbg \) \
+-exec /tools/bin/strip --strip-unneeded {} ';'
+
+/tools/bin/find /{bin,sbin} /usr/{bin,sbin,libexec} -type f \
+-exec /tools/bin/strip --strip-all {} ';'
 </code></pre>
 
 <h3>6.72 Cleaning up</h3>
@@ -257,8 +283,9 @@ rm -f /usr/lib/libbz2.a
 rm -f /usr/lib/lib{com_err,e2p,ext2fs,ss}.a
 rm -f /usr/lib/libltdl.a
 rm -f /usr/lib/libfl.a
-rm -f /usr/lib/libfl_pic.a
 rm -f /usr/lib/libz.a
+
+find /usr/lib /usr/libexec -name \*.la -delete
 </code></pre>
 
 <hr />
@@ -493,7 +520,5 @@ unmount -v $LFS
 <li>lfs, pfstools (package manager)</li>
 <li>wireless-tools, wpa_supplicant, wget</li>
 </ol>
-
-
 </body>
 </html>
