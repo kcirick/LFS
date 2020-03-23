@@ -535,7 +535,7 @@ rm -rf perl-5.30.1
 echo "# 5.30 Python-3.8.1"
 tar -xf Python-3.8.1.tar.xz
 cd Python-3.8.1
-sed -i '/def add_multiarch_paths/a \		return' setup.py
+sed -i '/def add_multiarch_paths/a \        return' setup.py
 ./configure --prefix=/tools --without-ensurepip
 make || exit 1
 make install || exit 1
@@ -604,6 +604,8 @@ strip --strip-debug /tools/lib/*
 /usr/bin/strip --strip-unneeded /tools/{,s}bin/*
 
 rm -rf /tools/{,share}/{info,man,doc}
+
+find /tools/{lib,libexec} -name \*.la -delete
 
 echo "Don't forget to do 5.37: Changing Ownership"
 echo ""
