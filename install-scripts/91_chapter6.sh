@@ -308,7 +308,7 @@ rm -rf mpc-1.1.0
 
 #-----
 echo "6.22. Attr-2.4.48"
-tar -xf attr-2.4.48.src.tar.gz
+tar -xf attr-2.4.48.tar.gz
 cd attr-2.4.48
 ./configure --prefix=/usr \
 	    --disable-static \
@@ -323,7 +323,7 @@ rm -rf attr-2.4.48
 
 #-----
 echo "6.23. Acl-2.2.53"
-tar -xf acl-2.2.53.src.tar.gz
+tar -xf acl-2.2.53.tar.gz
 cd acl-2.2.53
 ./configure --prefix=/usr \
             --disable-static \
@@ -698,7 +698,7 @@ rm -rf gettext-0.20.1
 echo "# 6.48 Libelf from Elfutils-0.178"
 tar -xf elfutils-0.178.tar.bz2
 cd elfutils-0.178
-.configure --prefix=/usr --disable-debuginfod
+./configure --prefix=/usr --disable-debuginfod
 make || exit 1
 make -C libelf install || exit 1
 install -vm644 config/libelf.pc /usr/lib/pkgconfig
