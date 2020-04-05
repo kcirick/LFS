@@ -1,8 +1,8 @@
 # Installation Instructions
 
  -  Version: 9.1-Systemd [Link](http://www.linuxfromscratch.org/lfs/view/stable-systemd/)
- -  Host: Salix Live XFCE 14.1
-   - root passwd = "one"
+ -  Host: Debian Live LXDE 10
+   - Additional software needed: bison, gawk, m4, texinfo, vim, dillo
 
 ## Table of Contents
 1. [Chapter 2](#chapter2)
@@ -84,8 +84,8 @@ Enter the password when prompted.
 
 Next change the ownership of the folders
 
-    chown -v lfs $LFS/sources
-    chown -v lfs $LFS/tools
+    sudo chown -v lfs $LFS/sources
+    sudo chown -v lfs $LFS/tools
 
 Then switch to the *lfs* user:
 
@@ -122,7 +122,7 @@ Then load the profile:
 
  -  follow 91-chapter5.sh
    - Perform tests at the end of 5.7 and 5.10
- -  5.36: Changing ownership:
+ -  5.37: Changing ownership:
         
         chown -R root:root $LFS/tools
 
@@ -170,19 +170,15 @@ It will say "I have no name!" in bash prompt.
  -  follow 79-chapter6-setup.sh
  -  Use above chroot command to re-login after the end of the script
 
-### 6.7 to 6.69
+### 6.7 to 6.78
 
  -  follow 79-chapter6.sh
-   - Perform tests after 6.10 and 6.17
-   - Set root password at 6.25
+   - Perform tests after 6.10 and 6.25
  -  Create root password
- -  Remember to run
 
-        mv -v /usr/bin/[ /bin
+ -  Run 'logout' to log out before proceeding to section 6.79
 
- -  Run 'logout' to log out before proceeding to section 6.71
-
-### 6.71 Stripping Again
+### 6.79 Stripping Again
 
 Re-enter the chroot environment:
 
@@ -192,8 +188,40 @@ Re-enter the chroot environment:
         /tools/bin/bash --login
 
 Then strip:
+    
+    save_lib="ld-2.31.so libc-2.31.so libpthread-2.31.so libthread_db-1.0.so"
+    
+    cd /lib
+    
+    for LIB in $save_lib; do
+        objcopy --only-keep-debug $LIB $LIB.dbg
+        strip --strip-unneeded $LIB
+        objcopy --add-gnu-debuglink=$LIB.dbg $LIB
+    done
 
-    /tools/bin/find /{,usr/}{bin,lib,sbin} -type f -exec /tools/bin/strip --strip-debug '{}' ';'
+    save_usrlib="libquadmath.so.0.0.0 libstdc++.so.6.0.27
+                 libitm.so.1.0.0 libatomic.so.1.2.0"
+
+    cd /usr/lib
+
+    for LIB in $save_usrlib; do
+        objcopy --only-keep-debug $LIB $LIB.dbg
+        strip --strip-unneeded $LIB
+        objcopy --add-gnu-debuglink=$LIB.dbg $LIB
+    done
+
+    unset LIB save_lib save_usrlib
+
+
+    /tools/bin/find /usr/lib -type f -name \*.a \
+	-exec /tools/bin/strip --strip-debug {} ';'
+
+    /tools/bin/find /lib /usr/lib -type f \( -name \*.so* -a ! -name \*dbg \) \
+	-exec /tools/bin/strip --strip-unneeded {} ';'
+
+    /tools/bin/find /{bin,sbin} /usr/{bin,sbin,libexec} -type f \
+	-exec /tools/bin/strip --strip-all {} ';'
+
 
 ### 6.72 Cleaning up
 
@@ -203,8 +231,9 @@ Then strip:
     rm -f /usr/lib/lib{com_err,e2p,ext2fs,ss}.a
     rm -f /usr/lib/libltdl.a
     rm -f /usr/lib/libfl.a
-    rm -f /usr/lib/libfl_pic.a
     rm -f /usr/lib/libz.a
+
+    find /usr/lib /usr/libexec -name \*.la -delete
 
 
 -----
