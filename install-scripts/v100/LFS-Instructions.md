@@ -18,6 +18,7 @@
 
 -----
 <a name="chapter2" />
+
 ## Chapter 2 
 
 ### 2.4 Creating a New Partition
@@ -52,8 +53,14 @@ If we are mounting directories on separate partitions, mount them:
     sudo mkdir $LFS/home
     sudo mount -t ext4 /dev/sda3 $LFS/home
 
+mount swap partition:
+
+    /sbin/swapon -v /dev/<zzz>
+
+
 -----
 <a name="chapter3" />
+
 ## Chapter 3
 
 Create the source directory
@@ -72,16 +79,16 @@ Download the packages and patches
 
 -----
 <a name="chapter4" />
+
 ## Chapter 4
 
-### 4.2 Creating the $LFS/tools Directory
+### 4.2 Creating the $LFS Directory Layout
 
-     sudo mkdir $LFS/tools
-     sudo ln -sv $LFS/tools /
-
-You should see the following output:
-
-     '/tools' -> '/mnt/lfs/tools'
+     sudo mkdir -pv $LFS/{bin,etc,lib,sbin,usr,var,tools}
+     case $(uname -m) in
+        x86_64) sudo mkdir -pv $LFS/lib64 ;;
+     esac
+  
 
 ### 4.3 Adding the LFS User
 
@@ -93,8 +100,10 @@ Enter the password when prompted.
 
 Next change the ownership of the folders
 
-    sudo chown -v lfs $LFS/sources
-    sudo chown -v lfs $LFS/tools
+    sudo chown -v lfs $LFS/{usr,lib,var,etc,bin,sbin,tools,sources}
+    case $(uname -m) in
+       x86_64) sudo chown -v lfs $LFS/lib64 ;;
+    esac
 
 Then switch to the *lfs* user:
 
@@ -116,7 +125,7 @@ and ~/.bashrc:
     LFS=/mnt/lfs
     LC_ALL=POSIX
     LFS_TGT=$(uname -m)-lfs-linux-gnu
-    PATH=/tools/bin:/bin:/usr/bin
+    PATH=$LFS/tools/bin:$PATH
     export LFS LC_ALL LFS_TGT PATH
     EOF
 
@@ -127,14 +136,32 @@ Then load the profile:
 
 -----
 <a name="chapter5" />
+
 ## Chapter 5
 
- -  follow 100-chapter5.sh
+ -  Follow 100-chapter5.sh
    - Perform tests at the end of 5.5
 
 -----
 <a name="chapter6" />
+
 ## Chapter 6
+
+ -  Follow 100-chapter6.sh
+   - 
+
+-----
+<a name="chapter7" />
+
+## Chapter 7
+
+ -  Follow 100-chapter7.sh
+   -
+
+-----
+<a name="chapter8" />
+
+## Chapter 8
 
 ### 6.2 Preparing Virtual Kernel File Systems
 
