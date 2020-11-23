@@ -3,8 +3,7 @@
 TARGET=xorg-fonts
 VERSION=0.0
 SOURCELIST=list.txt
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
@@ -25,17 +24,16 @@ done
 
 #--- Download the source
 nfiles=$(ls -1 *.tar.bz2 | wc -l)
-if [ ! $nfiles -eq 37 ]; then
-   echo "fetching missing files"
-   wget  --input-file=list.txt --continue
+if [ ! $nfiles -eq 16 ]; then
+   echo "Fetching missing files..."
+   wget --input-file=$SOURCELIST --continue
 fi
 
 nfiles=$(ls -1 *.tar.bz2 | wc -l)
-if [ ! $nfiles -eq 37 ]; then
+if [ ! $nfiles -eq 16 ]; then
    echo "ERROR: couldn't get all necessary files. Please try again"
    exit
 fi
-
 
 CWD=$(pwd)
 TMPDIR=/tmp
@@ -49,22 +47,22 @@ mkdir -p $PKGDIR
 cd $TMPDIR
 rm -rf $SOURCEDIR
 
-
-for package in $(cat $CWD/list.txt | awk -F'/' '{print $7}'); do
+for package in $(cat $CWD/$SOURCELIST | awk -F'/' '{print $7}'); do
    packagedir=${package%.tar.bz2}
-   tar -xf $CWD/$package || exit 1
+   tar -xf $CWD/$package
    pushd $packagedir
 
-   ./configure $XORG_CONFIG
-   
-   make install
-   make DESTDIR=$PKGDIR install
+      ./configure $XORG_CONFIG
 
+      make || exit 1
+      make install || exit 1
+      make DESTDIR=$PKGDIR install || exit 1
    popd
    rm -rf $packagedir
 done
 
 
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -72,6 +70,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

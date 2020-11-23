@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "============ IMPORTANT ============"
-echo " Make sure to re-install FreeType! "
-echo "==================================="
+echo ">>> Make sure to re-install freetype2!"
+echo
+

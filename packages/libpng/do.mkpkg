@@ -1,15 +1,13 @@
 #!/bin/sh
 
 TARGET=libpng
-VERSION=1.6.21
+VERSION=1.6.37
 SOURCE=${TARGET}-${VERSION}.tar.xz
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-PATCH=${TARGET}-${VERSION}-apng.patch.gz
-MARCH=$( uname -m )
-
+SOURCEDIR=$TARGET-$VERSION
+PATCH=$TARGET-$VERSION-apng.patch.gz
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,10 +24,10 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/$TARGET/$SOURCE
+   wget https://downloads.sourceforge.net/libpng/$SOURCE
 fi
 if [ ! -s $PATCH ]; then
-   wget http://downloads.sourceforge.net/project/apng/$TARGET/libpng16/$PATCH
+   wget https://downloads.sourceforge.net/sourceforge/libpng-apng/$PATCH
 fi
 
 
@@ -48,14 +46,16 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-gzip -cd $CWD/$PATCH | patch -p0
+
+gzip -cd $CWD/$PATCH | patch -p1
 
 ./configure --prefix=/usr --disable-static
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
 
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -63,6 +63,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

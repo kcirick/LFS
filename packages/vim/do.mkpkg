@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=vim
-VERSION=7.4
+VERSION=8.2
 SOURCE=${TARGET}-${VERSION}.tar.bz2
-SOURCEDIR=vim74        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=${TARGET}82
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gtk2)
+DEP=(gtk3)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://vim.mirror.fr/unix/$SOURCE
+   wget ftp://ftp.vim.org/pub/vim/unix/$SOURCE
 fi
 
 
@@ -44,18 +43,23 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-echo '#define SYS_VIMRC_FILE  "/etc/vimrc"' >>  src/feature.h &&
-echo '#define SYS_GVIMRC_FILE "/etc/gvimrc"' >> src/feature.h &&
+
+echo '#define SYS_VIMRC_FILE  "/etc/vimrc"'  >> src/feature.h
+echo '#define SYS_GVIMRC_FILE "/etc/gvimrc"' >> src/feature.h
+
 ./configure --prefix=/usr \
-            --enable-gui=gtk2 \
-            --with-features=huge
+            --wth-features=huge \
+            --enable-gui=gtk3 \
+            --with-tlib=ncursesw
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
-mkdir -p $PKGDIR/usr/share/doc/$TARGET-$VERSION
-ln -snfv ../vim/vim74/doc $PKGDIR/usr/share/doc/$TARGET-$VERSION
+mkdir -p $PKGDIR/usr/share/doc/vim8.2
+ln -snfv ../vim/vi82/doc $PKGDIR/usr/share/doc/vim-8.2
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -63,6 +67,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

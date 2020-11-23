@@ -1,15 +1,15 @@
 #!/bin/sh
 
 TARGET=wpa-supplicant
-VERSION=2.5
+VERSION=2.9
 SOURCE=wpa_supplicant-${VERSION}.tar.gz
 SOURCEDIR=wpa_supplicant-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-MAKEQT=1
-DEP=(libnl openssl qt4)
+MAKEQT=0
+DEP=(libnl)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -29,7 +29,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://hostap.epitest.fi/releases/$SOURCE
+   wget https://w1.fi/releases/$SOURCE
 fi
 
 

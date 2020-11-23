@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=p11-kit
-VERSION=0.23.2
-SOURCE=${TARGET}-${VERSION}.tar.gz
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+VERSION=0.23.20
+SOURCE=${TARGET}-${VERSION}.tar.xz
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libffi libtasn1 ca-certificates)
+DEP=(libtasn1)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://p11-glue.freedesktop.org/releases/$SOURCE
+   wget --no-check-certificate https://github.com/p11-glue/p11-kit/releases/download/0.23.20/$SOURCE
 fi
 
 
@@ -44,11 +43,25 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr --sysconfdir=/etc 
+
+sed '20,$ d' -i trust/trust-extract-compat.in
+cat >> trust/trust-extract-compat.in << "EOF"
+# Copy existing anchor modifications to /etc/ssl/local
+/usr/libexec/make-ca/copy-trust-modifications
+
+# Generate a new trust store
+/usr/sbin/make-ca -f -g
+EOF
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --with-trust-paths=/etc/pki/anchors 
 
 make
 make DESTDIR=$PKGDIR install
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -56,6 +69,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

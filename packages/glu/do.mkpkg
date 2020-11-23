@@ -1,8 +1,8 @@
 #!/bin/sh
 
 TARGET=glu
-VERSION=9.0.0
-SOURCE=${TARGET}-${VERSION}.tar.bz2
+VERSION=9.0.1
+SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION
 
 
@@ -24,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget ftp://ftp.freedesktop.org/pub/mesa/$TARGET/$SOURCE
+   wget ftp://ftp.freedesktop.org/pub/mesa/glu/$SOURCE
 fi
 
 
@@ -32,7 +32,7 @@ CWD=$(pwd)
 TMPDIR=/tmp
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=/packages
+TARGETDIR=$CWD
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
@@ -44,10 +44,10 @@ cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 
-./configure --prefix=/usr --disable-static
+./configure --prefix=$XORG_PREFIX --disable-static 
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
 
 #--- Should not have to touch below this

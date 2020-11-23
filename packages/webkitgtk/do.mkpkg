@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=webkitgtk
-VERSION=2.4.9
+VERSION=2.28.4
 SOURCE=${TARGET}-${VERSION}.tar.xz
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gst-plugins-base gtk2 icu libgudev libsecret libsoup libwebp mesa ruby sqlite)
+DEP=(cairo cmake gst-plugins-bad gtk3 icu libgudev libsecret libsoup libwebp mesa openjpeg ruby sqlite which)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,12 +24,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://webkitgtk.org/releases/$SOURCE
+   wget https://webkitgtk.org/releases/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/root
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -44,29 +43,32 @@ cd $TMPDIR
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-sed -i '/generate-gtkdoc --rebase/s:^:# :' GNUmakefile.in
 
-#mkdir build2
+#mkdir build &&
+cd build
+#cmake -DCMAKE_BUILD_TYPE=Release \
+#      -DCMAKE_INSTALL_PREFIX=/usr \
+#      -DCMAKE_SKIP_RPATH=ON \
+#      -DPORT=GTK \
+#      -DLIB_INSTALL_DIR=/usr/lib \
+#      -DUSE_LIBHYPHEN=OFF \
+#      -DUSE_LIBNOTIFY=OFF \
+#      -DENABLE_MINIBROWSER=ON \
+#      -DUSE_WOFF2=OFF \
+#      -DUSE_WPE_RENDERER=OFF \
+#      -DENABLE_BUBBLEWRAP_SANDBOX=OFF \
+#      -DENABLE_SPELLCHECK=OFF \
+#      -Wno-dev -G Ninja ..
 
-pushd build2
-#../configure --prefix=/usr \
-#            --with-gtk=2.0 \
-#            --disable-webkit2 \
-#            --disable-geolocation
-make
-popd
+ninja || exit 1
+DESTDIR=$PKGDIR ninja install || exit 1
 
-make -C build2 DESTDIR=$PKGDIR install
-
-rm -rf $PKGDIR/usr/share/gtk-doc/html/webkit{,dom}gtk-1.0
-if [ -e $PKGDIR/usr/share/gtk-doc/html/webkitdomgtk ]; then
-   mv -v $PKGDIR/usr/share/gtk-doc/html/webkitdomgtk{,-1.0}
-fi
-if [ -e $PKGDIR/usr/share/gtk-doc/html/webkitgtk ]; then
-   mv -v $PKGDIR/usr/share/gtk-doc/html/webkitgtk{,-1.0}
-fi
+install -vdm755 $PKGDIR/usr/share/gtk-doc/html/webkit{2,dom}gtk-4.0
+install -vm644  ../Documentation/webkit2gtk-4.0/html/*   $PKGDIR/usr/share/gtk-doc/html/webkit2gtk-4.0
+install -vm644  ../Documentation/webkitdomgtk-4.0/html/* $PKGDIR/usr/share/gtk-doc/html/webkitdomgtk-4.0
 
 
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -74,6 +76,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

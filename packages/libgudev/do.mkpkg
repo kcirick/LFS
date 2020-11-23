@@ -1,10 +1,9 @@
 #!/bin/sh
 
 TARGET=libgudev
-VERSION=230
+VERSION=233
 SOURCE=${TARGET}-${VERSION}.tar.xz
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnome.org/pub/gnome/sources/libgudev/230/$SOURCE
+   wget http://ftp.gnome.org/pub/gnome/sources/libgudev/233/$SOURCE
 fi
 
 
@@ -44,11 +43,14 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr 
 
-make
-make DESTDIR=$PKGDIR install
+./configure --prefix=/usr --disable-umockdev
 
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
+
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -56,6 +58,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

@@ -1,15 +1,13 @@
 #!/bin/sh
 
 TARGET=pcre
-VERSION=8.38
+VERSION=8.44
 SOURCE=${TARGET}-${VERSION}.tar.bz2
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-PATCH=${TARGET}-${VERSION}-upstream_fixes-1.patch
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,10 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/$TARGET/$SOURCE
-fi
-if [ ! -s $PATCH ]; then
-   wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
+   wget https://ftp.pcre.org/pub/pcre/$SOURCE
 fi
 
 
@@ -48,20 +43,22 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-patch -Np1 -i $CWD/$PATCH 
+
 ./configure --prefix=/usr \
-            --docdir=/usr/share/doc/pcre-8.38 \
-            --enable-unicode-properties       \
-            --enable-pcre16                   \
-            --enable-pcre32                   \
-            --enable-pcregrep-libz            \
-            --enable-pcregrep-libbz2          \
-            --enable-pcretest-libreadline     \
-            --disable-static                 
+            --docdir=/usr/share/doc/pcre-8.44 \
+            --enable-unicode-properties \
+            --enable-pcre16 \
+            --enable-pcre32 \
+            --enable-pcregrep-libz \
+            --enable-pcregrep-libbz2 \
+            --enable-pcretest-libreadline \
+            --disable-static
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -69,6 +66,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

@@ -1,10 +1,9 @@
 #!/bin/sh
 
 TARGET=sqlite
-VERSION=3.13.0
-SOURCE=${TARGET}-autoconf-3130000.tar.gz
-SOURCEDIR=$TARGET-autoconf-3130000        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+VERSION=3.33.0
+SOURCE=${TARGET}-autoconf-3330000.tar.gz
+SOURCEDIR=$TARGET-autoconf-3330000
 
 
 #--- Check for dependency (but only warn) 
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget https://www.sqlite.org/2016/$SOURCE
+   wget https://sqlite.org/2020/$SOURCE
 fi
 
 
@@ -44,17 +43,24 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr --disable-static \
-   CFLAGS="-g -O2 -fPIC \
-      -DSQLITE_ENABLE_FTS3=1 \
-      -DSQLITE_ENABLE_COLUMN_METADATA=1 \
-      -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
-      -DSQLITE_SECURE_DELETE=1 \
-      -DSQLITE_ENABLE_DBSTAT_VTAB=1"
 
-make
-make DESTDIR=$PKGDIR install
+./configure --prefix=/usr \
+            --disable-static \
+            --enable-fts5 \
+            CFLAGS="-g -O2   \
+            -DSQLITE_ENABLE_FTS3=1 \
+            -DSQLITE_ENABLE_FTS4=1 \
+            -DSQLITE_ENABLE_COLUMN_METADATA=1 \
+            -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
+            -DSQLITE_ENABLE_DBSTAT_VTAB=1 \
+            -DSQLITE_SECURE_DELETE=1 \
+            -DSQLITE_ENABLE_FTS3_TOKENIZER=1 "
 
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
+
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -62,6 +68,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

@@ -1,22 +1,8 @@
 # Installation Instructions
 
  -  Version: 10.0-Systemd [Link](http://www.linuxfromscratch.org/lfs/view/stable-systemd/)
- -  Host: Debian Live 10
+ -  Host: Debian Live LXDE 10
    - Additional software needed: git, bison, gawk, m4, texinfo, vim, parted
-   - Setting up wifi: 
-
-Find interface using iwconfig (as root).
-
-Edit /etc/network/interfaces (as root):
-
-   # my wifi device
-   allow-hotplug wlp2s0
-   iface wlp2s0 inet dhcp
-        wpa-ssid ESSID
-        wpa-psk PASSWORD
-
-Then ifup wlp2s0
-
 
 ## Table of Contents
 1. [Chapter 2](#chapter2)
@@ -27,14 +13,11 @@ Then ifup wlp2s0
 6. [Chapter 7](#chapter7)
 7. [Chapter 8](#chapter8)
 8. [Chapter 9](#chapter9)
-9. [Chapter 10](#chapter10)
-10. [Chapter 11](#chapter11)
-11. [End and BLFS](#end-blfs)
+9. [End and BLFS](#end-blfs)
 
 
 -----
 <a name="chapter2" />
-
 ## Chapter 2 
 
 ### 2.4 Creating a New Partition
@@ -69,14 +52,8 @@ If we are mounting directories on separate partitions, mount them:
     sudo mkdir $LFS/home
     sudo mount -t ext4 /dev/sda3 $LFS/home
 
-mount swap partition:
-
-    sudo swapon -v /dev/sda4
-
-
 -----
 <a name="chapter3" />
-
 ## Chapter 3
 
 Create the source directory
@@ -95,16 +72,16 @@ Download the packages and patches
 
 -----
 <a name="chapter4" />
-
 ## Chapter 4
 
-### 4.2 Creating the $LFS Directory Layout
+### 4.2 Creating the $LFS/tools Directory
 
-     sudo mkdir -pv $LFS/{bin,etc,lib,sbin,usr,var,tools}
-     case $(uname -m) in
-        x86_64) sudo mkdir -pv $LFS/lib64 ;;
-     esac
-  
+     sudo mkdir $LFS/tools
+     sudo ln -sv $LFS/tools /
+
+You should see the following output:
+
+     '/tools' -> '/mnt/lfs/tools'
 
 ### 4.3 Adding the LFS User
 
@@ -116,10 +93,8 @@ Enter the password when prompted.
 
 Next change the ownership of the folders
 
-    sudo chown -v lfs $LFS/{usr,lib,var,etc,bin,sbin,tools,sources}
-    case $(uname -m) in
-       x86_64) sudo chown -v lfs $LFS/lib64 ;;
-    esac
+    sudo chown -v lfs $LFS/sources
+    sudo chown -v lfs $LFS/tools
 
 Then switch to the *lfs* user:
 
@@ -141,7 +116,7 @@ and ~/.bashrc:
     LFS=/mnt/lfs
     LC_ALL=POSIX
     LFS_TGT=$(uname -m)-lfs-linux-gnu
-    PATH=$LFS/tools/bin:$PATH
+    PATH=/tools/bin:/bin:/usr/bin
     export LFS LC_ALL LFS_TGT PATH
     EOF
 
@@ -152,34 +127,16 @@ Then load the profile:
 
 -----
 <a name="chapter5" />
-
 ## Chapter 5
 
- -  Follow 100-chapter5.sh
+ -  follow 100-chapter5.sh
    - Perform tests at the end of 5.5
 
 -----
 <a name="chapter6" />
-
 ## Chapter 6
 
- -  Follow 100-chapter6.sh
-
------
-<a name="chapter7" />
-
-## Chapter 7
-
-  - Make sure to log out of lfs user, and that $LFS is set
-
-### 7.2 Changing Ownership
-
-   sudo chown -R root:root $LFS/{usr,lib,var,etc,bin,sbin,tools}
-   case $(uname -m) in
-      x86_64) sudo chown -R root:root $LFS/lib64 ;;
-   esac
-
-### 7.3 Preparing Virtual Kernel File Systems
+### 6.2 Preparing Virtual Kernel File Systems
 
     sudo mkdir -pv $LFS/{dev,proc,sys,run}
     sudo mknod -m 600 $LFS/dev/console c 5 1
@@ -188,96 +145,52 @@ Then load the profile:
 Now mount system:
 
     sudo mount -v --bind /dev $LFS/dev
-    sudo mount -v --bind /dev/pts $LFS/dev/pts
+    sudo mount -vt devpts devpts $LFS/dev/pts -o gid=5,mode=620
     sudo mount -vt proc proc $LFS/proc
     sudo mount -vt sysfs sysfs $LFS/sys
     sudo mount -vt tmpfs tmpfs $LFS/run
 
-    if [ -h $LFS/dev/shm ]; then
-       sudo mkdir -pv $LFS/$(readlink $LFS/dev/shm)
-    fi
-
-### 7.4 Entering the Chroot Environment
-
-    sudo chroot "$LFS" /tools/bin/env -i \
-        HOME=/root                  \
-        TERM="$TERM"                \
-        PS1='(chroot) \u:\w\$ '              \
-        PATH=/bin:/usr/bin:/sbin:/usr/sbin \
-        /bin/bash --login +h
-
-It will say "I have no name!" in bash prompt.
-
-### 7.5 and 7.6
- -  Follow 100-chapter7-setup.sh
-
-### 7.7 to 7.13
-
- -  Follow 100-chapter7.sh
-
-### 7.14 Cleaning up and Saving the Temporary System
-
-Delete unneeded files and documents:
-
-    find /usr/{lib,libexec} -name \*.la -delete
-    rm -rf /usr/share/{info,man,doc}/*
-    exit
-
-Following are done outside of the chroot environment:
-
-    sudo umount $LFS/dev{/pts,}
-    sudo umount $LFS/{sys,proc,run}
-
-Strip off debugging symbols:
-
-     strip --strip-debug $LFS/usr/lib/*
-     strip --strip-unneeded $LFS/usr/{,s}bin/*
-     strip --strip-unneeded $LFS/tools/bin/*
-
-Create a back up file
-
-     cd $LFS &&
-     tar -cJpf $HOME/lfs-temp-tools-10.0-systemd.tar.xz .
-
-If a restore is needed:
-
-     cd $LFS &&
-     rm -rf ./* &&
-     tar -xpf $HOME/lfs-temp-tools-10.0-systemd.tar.xz
-
-
------
-<a name="chapter8" />
-
-## Chapter 8
-
-**Make sure the virtual kernel file system is setup and under chroot environment before continuing!** 
-
-### 8.2 Package Management
+### 6.3 Package Management
 
 Think about using pfstool for LFS. Currently used only for BLFS.
 
+### 6.4 Entering the Chroot Environment
 
-### 8.3 to 8.74
+    chroot "$LFS" /tools/bin/env -i \
+        HOME=/root                  \
+        TERM="$TERM"                \
+        PS1='\u:\w\$ '              \
+        PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+        /tools/bin/bash --login +h
 
- -  follow chapter8.sh
-   - Perform tests after 8.26
+It will say "I have no name!" in bash prompt.
+
+
+### 6.5 and 6.6
+
+ -  follow 79-chapter6-setup.sh
+ -  Use above chroot command to re-login after the end of the script
+
+### 6.7 to 6.78
+
+ -  follow 79-chapter6.sh
+   - Perform tests after 6.10 and 6.25
  -  Create root password
 
- -  Run 'logout' to log out before proceeding to section 8.76
+ -  Run 'logout' to log out before proceeding to section 6.79
 
-### 8.76 Stripping Again
+### 6.79 Stripping Again
 
 Re-enter the chroot environment:
 
     chroot $LFS /tools/bin/env -i            \
-        HOME=/root TERM=$TERM PS1='(chroot) \u:\w\$ ' \
+        HOME=/root TERM=$TERM PS1='\u:\w\$ ' \
         PATH=/bin:/usr/bin:/sbin:/usr/sbin   \
         /tools/bin/bash --login
 
 Then strip:
     
-    save_lib="ld-2.32.so libc-2.32.so libpthread-2.32.so libthread_db-1.0.so"
+    save_lib="ld-2.31.so libc-2.31.so libpthread-2.31.so libthread_db-1.0.so"
     
     cd /lib
     
@@ -287,7 +200,7 @@ Then strip:
         objcopy --add-gnu-debuglink=$LIB.dbg $LIB
     done
 
-    save_usrlib="libquadmath.so.0.0.0 libstdc++.so.6.0.28
+    save_usrlib="libquadmath.so.0.0.0 libstdc++.so.6.0.27
                  libitm.so.1.0.0 libatomic.so.1.2.0"
 
     cd /usr/lib
@@ -301,20 +214,19 @@ Then strip:
     unset LIB save_lib save_usrlib
 
 
-    find /usr/lib -type f -name \*.a \
+    /tools/bin/find /usr/lib -type f -name \*.a \
 	-exec /tools/bin/strip --strip-debug {} ';'
 
-    find /lib /usr/lib -type f -name \*.so* ! -name \*dbg \
+    /tools/bin/find /lib /usr/lib -type f \( -name \*.so* -a ! -name \*dbg \) \
 	-exec /tools/bin/strip --strip-unneeded {} ';'
 
-    find /{bin,sbin} /usr/{bin,sbin,libexec} -type f \
+    /tools/bin/find /{bin,sbin} /usr/{bin,sbin,libexec} -type f \
 	-exec /tools/bin/strip --strip-all {} ';'
 
 
-### 8.77 Cleaning up
+### 6.72 Cleaning up
 
     rm -rf /tmp/*
-
     rm -f /usr/lib/lib{bfd,opcodes}.a
     rm -f /usr/lib/libbz2.a
     rm -f /usr/lib/lib{com_err,e2p,ext2fs,ss}.a
@@ -324,16 +236,12 @@ Then strip:
 
     find /usr/lib /usr/libexec -name \*.la -delete
 
-    find /usr -depth -name $(uname -m)-lfs-linux-gnu\* | xargs rm -rf
-
-    rm -rf /tools
 
 -----
-<a name="chapter9" />
+<a name="chapter7" />
+## Chapter 7
 
-## Chapter 9
-
-### 9.2 Network Configuration
+### 7.2 Network Configuration
 
 For my purpose it will be DHCP configuration
 
@@ -342,16 +250,9 @@ For my purpose it will be DHCP configuration
     Name=wlp2s0
 
     [Network]
-    DHCP=ipv4
-
-    [DHCP]
-    UseDomains=true
+    DHCP=yes
+    IPv6AcceptRouterAdvertisements=0
     EOF
-
-Link systemd-resolved DNS configuration: 
-
-    ln -sfv /run/systemd/resolve/resolv.conf /etc/resolv.conf
-
 
 Configure the hostname and /etc/hosts file
 
@@ -362,7 +263,7 @@ Configure the hostname and /etc/hosts file
     ::1       localhost
     EOF
 
-### 9.8 Creating the /etc/inputrc File
+### 7.8 Creating the /etc/inputrc File
 
     cat > /etc/inputrc << "EOF"
     # Begin /etc/inputrc
@@ -408,10 +309,7 @@ Configure the hostname and /etc/hosts file
     # End /etc/inputrc
     EOF
 
-Alternatively, just copy /etc/inputrc from the host system
-
-
-### 9.9 Creating the /etc/shells file
+### 7.9 Creating the /etc/shells file
 
     cat > /etc/shells << "EOF"
     # Begin /etc/shells
@@ -424,22 +322,20 @@ Alternatively, just copy /etc/inputrc from the host system
 
 
 -----
-<a name="chapter10" />
+<a name="chapter8" />
+## Chapter 8
 
-## Chapter 10
-
-### 10.2 Creating the /etc/fstab file
+### 8.2 Creating the /etc/fstab file
 
 An example is given below. Customize for the specific system requirement
 
     cat > /etc/fstab << "EOF"
     /dev/sda1 /boot        ext2     defaults            0     0
-    /dev/sda2 /            ext4     defaults            0     1
-    /dev/sda3 /home        ext4     defaults,noatime    0     1    
-    /dev/sda4 swap         swap     pri=1               0     0
+    /dev/sda2 /home        ext4     defaults            0     1
+    /dev/sda3 /            ext4     defaults,noatime    0     1    
     EOF
 
-### 10.3 Building the kernel
+### 8.3 Building the kernel
 
  1. Prepare the compilation:
 
@@ -460,11 +356,11 @@ An example is given below. Customize for the specific system requirement
 
  5. Copy the kernel image, System.map and configuration file to /boot
 
-        cp -v arch/x86/boot/bzImage /boot/mvlinux-5.8.3-lfs
-        cp -v System.map /boot/System.map-5.8.3
-        cp -v .config /boot/config-5.8.3
+        cp -v arch/x86/boot/bzImage /boot/mvlinux-4.4.8-lfs
+        cp -v System.map /boot/System.map-4.4.8
+        cp -v .config /boot/config-4.4.8
 
-### 10.4 GRUB boot loader
+### 8.4 GRUB boot loader
 
  1. Install grub:
 
@@ -480,19 +376,16 @@ An example is given below. Customize for the specific system requirement
         insmod ext2
         set root=(hd0,1)
 
-        menuentry "LFS 10.0-systemd - 5.8.3" {
-                linux   /vmlinuz-5.8.3-lfs root=/dev/sda2 ro
+        menuentry "LFS 7.9-systemd - 4.4.8" {
+                linux   /vmlinuz-4.4.8-lfs root=/dev/sda3 ro
         }
         EOF
 
 -----
-<a name="chapter11" />
+<a name="chapter9" />
+## Chapter 9
 
-## Chapter 11
-
-### 11.1
-
-These files are written when installing LFS package by PFSTools. Can ignore
+### 9.1
 
 Create /etc/os-release file
 
@@ -515,7 +408,6 @@ Create /etc/lsb-release (optional)
     DISTRIB_CODENAME="valkyrie"
     DISTRIB_DESCRIPTION="Linux From Scratch"
     EOF
-
 
 ### 9.3 Rebooting the system
 
@@ -543,7 +435,6 @@ Then finally reboot:
 
 -----
 <a name="end-blfs" />
-
 ## End and BLFS
 
 ### Packages to install before anything else:
@@ -551,4 +442,5 @@ Then finally reboot:
  1.  Bash shell scripts [[link](http://www.linuxfromscratch.org/blfs/view/systemd/postlfs/profile.html)]
  2.  lfs, pfstools (package manager)
  3.  wireless-tools, wpa_supplicant, wget
+
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 
 TARGET=wget
-VERSION=1.17.1
-SOURCE=${TARGET}-${VERSION}.tar.xz
+VERSION=1.20.3
+SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnu.org/gnu/wget/$SOURCE
+   wget https://ftp.gnu.org/gnu/wget/$SOURCE
 fi
 
 
@@ -45,7 +45,7 @@ cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 ./configure --prefix=/usr \
-            --sysconfdir=/etc
+            --sysconfdir=/etc 
 
 make
 make DESTDIR=$PKGDIR install

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=lfs
-VERSION=7.9systemd
+VERSION=10.0systemd
 MARCH=$( uname -m )
 
 
@@ -34,19 +34,20 @@ mkdir -p $PKGDIR
 mkdir -p $PKGDIR/etc
 cat > $PKGDIR/etc/os-release << "EOF"
 NAME="Linux From Scratch"
-VERSION="7.9-systemd"
+VERSION="10.0-systemd"
 ID=lfs
-PRETTY_NAME="Linux From Scratch 7.9-systemd"
+PRETTY_NAME="Linux From Scratch 10.0-systemd"
+VERSION_CODENAME="valkyrie"
 EOF
 
 cat > /etc/lsb-release << "EOF"
 DISTRIB_ID="Linux From Scratch"
-DISTRIB_RELEASE="7.9-systemd"
+DISTRIB_RELEASE="10.0-systemd"
 DISTRIB_CODENAME="valkyrie"
 DISTRIB_DESCRIPTION="Linux From Scratch"
 EOF
 
-echo 7.9-systemd > $PKGDIR/etc/lfs-release
+echo 10.0-systemd > $PKGDIR/etc/lfs-release
 
 
 mkdir -p $PKGDIR/install

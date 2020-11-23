@@ -1,10 +1,9 @@
 #!/bin/sh
 
 TARGET=xf86-video-ati
-VERSION=7.5.0
+VERSION=19.1.0
 SOURCE=${TARGET}-${VERSION}.tar.bz2
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://xorg.freedesktop.org/archive/individual/driver/$SOURCE
+   wget https://www.x.org/pub/individual/driver/$SOURCE
 fi
 
 
@@ -44,14 +43,16 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr/X11 \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --disable-static
+sed -e 's/miPointer/extern &/' \
+    -i src/drmmode_display.h
 
-make
-make DESTDIR=$PKGDIR install
+./configure $XORG_CONFIG
 
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
+
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -59,6 +60,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

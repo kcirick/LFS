@@ -2,13 +2,12 @@
 
 TARGET=unzip
 VERSION=6.0
-SOURCE=unzip60.tar.gz
-SOURCEDIR=unzip60        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
-
+SOURCE=${TARGET}60.tar.gz
+SOURCEDIR=${TARGET}60
+PATCH=${TARGET}-${VERSION}-consolidated_fixes-1.patch
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,10 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/infozip/$SOURCE
+   wget https://downloads.sourceforge.net/infozip/$SOURCE
+fi
+if [ ! -s $PATCH ]; then
+   wget http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
@@ -44,11 +46,13 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr 
+patch -Np1 -i $CWD/$PATCH
 
-make -f unix/Makefile generic
-make prefix=$PKGDIR/usr MANDIR=$PKGDIR/usr/share/man/man1 -f unix/Makefile install
+make -f unix/Makefile generic || exit 1
+make prefix=$PKGDIR/usr MANDIR=$PKGDIR/usr/share/man/man1 -f unix/Makefile install || exit 1
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -56,6 +60,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

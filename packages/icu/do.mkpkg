@@ -1,10 +1,9 @@
 #!/bin/sh
 
 TARGET=icu
-VERSION=57.1
-SOURCE=icu4c-57_1-src.tgz
-SOURCEDIR=$TARGET        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+VERSION=67.1
+SOURCE=${TARGET}4c-67_1-src.tgz
+SOURCEDIR=${TARGET}
 
 
 #--- Check for dependency (but only warn) 
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://download.icu-project.org/files/icu4c/$VERSION/$SOURCE
+   wget http://github.com/unicode-org/icu/releases/download/release-67-1/$SOURCE
 fi
 
 
@@ -44,13 +43,15 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-cd source 
+cd source
 
 ./configure --prefix=/usr 
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -58,6 +59,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

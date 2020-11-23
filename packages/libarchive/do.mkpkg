@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=libarchive
-VERSION=3.2.0
-SOURCE=${TARGET}-${VERSION}.tar.gz
+VERSION=3.4.3
+SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION
-MARCH=$( uname -m )
-
+PATCH=$TARGET-$VERSION-testsuite_fix-1.patch
 
 #--- Check for dependency (but only warn) 
-DEP=(libxml2 nettle)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,10 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://www.libarchive.org/downloads/$SOURCE
+   wget https://github.com/libarchive/libarchive/releases/download/v3.4.3/$SOURCE
+fi
+if [ ! -s $PATCH ]; then
+   wget http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
@@ -44,11 +46,12 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+patch -Np1 -i $CWD/$PATCH
 
 ./configure --prefix=/usr --disable-static
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
 
 #--- Should not have to touch below this
@@ -59,6 +62,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

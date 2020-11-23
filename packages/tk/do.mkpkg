@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=tk
-VERSION=8.6.5
+VERSION=8.6.10
 SOURCE=${TARGET}${VERSION}-src.tar.gz
-SOURCEDIR=$TARGET$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(tcl xorg-libs)
+DEP=(xorg-libs)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/tcl/$SOURCE
+   wget https://downloads.sourceforge.net/tcl/$SOURCE
 fi
 
 
@@ -46,20 +45,23 @@ chown -R root:root .
 
 cd unix
 
-./configure --prefix=/usr --mandir=/usr/share/man --enable-64bit
+./configure --prefix=/usr \
+            --mandir=/usr/share/man \
+            --enable-64bit
 
-make
+make || exit 1
 
 sed -e "s@^\(TK_SRC_DIR='\).*@\1/usr/include'@" \
     -e "/TK_B/s@='\(-L\)\?.*unix@='\1/usr/lib@" \
     -i tkConfig.sh
 
-make DESTDIR=$PKGDIR install
+make DESTDIR=$PKGDIR install || exit 1
 make DESTDIR=$PKGDIR install-private-headers
 
-ln -sfv wish8.6 $PKGDIR/usr/bin/wish 
+ln -v -sf wish8.6 $PKGDIR/usr/bin/wish
 chmod -v 755 $PKGDIR/usr/lib/libtk8.6.so
 
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -67,6 +69,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

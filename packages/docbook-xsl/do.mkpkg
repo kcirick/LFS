@@ -1,11 +1,10 @@
 #!/bin/sh
 
 TARGET=docbook-xsl
-VERSION=1.79.1
-SOURCE=${TARGET}-${VERSION}.tar.bz2
-SOURCEDIR=$TARGET-$VERSION
-MARCH=$( uname -m )
-
+VERSION=1.79.2
+SOURCE=${TARGET}-nons-${VERSION}.tar.bz2
+SOURCEDIR=$TARGET-nons-$VERSION
+PATCH=$TARGET-nons-$VERSION-stack_fix-1.patch
 
 #--- Check for dependency (but only warn) 
 DEP=(libxml2)
@@ -25,7 +24,10 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/docbook/$SOURCE
+   wget https://github.com/docbook/xslt10-stylesheets/releases/download/release/1.79.2/$SOURCE
+fi
+if [ ! -s $PATCH ]; then
+   wget http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
@@ -44,17 +46,20 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+patch -N1 -i $CWD/$PATCH
 
-install -v -m755 -d $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-$VERSION
+install -v -m755 -d $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2
 
-cp -vR VERSION assembly common eclipse epub epub3 extensions fo \
-       highlighting html htmlhelp images javahelp lib manpages params \
-       profiling roundtrip slides template tests tools webhelp website \
-       xhtml xhtml-1_1 xhtml5 \
-       $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-$VERSION
+cp -v -R VERSION assembly common eclipse epub epub3 extensions fo          \
+         highlighting html htmlhelp images javahelp lib manpages params    \
+         profiling roundtrip slides template tests tools webhelp website   \
+         xhtml xhtml-1_1 xhtml5                                            \
+   $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2
 
-ln -s VERSION $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-$VERSION/VERSION.xsl
+ln -s VERSION $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2/VERSION.xsl
 
+install -v -m644 -D README $PKGDIR/usr/share/doc/docbook-xsl-nons-1.79.2/README.txt
+install -v -m644    RELEASE-NOTES* NEWS* $PKGDIR/usr/share/doc/docbook-xsl-nons-1.79.2
 
 
 #--- Should not have to touch below this
@@ -65,6 +70,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

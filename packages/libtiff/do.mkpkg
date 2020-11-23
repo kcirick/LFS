@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=libtiff
-VERSION=4.0.6
+VERSION=4.1.0
 SOURCE=tiff-${VERSION}.tar.gz
-SOURCEDIR=tiff-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=tiff-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libjpeg-turbo jbigkit)
+DEP=(cmake)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -44,11 +43,17 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr --disable-static
 
-make
-make DESTDIR=$PKGDIR install
+mkdir libtiff-build && cd libtiff-build
+cmake -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libtiff-4.1.0 \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -G Ninja .. 
 
+ninja || exit 1
+DESTDIR=$PKGDIR ninja install || exit 1
+
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -56,6 +61,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

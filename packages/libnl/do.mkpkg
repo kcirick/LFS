@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=libnl
-VERSION=3.2.27
+VERSION=3.5.0
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://www.carisma.slowglass.com/~tgr/libnl/files/$SOURCE
+   wget https://github.com/thom311/libnl/releases/download/libnl3_5_0/$SOURCE
 fi
 
 

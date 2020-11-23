@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=dbus
-VERSION=1.10.6
+VERSION=1.12.20
 SOURCE=${TARGET}-${VERSION}.tar.gz
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(xorg-libs)
+DEP=(systemd xorg-libs)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://dbus.freedesktop.org/releases/dbus/$SOURCE
+   wget https://dbus.freedesktop.org/releases/dbus/$SOURCE
 fi
 
 
@@ -48,15 +47,23 @@ chown -R root:root .
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
             --localstatedir=/var \
+            --enable-user-session \
+            --disable-doxygen-docs \
+            --disable-xml-docs \
+            --disable-static \
+            --docdir=/usr/share/doc/dbus-1.12.20 \
             --with-console-auth-dir=/run/console \
-            --docdir=/usr/share/doc/$TARGET-$VERSION
+            --with-system-pid-file=/run/dbus/pid \
+            --with-system-socket=/run/dbus/system_bus_socket
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
-rm -rf $PKGDIR/var/run
-mkdir -p $PKGDIR/run/dbus
+mv -v $PKGDIR/usr/lib/libdbus-1.so.* $PKGDIR/lib
+ln -sfv ../../lib/$(readlink $PKGDIR/usr/lib/libdbus-1.so) $PKGDIR/usr/lib/libdbus-1.so
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -64,6 +71,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

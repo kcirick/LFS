@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=gtk3
-VERSION=3.20.4
+VERSION=3.24.22
 SOURCE=gtk+-${VERSION}.tar.xz
-SOURCEDIR=gtk+-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=gtk+-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(pango gdk-pixbuf libxkbcommon at-spi2-atk hicolor-icon-theme)
+DEP=(at-spi2-atk fribidi gdk-pixbuf libepoxy pango adwaita-icon-theme hicolor-icon-theme iso-codes libxkbcommon sassc wayland-proto)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,12 +24,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnome.org/pub/gnome/sources/gtk+/3.20/$SOURCE
+   wget http://ftp.gnome.org/pub/gnome/sources/gtk+/3.24/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/root
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -44,14 +43,18 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+
 ./configure --prefix=/usr \
-            --sysconfdir=/etc         \
+            --sysconfdir=/etc/ \
             --enable-broadway-backend \
-            --enable-x11-backend
+            --enable-x11-backend \
+            --enable-wayland-backend
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -59,6 +62,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

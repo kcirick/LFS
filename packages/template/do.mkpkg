@@ -32,7 +32,7 @@ CWD=$(pwd)
 TMPDIR=/tmp
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=/packages
+TARGETDIR=$CWD
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
@@ -46,8 +46,8 @@ chown -R root:root .
 
 ./configure --prefix=/usr 
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
 
 #--- Should not have to touch below this

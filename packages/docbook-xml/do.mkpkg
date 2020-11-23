@@ -3,8 +3,7 @@
 TARGET=docbook-xml
 VERSION=4.5
 SOURCE=${TARGET}-${VERSION}.zip
-SOURCEDIR=$TARGET
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
@@ -30,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp/$TARGET
+TMPDIR=/tmp
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -38,16 +37,18 @@ TARGETDIR=$CWD
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
 
-mkdir -p $TMPDIR && cd $TMPDIR
+cd $TMPDIR
 rm -rf $SOURCEDIR
 unzip $CWD/$SOURCE || exit 1
 #cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+
 install -v -d -m755 $PKGDIR/usr/share/xml/docbook/xml-dtd-4.5
 install -v -d -m755 $PKGDIR/etc/xml
 
-cp -v -af docbook.cat *.dtd ent/ *.mod $PKGDIR/usr/share/xml/docbook/xml-dtd-4.5
+cp -r -af docbook.cat *.dtd ent/ *.mod $PKGDIR/usr/share/xml/docbook/xml-dtd-4.5
+
 
 
 #--- Should not have to touch below this
@@ -58,6 +59,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

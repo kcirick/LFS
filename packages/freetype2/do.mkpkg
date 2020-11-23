@@ -1,10 +1,9 @@
 #!/bin/sh
 
 TARGET=freetype2
-VERSION=2.6.3
-SOURCE=freetype-${VERSION}.tar.bz2
-SOURCEDIR=freetype-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+VERSION=2.10.2
+SOURCE=freetype-${VERSION}.tar.xz
+SOURCEDIR=freetype-$VERSION
 
 
 #--- Check for dependency (but only warn) 
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/freetype/$SOURCE
+   wget https://downloads.sourceforge.net/freetype/$SOURCE
 fi
 
 
@@ -44,20 +43,19 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-sed -i  -e "/AUX.*.gxvalid/s@^# @@" \
-        -e "/AUX.*.otvalid/s@^# @@" \
-        modules.cfg
 
-sed -ri -e 's:.*(#.*SUBPIXEL.*) .*:\1:' include/freetype/config/ftoption.h      
+sed -ri "s:.*(AUX_MODULES.*valid):\1:" modules.cfg
 
-./configure --prefix=/usr --disable-static
+sed -r "s:.*(#.*SUBPIXEL_RENDERING) .*:\1:" \
+    -i include/freetype/config/ftoption.h
 
-make
-make DESTDIR=$PKGDIR install
+./configure --prefix=/usr --enable-freetype-config --disable-static
 
-install -v -m755 -d $PKGDIR/usr/share/doc/freetype-2.6
-cp -v -R docs/*     $PKGDIR/usr/share/doc/freetype-2.6
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -65,6 +63,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

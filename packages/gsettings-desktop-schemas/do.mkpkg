@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=gsettings-desktop-schemas
-VERSION=3.18.0
+VERSION=3.36.1
 SOURCE=${TARGET}-${VERSION}.tar.xz
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(glib)
+DEP=(glib gobject-introspection)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnome.org/pub/gnome/sources/gsettings-desktop-schemas/3.18/$SOURCE
+   wget http://ftp.gnome.org/pub/gnome/sources/gsettings-desktop-schemas/3.36/$SOURCE
 fi
 
 
@@ -44,11 +43,16 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr 
+sed -i -r 's:"(/system):"/org/gnome\1:g' schemas/*.in
 
-make
-make DESTDIR=$PKGDIR install
+mkdir build && cd build
+meson --prefix=/usr ..
 
+ninja || exit 1
+DESTDIR=$PKGDIR ninja install || exit 1
+
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -56,6 +60,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

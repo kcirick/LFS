@@ -4,9 +4,7 @@ TARGET=sgml-common
 VERSION=0.6.3
 SOURCE=${TARGET}-${VERSION}.tgz
 SOURCEDIR=$TARGET-$VERSION
-PATCH=${TARGET}-${VERSION}-manpage-1.patch
-MARCH=$( uname -m )
-
+PATCH=$TARGET-$VERSION-manpage-1.patch
 
 #--- Check for dependency (but only warn) 
 DEP=()
@@ -26,10 +24,10 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget ftp://sources.redhat.com/pub/docbook-tools/new-trials/SOURCES/$SOURCE
+   wget https://sourceware.org/ftp/docbook-tools/new-trials/SOURCES/$SOURCE
 fi
 if [ ! -s $PATCH ]; then
-   wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
+   wget http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
@@ -48,14 +46,13 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+
 patch -Np1 -i $CWD/$PATCH
-
-autoreconf -f -i
-
+autoreconf -fiv
 ./configure --prefix=/usr --sysconfdir=/etc
 
-make
-make DESTDIR=$PKGDIR docdir=/usr/share/doc install
+make || exit 1
+make DESTDIR=$PKGDIR docdir=/usr/share/doc install || exit 1
 
 
 #--- Should not have to touch below this
@@ -66,6 +63,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

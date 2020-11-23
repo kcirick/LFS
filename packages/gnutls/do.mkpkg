@@ -1,14 +1,13 @@
 #!/bin/sh
 
 TARGET=gnutls
-VERSION=3.4.9
+VERSION=3.6.14
 SOURCE=${TARGET}-${VERSION}.tar.xz
-SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
-MARCH=$( uname -m )
+SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(nettle p11-kit)
+DEP=(nettle make-ca)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget ftp://ftp.gnutls.org/gcrypt/gnutls/v3.4/$SOURCE
+   wget https://www.gnupg.org/ftp/gcrypt/gnutls/v3.6/$SOURCE
 fi
 
 
@@ -44,12 +43,18 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+
 ./configure --prefix=/usr \
-            --with-default-trust-store-file=/etc/ssl/ca-bundle.crt
+            --docdir=/usr/share/doc/gnutls-3.6.14 \
+            --disable-guile \
+            --with-included-unistring \
+            --with-default-trust-store-pkcs11="pkcs11:"
 
 make
 make DESTDIR=$PKGDIR install
 
+
+#--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
@@ -57,6 +62,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR
