@@ -27,7 +27,6 @@ install -dv -m 1777 /tmp /var/tmp
 
 
 # 7.6
-
 ln -sv /proc/self/mounts /etc/mtab
 
 echo "127.0.0.1 localhost $(hostname)" > /etc/hosts
@@ -90,7 +89,6 @@ chgrp -v utmp /var/log/lastlog
 chmod -v 664  /var/log/lastlog
 chmod -v 600  /var/log/btmp
 
-logout
 
 echo "Done Chapter 7 set up. Issue following command:"
 echo "exec /bin/bash --login +h"

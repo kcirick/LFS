@@ -15,7 +15,6 @@ cd $LFS/sources
 
 #-----
 echo "# 7.7. Libstdc++ from gcc-10.2.0 Pass 2"
-rm -rf gcc-10.2.0
 tar -xf gcc-10.2.0.tar.xz
 cd gcc-10.2.0
 
@@ -33,7 +32,11 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
-#rm -rf gcc-9.2.0
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
+rm -rf gcc-10.2.0
 
 #-----
 echo "# 7.8. Gettext-0.21"
@@ -46,6 +49,10 @@ make || exit 1
 cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /usr/bin
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
 rm -rf gettext-0.21
 
 #-----
@@ -59,6 +66,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
 rm -rf bison-3.7.1
 
 #-----
@@ -79,6 +90,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
 rm -rf perl-5.32.0
 
 #-----
@@ -94,6 +109,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
 rm -rf Python-3.8.5
 
 #-----
@@ -107,6 +126,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
 rm -rf texinfo-6.7
 
 #-----
@@ -131,6 +154,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
 rm -rf util-linux-2.36
 
 
