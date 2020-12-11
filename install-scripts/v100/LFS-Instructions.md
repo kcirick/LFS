@@ -174,10 +174,10 @@ Then load the profile:
 
 ### 7.2 Changing Ownership
 
-   sudo chown -R root:root $LFS/{usr,lib,var,etc,bin,sbin,tools}
-   case $(uname -m) in
-      x86_64) sudo chown -R root:root $LFS/lib64 ;;
-   esac
+    sudo chown -R root:root $LFS/{usr,lib,var,etc,bin,sbin,tools}
+    case $(uname -m) in
+       x86_64) sudo chown -R root:root $LFS/lib64 ;;
+    esac
 
 ### 7.3 Preparing Virtual Kernel File Systems
 
@@ -270,7 +270,7 @@ Think about using pfstool for LFS. Currently used only for BLFS.
 
 Re-enter the chroot environment:
 
-    chroot $LFS /tools/bin/env -i            \
+    chroot $LFS /usr/bin/env -i            \
         HOME=/root TERM=$TERM PS1='(chroot) \u:\w\$ ' \
         PATH=/bin:/usr/bin:/sbin:/usr/sbin   \
         /tools/bin/bash --login
