@@ -37,7 +37,7 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
-#rm -rf binutils-2.34
+rm -rf binutils-2.34
 
 
 #-----
@@ -56,7 +56,7 @@ mv -v mpc-1.1.0 mpc
 case $(uname -m) in
 	x86_64)
 		sed -e '/m64=/s/lib64/lib/' \
-			-i.org gcc/config/i386/t-linux64
+			-i.orig gcc/config/i386/t-linux64
 	;;
 esac
 
@@ -89,7 +89,7 @@ cat gcc/limitx.h gcc/glimits.h gcc/limity.h > \
 	`dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/install-tools/include/limits.h
 
 cd $LFS/sources
-#rm -rf gcc-9.2.0
+rm -rf gcc-10.2.0
 
 
 #-----
@@ -105,7 +105,7 @@ rm usr/include/Makefile
 cp -rv usr/include $LFS/usr
 
 cd $LFS/sources
-#rm -rf linux-5.8.3
+rm -rf linux-5.8.3
 
 
 #-----
@@ -145,14 +145,12 @@ if [ "$answer" != "Y" ]; then
    return
 fi
 
-
-#rm -rf glibc-2.31
-
 $LFS/tools/libexec/gcc/$LFS_TGT/10.2.0/install-tools/mkheaders
+
+rm -rf glibc-2.31
 
 #-----
 echo "# 5.6. Libstdc++ from gcc-10.2.0"
-rm -rf gcc-10.2.0
 tar -xf gcc-10.2.0.tar.xz
 cd gcc-10.2.0
 
@@ -169,7 +167,7 @@ make || exit 1
 make DESTDIR=$LFS install || exit 1
 
 cd $LFS/sources
-#rm -rf gcc-9.2.0
+rm -rf gcc-10.2.0
 
 echo ""
 echo "=== End of Chapter 5 ==="
