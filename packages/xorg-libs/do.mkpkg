@@ -37,7 +37,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -50,7 +50,7 @@ rm -rf $SOURCEDIR
 
 for package in $(cat $CWD/$SOURCELIST | awk -F'/' '{print $7}'); do
    packagedir=${package%.tar.bz2}
-   tar -xvf $CWD/$package || exit 1
+   tar -xf $CWD/$package || exit 1
    
    pushd $packagedir
       docdir="--docdir=$XORG_PREFIX/share/doc/$packagedir"

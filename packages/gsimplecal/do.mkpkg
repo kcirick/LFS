@@ -8,7 +8,7 @@ MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(gtk2)
+DEP=(gtk3)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -30,7 +30,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -39,18 +39,17 @@ rm -rf $PKGDIR
 mkdir -p $PKGDIR
 
 cd $TMPDIR
-rm -rf $SOURCEDIR
-unzip $CWD/$SOURCE || exit 1
+#rm -rf $SOURCEDIR
+#unzip $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 ./autogen.sh
 ./configure --prefix=/usr \
             --disable-static \
-            --enable-gtk2
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=js
-VERSION=17.0.0
-SOURCE=mozjs${VERSION}.tar.gz
-SOURCEDIR=mozjs$VERSION        # Usually $TARGET-$VERSION
+VERSION=68.11.0
+SOURCE=firefox-${VERSION}esr.source.tar.xz
+SOURCEDIR=firefox-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libffi nspr python2 zip)
+DEP=(autoconf-legacy icu python2 which)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,12 +25,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.mozilla.org/pub/mozilla.org/$TARGET/$SOURCE
+   wget https://archive.mozilla.org/pub/firefox/releases/${VERSION}esr/source/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -44,18 +44,25 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-cd js/src
+sed '21,+4d' -i js/moz.configure
 
-sed -i 's/(defined\((@TEMPLATE_FILE)\))/\1/' config/milestone.pl
+mkdir obj
+cd obj
 
-./configure --prefix=/usr \
-            --enable-readline \
-            --enable-threadsafe \
-            --with-system-ffi \
-            --with-system-nspr
+CC=gcc CXX=g++ LLVM_OBJDUMP=/bin/false \
+../js/src/configure --prefix=/usr \
+                    --with-intl-api \
+                    --with-system-zlib \
+                    --with-system-icu \
+                    --disable-jemalloc \
+                    --disable-debug-symbols \
+                    --enable-readline \
+                    --enable-unaligned-private-values
 
 make
 make DESTDIR=$PKGDIR install
+
+rm -v $PKGDIR/usr/lib/libjs_static.ajs
 
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=lua
-VERSION=5.3.2
+VERSION=5.4.0
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION
 PATCH=${TARGET}-${VERSION}-shared_library-1.patch
@@ -29,12 +29,12 @@ if [ ! -s $SOURCE ]; then
    wget http://www.lua.org/ftp/$SOURCE
 fi
 if [ ! -s $PATCH ]; then
-   wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
+   wget http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -51,14 +51,14 @@ chown -R root:root .
 cp $CWD/lua.pc .
 
 patch -Np1 -i $CWD/$PATCH
-sed -i '/#define LUA_ROOT/s:/usr/local/:/usr/:' src/luaconf.h
 
-make MYCFLAGS="-DLUA_COMPAT_5_2 -DLUA_COMPAT_5_1" linux
-make TO_LIB="liblua.so liblua.so.5.3 liblua.so.5.3.2" \
+make linux || exit 1
+
+make TO_LIB="liblua.so liblua.so.5.4 liblua.so.5.4.0" \
      INSTALL_DATA="cp -d" \
      INSTALL_TOP=$PKGDIR/usr \
-     INSTALL_INC=$PKGDIR/include/lua \
-     INSTALL_MAN=/usr/share/man/man1  \
+     INSTALL_INC=$PKGDIR/usr/include \
+     INSTALL_MAN=$PKGDIR/usr/share/man/man1  \
      install
 
 install -v -m644 -D lua.pc $PKGDIR/usr/lib/pkgconfig/lua.pc

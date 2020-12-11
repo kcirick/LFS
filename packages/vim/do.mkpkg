@@ -1,9 +1,9 @@
 #!/bin/sh
 
 TARGET=vim
-VERSION=8.2
+VERSION=8.1
 SOURCE=${TARGET}-${VERSION}.tar.bz2
-SOURCEDIR=${TARGET}82
+SOURCEDIR=${TARGET}81
 
 
 #--- Check for dependency (but only warn) 
@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -55,8 +55,8 @@ echo '#define SYS_GVIMRC_FILE "/etc/gvimrc"' >> src/feature.h
 make || exit 1
 make DESTDIR=$PKGDIR install || exit 1
 
-mkdir -p $PKGDIR/usr/share/doc/vim8.2
-ln -snfv ../vim/vi82/doc $PKGDIR/usr/share/doc/vim-8.2
+mkdir -p $PKGDIR/usr/share/doc/vim-$VERSION
+ln -snfv ../vim/vim81/doc $PKGDIR/usr/share/doc/vim-$VERSION
 
 
 #--- Should not have to touch below this

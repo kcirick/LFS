@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=nss
-VERSION=3.24
+VERSION=3.55
 SOURCE=${TARGET}-${VERSION}.tar.gz
 PATCH=${TARGET}-${VERSION}-standalone-1.patch
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
@@ -9,7 +9,7 @@ MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(nspr sqlite)
+DEP=(nspr sqlite p11-kit)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,15 +26,15 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_24_RTM/src/$SOURCE
+   wget https://archive.mozilla.org/pub/security/nss/releases/NSS_3_55_RTM/src/$SOURCE
 fi
 if [ ! -s $PATCH ]; then
-   wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
+   wget http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -55,19 +55,23 @@ make BUILD_OPT=1                      \
   NSPR_INCLUDE_DIR=/usr/include/nspr  \
   USE_SYSTEM_ZLIB=1                   \
   ZLIB_LIBS=-lz                       \
+  NSS_ENABLE_WERROR=0 \
   USE_64=1 \
-  NSS_USE_SYSTEM_SQLITE=1
+  NSS_USE_SYSTEM_SQLITE=1 || exit 1
 
 
 cd ../dist
 install -v -m755 -d                           $PKGDIR/usr/lib
 install -v -m755 Linux*/lib/*.so              $PKGDIR/usr/lib 
 install -v -m644 Linux*/lib/{*.chk,libcrmf.a} $PKGDIR/usr/lib
+
 install -v -m755 -d                           $PKGDIR/usr/include/nss
 cp -v -RL {public,private}/nss/*              $PKGDIR/usr/include/nss
 chmod -v 644                                  $PKGDIR/usr/include/nss/*
+
 install -v -m755 -d                           $PKGDIR/usr/bin
 install -v -m755 Linux*/bin/{certutil,nss-config,pk12util} $PKGDIR/usr/bin
+
 install -v -m755 -d                           $PKGDIR/usr/lib/pkgconfig
 install -v -m644 Linux*/lib/pkgconfig/nss.pc  $PKGDIR/usr/lib/pkgconfig
 

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=python2
-VERSION=2.7.11
+VERSION=2.7.18
 SOURCE=Python-${VERSION}.tar.xz
 SOURCEDIR=Python-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libffi)
+DEP=(sqlite)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,12 +25,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget https://www.python.org/ftp/python/2.7.11/$SOURCE
+   wget https://www.python.org/ftp/python/$VERSION/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/souces/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -48,10 +48,14 @@ chown -R root:root .
             --enable-shared \
             --with-system-expat \
             --with-system-ffi \
+            --with-ensurepip=yes \
             --enable-unicode=ucs4
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
+
+chmod -v 755 $PKGDIR/usr/lib/libpython2.7.so.1.0
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

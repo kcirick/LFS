@@ -1,15 +1,14 @@
 #!/bin/sh
 
 TARGET=x265
-VERSION=1.9
+VERSION=3.4
 SOURCE=${TARGET}_${VERSION}.tar.gz
 SOURCEDIR=${TARGET}_${VERSION}        # Usually $TARGET-$VERSION
-PATCH=${TARGET}-${VERSION}-enable_static-1.patch
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(cmake yasm)
+DEP=(cmake nasm)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,15 +25,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget https://bitbucket.org/multicoreware/$TARGET/downloads/$SOURCE
-fi
-if [ ! -s $PATCH ]; then
-   wget http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
+   wget http://anduin.linuxfromscratch.org/BLFS/x265/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -48,16 +44,15 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-patch -Np1 -i $CWD/$PATCH
-
 mkdir bld && cd bld
 
 cmake -DCMAKE_INSTALL_PREFIX=/usr \
-      -DENABLE_STATIC=OFF         \
       ../source                   
 
 make
 make DESTDIR=$PKGDIR install
+
+rm -vf $PKGDIR/usr/lib/libx265.a
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

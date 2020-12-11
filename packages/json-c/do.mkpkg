@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=json-c
-VERSION=0.12
+VERSION=0.15
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=()
+DEP=(cmake)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -30,7 +30,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -45,9 +45,11 @@ cd $SOURCEDIR || exit 1
 chown -R root:root .
 
 
-sed -i s/-Werror// Makefile.in
-
-./configure --prefix=/usr --disable-static
+mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_STATIC_LIBS=OFF \
+      ..
 
 make
 make DESTDIR=$PKGDIR install

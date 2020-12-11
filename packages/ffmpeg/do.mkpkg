@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=ffmpeg
-VERSION=3.0.2
+VERSION=4.3.1
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(fdk-aac freetype2 lame libass libvorbis libvpx x264 x265 alsa-lib gnutls pulseaudio)
+DEP=(libass fdk-aac freetype2 lame libtheora libvorbis libvpx opus x264 x265 yasm)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -30,7 +30,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -57,12 +57,12 @@ sed -i 's/-lflite"/-lflite -lasound"/' configure
             --enable-libfdk-aac  \
             --enable-libfreetype \
             --enable-libmp3lame  \
-            --enable-libpulse    \
+            --enable-libopus     \
+            --enable-libtheora   \
             --enable-libvorbis   \
             --enable-libvpx      \
             --enable-libx264     \
             --enable-libx265     \
-            --enable-x11grab     \
             --enable-gnutls      \
             --docdir=/usr/share/doc/$TARGET-$VERSION
 

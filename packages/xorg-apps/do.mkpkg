@@ -66,6 +66,7 @@ for package in $(cat $CWD/$SOURCELIST | awk -F'/' '{print $7}'); do
    rm -rf $packagedir
 done
 
+rm -fv $PKGDIR/$XORG_PREFIX/bin/xkeystone
 
 #--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

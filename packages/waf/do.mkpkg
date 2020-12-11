@@ -1,0 +1,74 @@
+#!/bin/sh
+
+TARGET=waf
+VERSION=2.0.21
+SOURCE=${TARGET}-${VERSION}.tar.bz2
+SOURCEDIR=$TARGET-$VERSION
+
+
+#--- Check for dependency (but only warn) 
+DEP=()
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget https://waf.io/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/sources/build
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+sed -e "/test(i/ s|dirname|'python${pyver}/site-packages/waf'|" -i waf-light
+
+./waf-light configure --prefix=/usr build --make-waf
+
+sed -i '/^#==>$/,/^#<==$/d' waf
+
+install -vDm755 waf -t $PKGDIR/usr/bin
+install -vDm644 wscript -t $PKGDIR/usr/share/waf
+
+install -vDm644 waflib/*.py         -t $PKGDIR/usr/lib/python${pyver}/site-packages/waf/waflib
+install -vDm644 waflib/Tools/*.py   -t $PKGDIR/usr/lib/python${pyver}/site-packages/waf/waflib/Tools
+install -vDm644 waflib/extras/*.py  -t $PKGDIR/usr/lib/python${pyver}/site-packages/waf/waflib/extras
+
+python3 -m compileall -d "/usr/lib/python${pyver}" $PKGDIR/usr/lib/python${pyver}
+python3 -O -m compileall -d "/usr/lib/python${pyver}" $PKGDIR/usr/lib/python${pyver}
+
+unset pyver
+
+
+#--- Should not have to touch below this
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
+

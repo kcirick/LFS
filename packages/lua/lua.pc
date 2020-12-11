@@ -1,5 +1,5 @@
-V=5.3
-R=5.3.2
+V=5.4
+R=5.4.0
 
 prefix=/usr
 INSTALL_BIN=${prefix}/bin
@@ -16,5 +16,5 @@ Name: Lua
 Description: An Extensible Extension Language
 Version: ${R}
 Requires:
-Libs: -L${libdir} -llua -lm
+Libs: -L${libdir} -llua -lm -ldl
 Cflags: -I${includedir}

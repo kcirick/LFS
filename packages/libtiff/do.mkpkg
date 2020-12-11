@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -45,7 +45,7 @@ chown -R root:root .
 
 
 mkdir libtiff-build && cd libtiff-build
-cmake -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libtiff-4.1.0 \
+cmake -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libtiff-$VERSION \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -G Ninja .. 
 

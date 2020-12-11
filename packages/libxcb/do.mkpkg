@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -46,7 +46,7 @@ chown -R root:root .
 CFLAGS=-Wno-error=format-extra-args \
 ./configure $XORG_CONFIG \
       --without-doxygen \
-      --docdir=/usr/share/doc/libxcb-1.14
+      --docdir=/usr/share/doc/libxcb-$VERSION
 
 make || exit 1
 make DESTDIR=$PKGDIR install || exit 1

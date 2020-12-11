@@ -7,7 +7,7 @@ SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(nettle make-ca)
+DEP=(nettle make-ca libunistring)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -45,7 +45,7 @@ chown -R root:root .
 
 
 ./configure --prefix=/usr \
-            --docdir=/usr/share/doc/gnutls-3.6.14 \
+            --docdir=/usr/share/doc/gnutls-$VERSION \
             --disable-guile \
             --with-included-unistring \
             --with-default-trust-store-pkcs11="pkcs11:"

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=pciutils
-VERSION=3.5.1
+VERSION=3.7.0
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -48,6 +48,7 @@ make PREFIX=/usr SHAREDIR=/usr/share/hwdata SHARED=yes
 
 make PREFIX=/usr SHAREDIR=/usr/share/hwdata SHARED=yes DESTDIR=$PKGDIR install install-lib
 
+chmod -v 755 $PKGDIR/usr/lib/libpci.so
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

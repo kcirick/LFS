@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=gvfs
-VERSION=1.26.2
+VERSION=1.44.1
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(dbus glib gtk3 libgudev libsecret systemd udisks2)
+DEP=(dbus glib libusb libsecret libsoup gtk3 libgudev systemd udisks2 fuse3)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,12 +25,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://ftp.gnome.org/pub/gnome/sources/$TARGET/1.26/$SOURCE
+   wget http://ftp.gnome.org/pub/gnome/sources/gvfs/1.44/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -39,19 +39,31 @@ rm -rf $PKGDIR
 mkdir -p $PKGDIR
 
 cd $TMPDIR
-#rm -rf $SOURCEDIR
-#tar -xvf $CWD/$SOURCE || exit 1
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
-#chown -R root:root .
+chown -R root:root .
 
-./configure --prefix=/usr \
-            --sysconfdir=/etc \
-            --disable-gcr \
-            --disable-gphoto2 \
-            --disable-documentation
 
-make
-make DESTDIR=$PKGDIR install
+mkdir build && cd build
+meson --prefix=/usr \
+      --sysconfdir=/etc \
+      -Dfuse=true \
+      -Dgcr=false \
+      -Dgphoto2=false \
+      -Dafc=false \
+      -Dbluray=false \
+      -Dnfs=false \
+      -Dmtp=false \
+      -Dsmb=false \
+      -Ddnssd=false \
+      -Dgoa=false \
+      -Dgoogle=false \
+      -Dcdda=false \
+      ..
+
+ninja || exit 1
+DESTDIR=$PKGDIR ninja install || exit 1
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

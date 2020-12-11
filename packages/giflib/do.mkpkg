@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=giflib
-VERSION=5.1.4
-SOURCE=${TARGET}-${VERSION}.tar.bz2
+VERSION=5.2.1
+SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=()
+DEP=(xmlto)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,7 +25,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://downloads.sourceforge.net/$TARGET/$SOURCE
+   wget https://sourceforge.net/projects/$TARGET/files/$SOURCE
 fi
 
 
@@ -44,10 +44,12 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-./configure --prefix=/usr --disable-static
 
 make
-make DESTDIR=$PKGDIR install
+make DESTDIR=$PKGDIR PREFIX=/usr install
+
+find doc \( -name Makefile\* -o -name \*.1 -o -name \*.xml \) -exec rm -v {} \;
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

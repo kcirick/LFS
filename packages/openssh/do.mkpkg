@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=openssh
-VERSION=7.2p2
+VERSION=8.3p1
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(openssl)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -60,8 +60,6 @@ make DESTDIR=$PKGDIR install
 
 install -v -m755 contrib/ssh-copy-id $PKGDIR/usr/bin
 install -v -m644 contrib/ssh-copy-id.1 $PKGDIR/usr/share/man/man1 
-install -v -m755 -d $PKGDIR/usr/share/doc/$TARGET-$VERSION
-install -v -m644 INSTALL LICENCE OVERVIEW README* $PKGDIR/usr/share/doc/$TARGET-$VERSION
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

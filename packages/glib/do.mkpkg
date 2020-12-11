@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -45,7 +45,7 @@ chown -R root:root .
 
 
 mkdir build && cd build
-meson --prefix=/usr -Dman=false -Ddoc=false -Dselinux=disabled ..
+meson --prefix=/usr -Dman=true -Ddoc=false -Dselinux=disabled ..
 
 ninja || exit 1
 DESTDIR=$PKGDIR ninja install || exit 1

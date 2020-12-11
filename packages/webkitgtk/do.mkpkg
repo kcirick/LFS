@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/root
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -41,24 +41,24 @@ cd $TMPDIR
 #rm -rf $SOURCEDIR
 #tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
-chown -R root:root .
+#chown -R root:root .
 
 
 #mkdir build &&
 cd build
-#cmake -DCMAKE_BUILD_TYPE=Release \
-#      -DCMAKE_INSTALL_PREFIX=/usr \
-#      -DCMAKE_SKIP_RPATH=ON \
-#      -DPORT=GTK \
-#      -DLIB_INSTALL_DIR=/usr/lib \
-#      -DUSE_LIBHYPHEN=OFF \
-#      -DUSE_LIBNOTIFY=OFF \
-#      -DENABLE_MINIBROWSER=ON \
-#      -DUSE_WOFF2=OFF \
-#      -DUSE_WPE_RENDERER=OFF \
-#      -DENABLE_BUBBLEWRAP_SANDBOX=OFF \
-#      -DENABLE_SPELLCHECK=OFF \
-#      -Wno-dev -G Ninja ..
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_SKIP_RPATH=ON \
+      -DPORT=GTK \
+      -DLIB_INSTALL_DIR=/usr/lib \
+      -DUSE_LIBHYPHEN=OFF \
+      -DUSE_LIBNOTIFY=OFF \
+      -DENABLE_MINIBROWSER=ON \
+      -DUSE_WOFF2=OFF \
+      -DUSE_WPE_RENDERER=OFF \
+      -DENABLE_BUBBLEWRAP_SANDBOX=OFF \
+      -DENABLE_SPELLCHECK=OFF \
+      -Wno-dev -G Ninja ..
 
 ninja || exit 1
 DESTDIR=$PKGDIR ninja install || exit 1

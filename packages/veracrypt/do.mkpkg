@@ -1,0 +1,65 @@
+#!/bin/sh
+
+TARGET=veracrypt
+VERSION=1.24.u7
+SOURCE=VeraCrypt_1.24-Update7_Source.tar.bz2
+SOURCEDIR=VeraCrypt_1.24-Update7_Source
+
+
+#--- Check for dependency (but only warn) 
+DEP=(lvm2 fuse2 wxgtk3 sudo yasm)
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget https://launchpad.net/veracrypt/trunk/1.24-update7/+download/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/sources/build
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+#rm -rf $SOURCEDIR
+#mkdir $SOURCEDIR
+cd $SOURCEDIR || exit 1
+#tar -xvf $CWD/$SOURCE || exit 1
+#chown -R root:root .
+
+cd src
+
+make TC_EXTRA_LFLAGS+="-ldl ${LDFLAGS}" \
+     TC_EXTRA_CXXFLAGS="${CXXFLAGS} ${CPPFLAGS}" \
+     TC_EXTRA_CFLAGS="${CFLAGS} ${CPPFLAGS}" || exit 1
+
+install -Dm755 Main/veracrypt $PKGDIR/usr/bin/veracrypt
+install -Dm644 Resources/Icons/VeraCrypt-256x256.xpm $PKGDIR/usr/share/pixmaps/veracrypt.xpm
+
+#--- Should not have to touch below this
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
+

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=lame
-VERSION=3.99.5
+VERSION=3.100
 SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs nasm)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -30,7 +30,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -46,8 +46,9 @@ chown -R root:root .
 
 ./configure --prefix=/usr --enable-mp3rtp --enable-nasm --disable-static
 
-make
-make DESTDIR=$PKGDIR pkghtmldir=/usr/share/doc/$TARGET-$VERSION install
+make || exit 1
+make DESTDIR=$PKGDIR pkghtmldir=/usr/share/doc/$TARGET-$VERSION install || exit 1
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

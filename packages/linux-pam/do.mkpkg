@@ -7,7 +7,7 @@ SOURCEDIR=Linux-PAM-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=()
+DEP=(lfs)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -52,13 +52,19 @@ sed -e 's/dummy elinks/dummy lynx/' \
             --sysconfdir=/etc \
             --libdir=/usr/lib \
             --enable-securedir=/lib/security \
-            --docdir=/usr/share/doc/Linux-PAM-1.4.0
+            --docdir=/usr/share/doc/Linux-PAM-$VERSION
 
 make
 make DESTDIR=$PKGDIR install
 
 install -v -m755 -d $PKGDIR/etc/pam.d
 chmod -v 4755 $PKGDIR/sbin/unix_chkpwd
+
+echo "Relinking shared libraries..."
+for file in pam pam_misc pamc ; do
+   mv -v $PKGDIR/usr/lib/lib${file}.so.* $PKGDIR/lib
+   ln -sfv ../../lib/$(readlink $PKGDIR/usr/lib/lib${file}.so) $PKGDIR/usr/lib/lib${file}.so
+done
 
 #--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

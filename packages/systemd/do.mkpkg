@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -43,7 +43,6 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-tar -xf $CWD/systemd-man-pages-246.tar.xz
 
 sed -i 's/GROUP="render", //' rules.d/50-udev-default.rules.in
 
@@ -68,7 +67,7 @@ meson --prefix=/usr              \
       -Dhomed=false              \
       -Duserdb=false             \
       -Dpam=true                 \
-      -Ddocdir=/usr/share/doc/systemd-246 ..
+      -Ddocdir=/usr/share/doc/systemd-$VERSION ..
 
 ninja || exit
 DESTDIR=$PKGDIR ninja install || exit

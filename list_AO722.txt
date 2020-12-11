@@ -10,55 +10,52 @@ pfstool                             1.3            Y
 linux-pam                           1.4.0          Y
 shadow                              4.8.1          Y
    (linux-pam)
-systemd                             244            Y
+systemd                             246            Y
    (linux-pam)
 dbus                                1.12.20        Y
    (systemd)
    (xorg-libs)
+
 
 ## --- Network -----------------------------------------------------------
 wpa_supplicant                      2.9            Y
    libnl                            3.5.0          Y
 iw                                  5.4            Y
    (libnl)
+wireless_tools                      29             Y
 wget                                1.20.3         Y
    gnutls                           3.6.14         Y
       nettle                        3.6            Y
+      libunistring                  0.9.10         Y
       make-ca                       1.7            Y
          p11-kit                    0.23.20        Y
             libtasn1                4.16.0         Y
 
+
 ## --- Libraries ---------------------------------------------------------
-python2                             2.7.17         
-python3                             3.8.1          
+python2                             2.7.18         Y
+python3                             3.8.5          Y
 glib                                2.64.4         Y
    pcre                             8.44           Y
    libxslt                          1.1.34         Y
       libxml2                       2.9.10         Y
+      docbook-xml                   4.5            Y
+         (libxml2)
+         sgml-common                0.6.3          Y
+         unzip                      6.0            Y
+      docbook-xsl                   1.79.2         Y
+         (libxml2)
 unrar                               5.3.11                   
-pygobject2                          2.28.6                   
-   (glib)
-   gobject-introspection            1.48.0                   
-      (glib)
-   py2cairo                         1.10.0                   
-      (python2)
-      (cairo)
-pygobject3                          3.18.2          
-   (gobject-introspection)
-   (py2cairo)
 jre                                 8u91                     
 ruby                                2.7.1          Y
-libgcrypt                           1.6.5                    
-   libgpg-error                     1.22      
-polkit                              0.116          
+polkit                              0.117          Y
    (glib)
    (linux-pam)
-   mozjs                            60.8.0         
-      (python2)
-      autoconf                      2.13           
-      which                         2.21           
+   js                               68.11.0        Y 
+      autoconf-legacy               2.13           Y
       icu                           67.1           Y
-      zip                           3.0            
+      (python2)
+      (which)
 cmake                               3.18.1         Y
    libuv                            1.38.1         Y
    curl                             7.71.1         Y
@@ -67,25 +64,91 @@ cmake                               3.18.1         Y
    libarchive                       3.4.3          Y
    nghttp2                          1.41.0         Y
       (libxml2)
-imlib2                           1.6.1          
-   (xorg-libs)
-   (libpng)
-   (libjpeg-turbo)
-   libtiff                       4.1.0          
-      (cmake)
-   giflib                        5.2.1          
-librsvg                          2.46.4         
-   (gdk-pixbuf)
-   libcroco                      0.6.11         
-      (glib)
+rustc                               1.42.0         Y
+   (curl)
+   (cmake)
+   libssh2                          1.9.0          Y
+   (llvm) with clang
+
+
+## --- System tools ------------------------------------------------------
+pciutils                            3.7.0          Y
+udisks2                             2.9.1          Y
+   libatasmart                      0.19           Y
+   libblockdev                      2.24           Y
+      (gobject-introspection)
+      libbytesize                   2.4            Y
+         pcre2                      10.35          Y
+         pygmets                    2.6.1          Y
+      libyaml                       0.2.4          Y
+      parted                        3.3            Y
+         (lvm2)
+      volume_key                    0.3.12         Y
+         cryptsetup                 2.3.3          Y
+            json-c                  0.15           Y
+               (cmake)
+            lvm2                    2.03.10        Y
+               libaio               0.3.112        Y
+            popt                    1.18           Y
+         (glib)
+         gpgme                      1.14.0         Y
+            libassuan               2.5.3          Y
+               (libgpg-error)
+         nss                        3.55           Y
+            nspr                    4.27           Y
+            (sqlite)
+            (p11-kit)
+         swig                       4.0.2          Y
+            (pcre)
+   (libgudev)
+   (libxslt)
+   (polkit)
+   (systemd)
+gvfs                                1.44.1         Y
+   (dbus)
+   (glib)
+   libusb                           1.0.23         Y
+   (libsecret)
+   (libsoup)
+   (gtk3)
+   (libgudev)
+   (systemd)
+   (udisks2)
+   fuse3                            3.9.3          Y
+   (openssh)
+rfkill                              0.5             
+alsa-utils                          1.2.3          Y
+   alsa-lib                         1.2.3.2        Y
+alsa-tools                          1.2.2          Y
+   (alsa-lib)
+alsa-plugins                        1.2.2          Y
+   (alsa-lib)
+alsa-firmware                       1.2.1          Y
+   (alsa-tools)
+dbus-python                         1.2.4                    
+   dbus-glib                        0.106                    
+      (dbus)
+   (python2)
+dconf-editor                        3.18.2                   
+   dconf                            0.24.0                   
+      (gtk3)
       (libxml2)
-   (cairo)
-   (pango)
-   rustc                         1.37.0         
-      (curl)
-      (cmake)
-      libssh2                    1.9.0          
-      (llvm)
+      (libxslt)
+lm-sensors                          3.4.0                    
+   (which)
+lsof                                4.89                     
+   libtirpc                         1.0.1                    
+sudo                                1.9.2          Y
+   (linux-pam)         
+markdown                            1.0.1          
+sqlite                              3.33.0         Y
+conky                               1.11.6         Y
+   (cmake)
+   (xorg-libs)
+   (wireless_tools)
+   lua                              5.4.0          Y
+calc                                2.12.7.1       Y
+
 
 ## --- X11 ---------------------------------------------------------------
 xorg-libs                           -              Y
@@ -96,12 +159,13 @@ xorg-libs                           -              Y
          which                      2.21           Y
    libxcb                           1.14           Y
       libXau                        1.0.9          Y
-         xorg-proto                 2020.1         Y
+         xorg-protocols             2020.1         Y
             xorg-util-macros        1.19.2         Y
       xcb-proto                     1.14           Y
       libXdmcp                      1.1.3          Y
          (xorg-proto)
 xorg-apps                           -              Y
+   (libpng)
    mesa                             20.1.5         Y
       (xorg-libs)
       libdrm                        2.4.102        Y
@@ -111,13 +175,12 @@ xorg-apps                           -              Y
       wayland-protocols             1.20           Y
          wayland                    1.18.0         Y
             (libxml2)
-      llvm                          10.0.1         Y
+      llvm                          10.0.1         Y           With clang & compiler RT
          (cmake)
    xbitmaps                         1.1.2          Y
       (xorg-util-macros)
    xcb-util                         0.4.0          Y
       (libxcb)
-   (libpng)
 xorg-server                         1.20.8         Y
    pixman                           0.40.0         Y
    xorg-fonts                       -              Y
@@ -142,16 +205,25 @@ xf86-input-libinput                 0.30.0         Y
    libinput                         1.16.1         Y
       mtdev                         1.1.6          Y
       libevdev                      1.9.1          Y
-xf86-video-fbdev                    0.5.0          Y
-   (xorg-server)
 xf86-video-ati                      19.1.0         Y
    (xorg-server)
 harfbuzz                            2.7.1          Y
    (glib)
    graphite2                        1.3.14         Y
       (cmake)
-   (freetype) --> re-install after installing harfbuzz
+   (freetype2) --> re-install after installing harfbuzz
    (icu)
+pango                               1.46.0         Y
+   (fontconfig)
+   fribidi                          1.0.9          Y
+   (glib)
+   cairo                            1.17.2         Y       
+      (libpng)
+      (pixman)
+      (fontconfig)
+      (glib)
+   gobject-introspection            1.64.1         Y
+      (glib)
 gtk3                                3.24.22        Y
    at-spi2-atk                      2.34.2         Y
       at-spi2-core                  2.36.0         Y
@@ -161,42 +233,28 @@ gtk3                                3.24.22        Y
          (gobject-introspection)
       atk                           2.36.0         Y
          (glib)
-         gobject-introspection      1.64.1         Y
-            (glib)
-   fribidi                          1.0.9          Y
+         (gobject-introspection)
+   (fribidi)
    gdk-pixbuf                       2.40.0         Y
       (glib)
       libjpeg-turbo                 2.0.5          Y
          (cmake)
-         nasm                       2.15.03        Y       
+         nasm                       2.15.03        Y      
       (libpng)
       shared-mime-info              2.0            Y
          (glib)
          itstool                    2.0.6          Y
-            docbook-xml             4.5            Y
-               (libxml2)
-               sgml-common          0.6.3          Y
-               unzip                6.0            Y
+            (docbook-xml)
          (libxml2)
          xmlto                      0.0.28         Y
             (docbool-xml)
-            docbook-xsl             1.79.2         Y
+            (docbook-xsl)
             (libxslt)
       libtiff                       4.1.0          Y
          (cmake)
       (xorg-libs)
    (libepoxy)
-   pango                            1.46.0         Y
-      (fontconfig)
-      (fribidi)
-      (glib)
-      cairo                         1.17.2         Y
-         (libpng)
-         (pixman)
-         (fontconfig)
-         (glib)
-         (xorg-libs)
-      (gobject-introspection)
+   (pango)
    adwaita-icon-theme               3.36.1         Y
    hicolor-icon-theme               0.17           Y
    iso-codes                        4.5.0          Y
@@ -215,13 +273,15 @@ qt                                  4.8.7
    (sqlite)                   
    (dbus)
    (icu)
-ttf-dejavu                          2.37           Y
+ttf-dejavu                          2.37           
 ttf-sazanami                        20040629                 
 ttf-terminus                        4.40                     
 ohsnap-font                         1.8.0                    
 gtk-engines                         2.20.2                   
    (gtk2)
-xdotool                             3.20150503.1             
+xdotool                             3.20160805.1   Y
+   (xorg-libs)
+   (libxkbcommon)
 xdg-utils                           1.1.1                    
    xmlto                            0.0.28                   
       docbook-xml                   4.5                      
@@ -232,11 +292,7 @@ xdg-utils                           1.1.1
          (libxml2)
       (libxslt)
    links                            2.12                     
-glu                                 9.0.0                    
-   (mesa)
-xcb-util-keysyms                    0.4.0                    
-   (libxcb) 
-webkitgtk                           2.28.4
+webkitgtk                           2.28.4         Y
    (cairo)
    (cmake)
    gst-plugins-bad                  1.16.2         Y
@@ -245,6 +301,12 @@ webkitgtk                           2.28.4
             (glib)
             (gobject-introspection)
       (alsa-lib)
+   gst-plugins-good                 1.16.2         Y
+      (gst-plugins-base)
+   gst-libav                        1.16.2         Y
+      (ffmpeg)
+      (gst-plugins-base)
+      (yasm)
    (gtk3)
    (icu)
    libgudev                         233            Y
@@ -264,7 +326,7 @@ webkitgtk                           2.28.4
          (make-ca)
       libpsl                        0.21.1         Y
          libidn2                    2.3.0          Y
-            libunistring            0.9.10         Y
+            (libunistring)
       (libxml2)
       (sqlite)
    libwebp                          1.1.0          Y
@@ -280,120 +342,82 @@ webkitgtk                           2.28.4
    (sqlite)
    (which)
 
-## --- System tools ------------------------------------------------------
-pciutils                            3.6.4          
-udisks2                             2.8.4          
-   libatasmart                      0.19           
-   libblockdev                      2.23           
-      (gobject-introspection)
-      libbytesize                   2.2            
-         pcre2                      10.34          
-      libyaml                       0.2.2          
-      (parted)
-      volume_key                    0.3.12         
-         cryptsetup                 2.0.6          
-            json-c                  0.13.1         
-            libgcrypt               1.8.5          
-               libgpg-error         1.37           
-            lvm2                    2.03.08        
-               libaio               0.3.112        
-            popt                    1.16           
-         (glib)
-         gpgme                      1.13.1         
-            libassuan               2.5.3          
-               (libgpg-error)
-         nss                        3.50           
-            nspr                    4.25           
-         swig                       4.0.1          
-            pcre                    8.44           
-   libgudev                         233            
-      (glib)
-   (libxslt)
-   (polkit)
-   (systemd)
-rfkill                              0.5             
-alsa-utils                          1.2.1          
-   alsa-lib                         1.2.3.2        Y
-alsa-tools                          1.1.7          
-   (alsa-lib)
-alsa-plugins                        1.2.1          
-   (alsa-lib)
-alsa-firmware                       1.2.1          
-   (alsa-tools)
-dbus-python                         1.2.4                    
-   dbus-glib                        0.106                    
-      (dbus)
-   (python2)
-dconf-editor                        3.18.2                   
-   dconf                            0.24.0                   
-      (gtk3)
-      (libxml2)
-      (libxslt)
-lm-sensors                          3.4.0                    
-   (which)
-lsof                                4.89                     
-   libtirpc                         1.0.1                    
-sudo                                1.8.16         
-markdown                            1.0.1          
-sqlite                              3.33.0         Y
-conky                               1.11.5         
-   (cmake)
+
+## --- Multimedia Libraries ----------------------------------------------
+imlib2                              1.7.0          Y
    (xorg-libs)
-   (glib)
-   lua                              5.3.5          
+   (libpng)
+   (libjpeg-turbo)
+   (libtiff)
+   giflib                           5.2.1          Y
+librsvg                             2.46.4         Y
+   (gdk-pixbuf)
+   (cairo)
+   (pango)
+   (rustc)
+   (gobject-introspection)
+ffmpeg                              4.3.1          Y
+   libass                           0.14.0         Y
+      (freetype2)
+      (fribidi)
+      (nasm)
+      (fontconfig)                   
+   fdk-aac                          2.0.1          Y
+   (freetype2)
+   lame                             3.100          Y
+   libtheora                        1.1.1          Y
+      (libvorbis)
+   libvorbis                        1.3.7          Y
+      libogg                        1.3.4          Y
+   libvpx                           1.9.0          Y
+      (yasm)
+      (which)
+   opus                             1.3.1          Y
+   x264                             20200819       Y
+      (nasm)
+   x265                             3.4            Y
+      (cmake)
+      (nasm)
+   yasm                             1.3.0          Y
+
 
 ## --- X Applications ----------------------------------------------------
 rxvt-unicode                        9.22           Y
    (xorg-libs)
-gsimplecal                          2.1            
+gsimplecal                          2.1            Y
    (gtk3)
-gmrun                               0.9.2          
-   popt                             1.16           
-   (gtk2)
-google-chrome                       ---            
-   (alsa-lib)
+gmrun                               master         Y
+   (popt)
    (gtk3)
-   cups                             2.3.1          
-      (gnutls)
+berrywm                             0.1.7          Y
    (xorg-libs)
-   (nss)
-openbox                             3.6.1          Y
-   (xorg-libs)
-   (pango)
-feh                                 3.3            
+   sxhkd                            0.6.2          Y
+      xcb-util-keysyms              0.4.0          Y
+         (libxcb)
+feh                                 3.4.1          Y
    (libpng)
-   (imlib2)
-lxdm                                0.5.3          
-   (gtk3)
-   (librsvg)
-   (linux-pam)
-   iso-codes                        3.68                     
-mpv                                 0.17.0                   
+   (imlib2) - with giflib
+   (curl)
+scrot                               1.4            Y
+   giblib                           1.2.4          Y
+      (freetype2)
+      (imlib2)
+   autoconf-archive                 2019.01.06     Y
+mpv                                 0.33.0         Y
    (alsa-lib)
-   luajit                           2.0.4                    
    (ffmpeg)
-   (libmad)
-   (faad2)
-   (lcm2)
-   (libass)
-   youtube-dl                       20160326                 
-      (python2)
-lxappearance                        0.6.2                    
-   (gtk2)
-   (dbus-glib)
+   lcms2                            2.11           Y
+   lua52                            5.2.4          Y
 volumeicon                          0.5.1                    
    (gtk3)
    (alsa-lib)
    (libnotify)
 imagemagick                         7.0.1-6                  
    (many)
-dropbox                             3.20.1                    
-git                                 2.28.0         
+git                                 2.28.0         Y
    (curl)
    tk                               8.6.10         Y
       (xorg-libs)
-galculator                          2.1.4                    
-   (gtk2)
 l3afpad                             0.8.18.1.11    
    (gtk3)
 gimp                                2.8.16                   
@@ -409,29 +433,48 @@ gimp                                2.8.16
       (py2cairo)
       (pango)
       (gtk2)
-vim                                 8.2            Y
+vim                                 8.1            Y
    (gtk3)
-gparted
-   (gtk3mm)
-   parted                           3.3            
-mupdf                               1.16.1
+mupdf                               1.17.0         Y
    (xorg-libs)
-   freeglut                         3.2.1
+   freeglut                         3.2.1          Y
       (cmake)
       (mesa)
-      glu                           9.0.1
-         (mesa)
+      (glu)
    (harfbuzz)
    (libjpeg-turbo)
-   openjpeg                         2.3.1
-      (cmake)
+   (openjpeg)
    (curl)
-lemonbar                            1.3            
+lemonbar                            1.4            Y
    (libxcb)
-   xdotool                          3.20160805.1   
-      (xorg-libs)
-      (libxkbcommon)
-   wmctrl                           1.07           
+   (xdotool)
+weechat                             3.0            Y
+   (gnutls)
+   (curl)
+   (libgcrypt)
+   (cmake)
+veracrypt                           1.24.u7        Y
+   (lvm2)
+   fuse2                            2.9.9          Y
+   wxgtk3                           3.0.5.1        Y
+      (gtk3)
+      (gst-plugins-base)
+   (sudo)
+   (yasm)
+spacefm                             1.0.6          Y
+   (gtk3)
+   (shared-mime-info)
+   (udisks2)
+   desktop-file-utils               0.26           Y
+      (glib)
+   ffmpegthumbnailer                2.2.2          Y
+      (cmake)
+      (ffmpeg)
+      (libjpeg-turbo)
+      (libpng)
+      (gvfs)
+      
+
 
 ### NOT NEEDED 
 ###-----------------------------------------------------------------------
@@ -454,11 +497,6 @@ slim                                1.3.6
    (libpng)
    (libjpeg-turbo)
    (cmake)
-florence                            0.6.3
-   (gtk3)
-   (libxml2)
-   (librsvg)
-   (gstreamer)
 cups                                2.1.3                    
    (gnutls)
    (dbus)
@@ -717,17 +755,10 @@ thunar                              1.6.10
    libnotify                        0.7.6                    
       (gtk3)
       xfce4-notifyd                 0.2.4       *runtime     
-   gvfs                             1.26.2                   
-      (dbus)
-      (glib)
-      (gtk3)
-      (libgudev)
-      libsecret                     0.18.4         
-      (systemd)
-      (udisks2)
+   (gvfs)
 thunar-volman                       0.8.1                    
    (thunar)
-openssh                             7.2p2                    
+openssh                             8.3p1          Y
 iptables                            1.6.0                    
 tcpdump                             4.7.4                    
    libpcap                          1.7.4                    
@@ -741,7 +772,43 @@ xf86-input-synaptics                1.9.1
    (libevdev)
 xf86-video-vesa                     2.4.0          
    (xorg-server)
+xf86-video-fbdev                    0.5.0          
+   (xorg-server)
 gtkmm3                              3.20.1                   
    (gtk3)
    (atkmm)
    (pangomm)
+google-chrome                       ---            
+   (alsa-lib)
+   (gtk3)
+   cups                             2.3.1          
+      (gnutls)
+   (xorg-libs)
+   (nss)
+dropbox                             3.20.1                    
+gparted
+   (gtk3mm)
+   parted                           3.3            
+pygobject2                          2.28.6                   
+   (glib)
+   (gobject-introspection)
+      (glib)
+   py2cairo                         1.10.0                   
+      (python2)
+      (cairo)
+pygobject3                          3.18.2          
+   (gobject-introspection)
+   (py2cairo)
+lxdm                                0.5.3          
+   (gtk3)
+   (librsvg)
+   (linux-pam)
+   iso-codes                        3.68                     
+galculator                          2.1.4                    
+   (gtk2)
+openbox                             3.6.1          
+   (xorg-libs)
+   (pango)
+lxappearance                        0.6.2                    
+   (gtk2)
+   (dbus-glib)

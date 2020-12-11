@@ -5,10 +5,11 @@ VERSION=29
 SOURCE=wireless_tools.${VERSION}.tar.gz
 SOURCEDIR=wireless_tools.$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
+PATCH=wireless_tools-$VERSION-fix_iwlist_scanning-1.patch
 
 
 #--- Check for dependency (but only warn) 
-DEP=(lfs)
+DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,12 +26,15 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/$SOURCE
+   wget https://hewlettpackard.github.io/wireless-tools/$SOURCE
+fi
+if [ ! -s $PATCH ]; then
+   wget http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -44,8 +48,10 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-make
-make PREFIX=$PKGDIR/usr INSTALL_MAN=$PKGDIR/usr/share/man install
+patch -Np1 -i $CWD/$PATCH || exit 1
+
+make || exit 1
+make PREFIX=$PKGDIR/usr INSTALL_MAN=$PKGDIR/usr/share/man install || exit 1
 
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

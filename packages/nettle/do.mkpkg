@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -49,9 +49,7 @@ chown -R root:root .
 make
 make DESTDIR=$PKGDIR install
 
-chmod -v 755 $PKGDIR/usr/lib64/lib{hogweed,nettle}.so
-install -v -m755 -d $PKGDIR/usr/share/doc/nettle-3.6
-install -v -m644 nettle.html $PKGDIR/usr/share/doc/nettle-3.6
+chmod -v 755 $PKGDIR/usr/lib/lib{hogweed,nettle}.so
 
 #--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=python3
-VERSION=3.5.1
+VERSION=3.8.5
 SOURCE=Python-${VERSION}.tar.xz
 SOURCEDIR=Python-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libffi)
+DEP=(sqlite)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -30,7 +30,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -50,13 +50,14 @@ CXX="/usr/bin/g++" \
             --enable-shared     \
             --with-system-expat \
             --with-system-ffi   \
-            --without-ensurepip 
+            --with-ensurepip=yes
 
 make
 make DESTDIR=$PKGDIR install
 
-chmod -v 755 $PKGDIR/usr/lib/libpython3.5m.so
+chmod -v 755 $PKGDIR/usr/lib/libpython3.8.so
 chmod -v 755 $PKGDIR/usr/lib/libpython3.so
+
 
 #--- Should not have to touch below this
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \

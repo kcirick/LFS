@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=alsa-firmware
-VERSION=1.0.29
+VERSION=1.2.1
 SOURCE=${TARGET}-${VERSION}.tar.bz2
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -25,12 +25,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://alsa.cybermirror.org/firmware/$SOURCE
+   wget https://www.alsa-project.org/files/pub/firmware/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD

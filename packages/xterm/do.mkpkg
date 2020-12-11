@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -53,7 +53,6 @@ TERMINFO=/usr/share/terminfo \
 make || exit 1
 make DESTDIR=$PKGDIR install || exit 1
 make DESTDIR=$PKGDIR install-ti || exit 1
-
 
 mkdir -pv $PKGDIR/usr/share/applications 
 cp -v *.desktop $PKGDIR/usr/share/applications

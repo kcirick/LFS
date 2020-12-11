@@ -7,7 +7,7 @@ SOURCEDIR=$TARGET-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libxml2)
+DEP=(libxml2 docbook-xml docbook-xsl)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -48,6 +48,12 @@ sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml}
 ./configure --prefix=/usr --disable-static --without-python
 
 make || exit 1
+
+sed -e 's@http://cdn.docbook.org/release/xsl@https://cdn.docbook.org/release/xsl-nons@' \
+    -e 's@\$Date\$@31 October 2019@' \
+    -i doc/xsltproc.xml
+xsltproc/xsltproc --nonet doc/xsltproc.xml -o doc/xsltproc.1 || exit 1
+
 make DESTDIR=$PKGDIR install || exit 1
 
 

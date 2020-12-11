@@ -7,7 +7,7 @@ SOURCEDIR=gtk+-$VERSION
 
 
 #--- Check for dependency (but only warn) 
-DEP=(at-spi2-atk fribidi gdk-pixbuf libepoxy pango adwaita-icon-theme hicolor-icon-theme iso-codes libxkbcommon sassc wayland-proto)
+DEP=(at-spi2-atk fribidi gdk-pixbuf libepoxy pango adwaita-icon-theme hicolor-icon-theme iso-codes libxkbcommon sassc wayland-protocols)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/root
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD

@@ -1,0 +1,71 @@
+#!/bin/sh
+
+TARGET=fuse3
+VERSION=3.9.3
+SOURCE=fuse-${VERSION}.tar.xz
+SOURCEDIR=fuse-$VERSION
+
+
+#--- Check for dependency (but only warn) 
+DEP=()
+for dep in ${DEP[@]}; do
+   #echo $dep
+   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   if [ ! "$count" -eq 1 ]; then
+      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
+      read -p "Continue? [y/N]: " ans
+      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
+         continue
+      else
+         exit 1
+      fi
+   fi
+done
+
+#--- Download the source
+if [ ! -s $SOURCE ]; then 
+   wget https://github.com/libfuse/libfuse/releases/download/fuse-$VERSION/$SOURCE
+fi
+
+
+CWD=$(pwd)
+TMPDIR=/sources/build
+PKGNAME=${TARGET}-${VERSION}
+PKGDIR=$TMPDIR/${PKGNAME}_package
+TARGETDIR=$CWD
+
+rm -rf $PKGDIR
+mkdir -p $PKGDIR
+
+cd $TMPDIR
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
+cd $SOURCEDIR || exit 1
+chown -R root:root .
+
+sed -i '/^udev/,$ s/^/#/' util/meson.build
+
+mkdir build && cd build
+meson --prefix=/usr ..
+
+ninja || exit 1
+DESTDIR=$PKGDIR ninja install || exit 1
+
+mv -vf $PKGDIR/usr/lib/libfuse3.so.3* $PKGDIR/lib
+ln -sfvn ../../lib/libfuse3.so.3.9.3 $PKGDIR/usr/lib/libfuse3.so
+
+mv -vf $PKGDIR/usr/bin/fusermount3  $PKGDIR/bin
+mv -vf $PKGDIR/usr/sbin/mount.fuse3 $PKGDIR/sbin
+chmod u+s $PKGDIR/bin/fusermount3
+
+
+#--- Should not have to touch below this
+find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+
+mkdir -p $PKGDIR/install
+cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
+
+cd $TMPDIR
+tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
+

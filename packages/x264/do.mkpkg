@@ -1,14 +1,14 @@
 #!/bin/sh
 
 TARGET=x264
-VERSION=20160220-2245
-SOURCE=${TARGET}-snapshot-${VERSION}.tar.bz2
-SOURCEDIR=$TARGET-snapshot-$VERSION        # Usually $TARGET-$VERSION
+VERSION=20200819
+SOURCE=${TARGET}-${VERSION}.tar.xz
+SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(yasm)
+DEP=(nasm)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -25,12 +25,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget https://download.videolan.org/pub/videolan/x264/snapshots/$SOURCE
+   wget http://anduin.linuxfromscratch.org/BLFS/x264/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD

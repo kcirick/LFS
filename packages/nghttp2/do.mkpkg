@@ -29,7 +29,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -47,7 +47,7 @@ chown -R root:root .
 ./configure --prefix=/usr \
             --disable-static \
             --enable-lib-only \
-            --docdir=/usr/share/doc/nghttp2-1.41.0
+            --docdir=/usr/share/doc/nghttp2-$VERSION
 
 make || exit 1
 make DESTDIR=$PKGDIR install || exit 1

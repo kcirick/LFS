@@ -7,7 +7,7 @@ SOURCEDIR=$TARGET-$VERSION
 PATCH=$TARGET-$VERSION-add_xdemos-1.patch
 
 #--- Check for dependency (but only warn) 
-DEP=(xorg-libs libdrm py-mako llvm)
+DEP=(xorg-libs libdrm py-mako llvm wayland-protocols)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -31,7 +31,7 @@ if [ ! -s $PATCH ]; then
 fi
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -53,7 +53,8 @@ sed '1s/python/&3/' -i bin/symbols-check.py
 mkdir build && cd build
 meson --prefix=$XORG_PREFIX \
       -Dbuildtype=release \
-      -Dgallium-drivers="r600,radeonsi,swrast" \
+      -Dgallium-drivers="r600,radeonsi,svga,swrast" \
+      -Ddri-drivers="" \
       -Dgallium-nine=false \
       -Dglx=dri \
       -Dosmesa=gallium \

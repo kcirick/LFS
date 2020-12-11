@@ -31,7 +31,7 @@ if [ ! -s $PATCH ]; then
 fi
 
 CWD=$(pwd)
-TMPDIR=/root
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -49,7 +49,7 @@ patch -Np1 -i $CWD/$PATCH
 
 ./configure --prefix=/usr \
             --enable-shared \
-            --docdir=/usr/share/doc/ruby-2.7.1
+            --docdir=/usr/share/doc/ruby-$VERSION
 
 make || exit 1
 make DESTDIR=$PKGDIR install || exit 1

@@ -1,8 +1,8 @@
 #!/bin/sh
 
 TARGET=libvpx
-VERSION=1.5.0
-SOURCE=${TARGET}-${VERSION}.tar.bz2
+VERSION=1.9.0
+SOURCE=${TARGET}-${VERSION}.tar.gz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
 
@@ -25,12 +25,12 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://storage.googleapis.com/downloads.webmproject.org/releases/webm/$SOURCE
+   wget https://github.com/webmproject/libvpx/archive/v1.9.0/$SOURCE
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -39,20 +39,20 @@ rm -rf $PKGDIR
 mkdir -p $PKGDIR
 
 cd $TMPDIR
-#rm -rf $SOURCEDIR
-#tar -xvf $CWD/$SOURCE || exit 1
+rm -rf $SOURCEDIR
+tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
-#chown -R root:root .
+chown -R root:root .
 
-#sed -i 's/cp -p/cp/' build/make/Makefile
+sed -i 's/cp -p/cp/' build/make/Makefile
 
-rm -r libvpx-build
 mkdir libvpx-build && cd libvpx-build
 
 ../configure --prefix=/usr --enable-shared --disable-static
 
-make
-make DESTDIR=$PKGDIR install
+make || exit 1
+make DESTDIR=$PKGDIR install || exit 1
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

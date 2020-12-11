@@ -1,15 +1,15 @@
 #!/bin/sh
 
 TARGET=mupdf
-VERSION=1.8
+VERSION=1.17.0
 SOURCE=${TARGET}-${VERSION}-source.tar.gz
 SOURCEDIR=$TARGET-$VERSION-source        # Usually $TARGET-$VERSION
-PATCH=${TARGET}-${VERSION}-openjpeg21-1.patch
+PATCH=${TARGET}-${VERSION}-shared_libs-1.patch
 MARCH=$( uname -m )
 
 
 #--- Check for dependency (but only warn) 
-DEP=(libjpeg-turbo openjpeg2 curl)
+DEP=(xorg-libs freeglut harfbuzz libjpeg-turbo openjpeg curl)
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
@@ -29,12 +29,12 @@ if [ ! -s $SOURCE ]; then
    wget http://www.mupdf.com/downloads/archive/$SOURCE
 fi
 if [ ! -s $PATCH ]; then
-   wget  http://www.linuxfromscratch.org/patches/blfs/systemd/$PATCH
+   wget  http://www.linuxfromscratch.org/patches/blfs/10.0/$PATCH
 fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -48,20 +48,20 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-rm -rf thirdparty/curl
-rm -rf thirdparty/freetype
-rm -rf thirdparty/jpeg
-rm -rf thirdparty/openjpeg
-rm -rf thirdparty/zlib
 
-patch -Np1 -i $CWD/$PATCH
+patch -Np1 -i $CWD/$PATCH || exit 1
 
-make build=release
+USE_SYSTEM_LIBS=yes make || exit 1
 
-mkdir -pv $PKGDIR/usr/bin
-install -v -m 755 build/release/mupdf-x11-curl $PKGDIR/usr/bin/mupdf
-mkdir -pv $PKGDIR/usr/share/man/man1
-install -v -m 644 docs/man/mupdf.1 $PKGDIR/usr/share/man/man1/
+USE_SYSTEM_LIBS=yes \
+DESTDIR=$PKGDIR \
+   make prefix=/usr \
+        build=release \
+        docdir=/usr/share/doc/mupdf-$VERSION \
+        install
+
+ln -sfv mupdf-x11 $PKGDIR/usr/bin/mupdf
+
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

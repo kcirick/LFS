@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=gst-plugins-good
-VERSION=1.8.1
+VERSION=1.16.2
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -30,7 +30,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -44,13 +44,14 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
+mkdir build && cd build
+meson --prefix=/usr \
+      -Dbuildtype=release \
+      -Dpackage-name="GStreamer Good Plugins 1.8.1 LFS" \
+      -Dpackage-origin=http://www.linuxfromscratch.org/blfs/view/svn/
 
-./configure --prefix=/usr \
-            --with-package-name="GStreamer Good Plugins 1.8.1 LFS" \
-            --with-package-origin="http://www.linuxfromscratch.org/blfs/view/systemd/"
-
-make
-make DESTDIR=$PKGDIR install
+ninja || exit 1
+DESTDIR=$PKGDIR ninja install || exit 1
 
 find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true

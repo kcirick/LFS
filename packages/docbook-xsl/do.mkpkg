@@ -32,7 +32,7 @@ fi
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD
@@ -46,20 +46,20 @@ tar -xvf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 chown -R root:root .
 
-patch -N1 -i $CWD/$PATCH
+patch -Np1 -i $CWD/$PATCH
 
-install -v -m755 -d $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2
+install -v -m755 -d $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-$VERSION
 
 cp -v -R VERSION assembly common eclipse epub epub3 extensions fo          \
          highlighting html htmlhelp images javahelp lib manpages params    \
          profiling roundtrip slides template tests tools webhelp website   \
          xhtml xhtml-1_1 xhtml5                                            \
-   $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2
+   $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-$VERSION
 
-ln -s VERSION $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2/VERSION.xsl
+ln -s VERSION $PKGDIR/usr/share/xml/docbook/xsl-stylesheets-nons-$VERSION/VERSION.xsl
 
-install -v -m644 -D README $PKGDIR/usr/share/doc/docbook-xsl-nons-1.79.2/README.txt
-install -v -m644    RELEASE-NOTES* NEWS* $PKGDIR/usr/share/doc/docbook-xsl-nons-1.79.2
+install -v -m644 -D README $PKGDIR/usr/share/doc/docbook-xsl-nons-$VERSION/README.txt
+install -v -m644    RELEASE-NOTES* NEWS* $PKGDIR/usr/share/doc/docbook-xsl-nons-$VERSION
 
 
 #--- Should not have to touch below this
