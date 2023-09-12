@@ -43,9 +43,6 @@ To format the partition:
 
     mkfs -v -t ext4 /dev/<xxx>
 
-For swap partition:
-
-    mkswap /dev/<yyy>
 
 There is no need to create a dedicated swap partition! A swap file can be added at any time later on and is more flexible while offering the same performance
 
@@ -87,11 +84,11 @@ Download the packages and patches
 
 ### 4.2 Creating the $LFS Directory Layout
 
-     sudo mkdir -pv $LFS/{bin,etc,lib,sbin,usr,var,tools}
-     case $(uname -m) in
-        x86_64) sudo mkdir -pv $LFS/lib64 ;;
-     esac
-  
+     sudo mkdir -pv $LFS/{etc,var,tools} $LFS/usr/{bin,lib,sbin}
+
+     for i in bin lib sbin; do
+         sudo ln -sv usr/$i $LFS/$i
+     done
 
 ### 4.3 Adding the LFS User
 
@@ -103,10 +100,8 @@ Enter the password when prompted.
 
 Next change the ownership of the folders
 
-    sudo chown -v lfs $LFS/{usr,lib,var,etc,bin,sbin,tools,sources}
-    case $(uname -m) in
-       x86_64) sudo chown -v lfs $LFS/lib64 ;;
-    esac
+    sudo chown -v lfs $LFS/{usr{,/*},lib,var,etc,bin,sbin,tools,sources}
+
 
 Then switch to the *lfs* user:
 
@@ -128,8 +123,11 @@ and ~/.bashrc:
     LFS=/mnt/lfs
     LC_ALL=POSIX
     LFS_TGT=$(uname -m)-lfs-linux-gnueabihf
+    PATH=/usr/bin
+    if [ ! -L /bin ]; then PATH=/bin:$PATH; fi
     PATH=$LFS/tools/bin:$PATH
-    export LFS LC_ALL LFS_TGT PATH
+    CONFIG_SITE=$LFS/usr/share/config.site
+    export LFS LC_ALL LFS_TGT PATH CONFIG_SITE
     EOF
 
 Then load the profile:
@@ -142,7 +140,7 @@ Then load the profile:
 
 ## Chapter 5
 
- -  Follow 100-chapter5.sh
+ -  Follow chapter5.sh
    - Perform tests at the end of 5.5
 
 -----
