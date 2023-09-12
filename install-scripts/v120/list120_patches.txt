@@ -1,0 +1,7 @@
+http://www.linuxfromscratch.org/patches/lfs/12.0/bzip2-1.0.8-install_docs-1.patch
+http://www.linuxfromscratch.org/patches/lfs/12.0/coreutils-9.3-i18n-1.patch
+http://www.linuxfromscratch.org/patches/lfs/12.0/glibc-2.38-memalign_fix-1.patch
+http://www.linuxfromscratch.org/patches/lfs/12.0/glibc-2.38-fhs-1.patch
+http://www.linuxfromscratch.org/patches/lfs/12.0/grub-2.06-upstream_fixes-1.patch
+http://www.linuxfromscratch.org/patches/lfs/12.0/kbd-2.6.1-backspace-1.patch
+http://www.linuxfromscratch.org/patches/lfs/12.0/readline-8.2-upstream_fix-1.patch

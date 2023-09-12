@@ -8,23 +8,8 @@
     - four USB 2.0 ports
     - Bluetooth 4.2, Bluetooth Low Energy (BLE), onboard antenna
     - CSI-2 camera connector 
- -  Host: Debian 12.1.0 armhf 
+ -  Host: Raspbian Bullseye armhf 
     - Additional software needed: git, bison, gawk, m4, texinfo, vim, parted
-    - Setting up wifi: 
-
-Find interface using iwconfig (as root).
-
-Edit /etc/network/interfaces (as root):
-
-```
-   # my wifi device
-   allow-hotplug wlp2s0
-   iface wlp2s0 inet dhcp
-        wpa-ssid ESSID
-        wpa-psk PASSWORD
-```
-
-Then ifup wlp2s0
 
 
 ## Table of Contents
@@ -51,10 +36,8 @@ Then ifup wlp2s0
 Use parted to partition the hard drive. eg:
  
 
-	/dev/sda1     ext2     /boot    1   GiB
-	    /sda2     ext4     /        200 GiB
-	    /sda3     ext4     /home    250 GiB
-       /sda4     swap              30 GiB
+	/dev/sdb1     ext2     /boot    512 MiB
+       /sdb2     ext4     /         28 GiB
 
 To format the partition:
 
@@ -64,6 +47,7 @@ For swap partition:
 
     mkswap /dev/<yyy>
 
+There is no need to create a dedicated swap partition! A swap file can be added at any time later on and is more flexible while offering the same performance
 
 ### 2.6/2.7 Setting the $LFS Variable
 
@@ -75,12 +59,6 @@ If we are mounting directories on separate partitions, mount them:
 
     sudo mkdir $LFS/boot
     sudo mount -t ext2 /dev/sda1 $LFS/boot
-    sudo mkdir $LFS/home
-    sudo mount -t ext4 /dev/sda3 $LFS/home
-
-mount swap partition:
-
-    sudo swapon -v /dev/sda4
 
 
 -----
@@ -95,10 +73,10 @@ Create the source directory
 
 Download the packages and patches
 
-    wget --input-file=list100_files.txt \
+    wget --input-file=list120_files.txt \
          --continue \
          --directory-prefix=$LFS/sources
-    wget --input-file=list100_patches.txt \
+    wget --input-file=list120_patches.txt \
          --continue \
          --directory-prefix=$LFS/sources
 
@@ -149,7 +127,7 @@ and ~/.bashrc:
     umask 022
     LFS=/mnt/lfs
     LC_ALL=POSIX
-    LFS_TGT=$(uname -m)-lfs-linux-gnu
+    LFS_TGT=$(uname -m)-lfs-linux-gnueabihf
     PATH=$LFS/tools/bin:$PATH
     export LFS LC_ALL LFS_TGT PATH
     EOF
