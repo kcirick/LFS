@@ -14,34 +14,9 @@ fi
 cd $LFS/sources
 
 #-----
-echo "# 7.7. Libstdc++ from gcc-10.2.0 Pass 2"
-tar -xf gcc-10.2.0.tar.xz
-cd gcc-10.2.0
-
-ln -s gthr-posix.h libgcc/gthr-default.h
-
-mkdir -pv build && cd build
-../libstdc++-v3/configure --prefix=/usr                   \
-                          CXXFLAGS="-g -O2 -D_GNU_SOURCE" \
-                          --disable-multilib              \
-                          --disable-nls                   \
-                          --disable-libstdcxx-pch         \
-			  --host=$(uname -m)-lfs-linux-gnu
-
-make || exit 1
-make install || exit 1
-
-cd $LFS/sources
-read -p "Press Y to continue: " answer
-if [ "$answer" != "Y" ]; then
-   return
-fi
-rm -rf gcc-10.2.0
-
-#-----
-echo "# 7.8. Gettext-0.21"
-tar -xf gettext-0.21.tar.xz
-cd gettext-0.21
+echo "# 7.7. Gettext"
+tar -xf gettext-0.22.tar.xz
+cd gettext-0.22
 
 ./configure --disable-shared
 
@@ -53,14 +28,14 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf gettext-0.21
+rm -rf gettext-0.22
 
 #-----
-echo "# 7.9. Bison-3.7.1"
-tar -xf bison-3.7.1.tar.xz
-cd bison-3.7.1
+echo "# 7.8. Bison"
+tar -xf bison-3.8.2.tar.xz
+cd bison-3.8.2
 
-./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.7.1
+./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.8.2
 
 make || exit 1
 make install || exit 1
@@ -70,21 +45,22 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf bison-3.7.1
+rm -rf bison-3.8.2
 
 #-----
-echo "# 7.10. Perl-5.32.0"
-tar -xf perl-5.32.0.tar.xz
-cd perl-5.32.0
+echo "# 7.9. Perl"
+tar -xf perl-5.38.0.tar.xz
+cd perl-5.38.0
 
 sh Configure -des -Dprefix=/usr                 \
                   -Dvendorprefix=/usr           \
-		  -Dprivlib=/usr/lib/perl5/5.32/core_perl \
-		  -Darchlib=/usr/lib/perl5/5.32/core_perl \
-		  -Dsitelib=/usr/lib/perl5/5.32/site_perl \
-		  -Dsitearch=/usr/lib/perl5/5.32/site_perl \
-		  -Dvendorlib=/usr/lib/perl5/5.32/vendor_perl \
-		  -Dvendorarch=/usr/lib/perl5/5.32/vendor_perl
+                  -Duseshrplib                  \
+		  -Dprivlib=/usr/lib/perl5/5.38/core_perl \
+		  -Darchlib=/usr/lib/perl5/5.38/core_perl \
+		  -Dsitelib=/usr/lib/perl5/5.38/site_perl \
+		  -Dsitearch=/usr/lib/perl5/5.38/site_perl \
+		  -Dvendorlib=/usr/lib/perl5/5.38/vendor_perl \
+		  -Dvendorarch=/usr/lib/perl5/5.38/vendor_perl
 
 make || exit 1
 make install || exit 1
@@ -94,12 +70,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf perl-5.32.0
+rm -rf perl-5.38.0
 
 #-----
-echo "# 7.11. Python-3.8.5"
-tar -xf Python-3.8.5.tar.xz
-cd Python-3.8.5
+echo "# 7.10. Python"
+tar -xf Python-3.11.4.tar.xz
+cd Python-3.11.4
 
 ./configure --prefix=/usr \
 	    --enable-shared \
@@ -113,12 +89,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf Python-3.8.5
+rm -rf Python-3.11.4
 
 #-----
-echo "# 7.12. Texinfo-6.7"
-tar -xf texinfo-6.7.tar.xz
-cd texinfo-6.7
+echo "# 7.11. Texinfo"
+tar -xf texinfo-7.0.3.tar.xz
+cd texinfo-7.0.3
 
 ./configure --prefix=/usr
 
@@ -130,16 +106,18 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf texinfo-6.7
+rm -rf texinfo-7.0.3
 
 #-----
-echo "# 7.13. util-linux-2.36"
-tar -xf util-linux-2.36.tar.xz
-cd util-linux-2.36
+echo "# 7.12. util-linux"
+tar -xf util-linux-2.39.1.tar.xz
+cd util-linux-2.39.1
 
 mkdir -pv /var/lib/hwclock
 ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime     \
-            --docdir=/usr/share/doc/util-linux-2.36 \
+            --libdir=/usr/lib  \
+            --runstatedir=/run \
+            --docdir=/usr/share/doc/util-linux-2.39.1 \
             --disable-chfn-chsh  \
             --disable-login      \
             --disable-nologin    \
@@ -158,7 +136,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf util-linux-2.36
+rm -rf util-linux-2.39.1
 
 
 echo "Continue to 7.14: Cleaning up and saving the temporary system"

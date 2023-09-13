@@ -22,12 +22,9 @@ cd $LFS/sources
 if [ $1 -eq 1 ]; then
 
 #-----
-echo "# 6.2. M4-1.4.18"
-tar -xf m4-1.4.18.tar.xz
-cd m4-1.4.18
-
-sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' lib/*.c
-echo "#define _IO_IN_BACKUP 0x100" >> lib/stdio-impl.h
+echo "# 6.2. M4"
+tar -xf m4-1.4.19.tar.xz
+cd m4-1.4.19
 
 ./configure --prefix=/usr --host=$LFS_TGT --build=$(build-aux/config.guess)
 
@@ -39,12 +36,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf m4-1.4.18
+rm -rf m4-1.4.19
 
 #-----
-echo "# 6.3. Ncurses-6.2"
-tar -xf ncurses-6.2.tar.gz
-cd ncurses-6.2
+echo "# 6.3. Ncurses"
+tar -xf ncurses-6.4.tar.gz
+cd ncurses-6.4
 
 sed -i s/mawk// configure
 
@@ -56,44 +53,43 @@ pushd build
 popd
 
 ./configure --prefix=/usr   \
-	    --host=$LFS_TGT \
-	    --build=$(./config.guess) \
-	    --mandir=/usr/share/man \
+	         --host=$LFS_TGT \
+	         --build=$(./config.guess) \
+	         --mandir=/usr/share/man \
             --with-manpage-format=normal \
-	    --with-shared   \
+	         --with-shared   \
+	         --without-normal \
+            --with-cxx-shared \
             --without-debug \
             --without-ada   \
-	    --without-normal \
+            --disable-stripping \
             --enable-widec
 
 make || exit 1
 make DESTDIR=$LFS TIC_PATH=$(pwd)/build/progs/tic install || exit 1
 
 echo "INPUT(-lncursesw)" > $LFS/usr/lib/libncurses.so
-mv -v $LFS/usr/lib/libncursesw.so.6* $LFS/lib
-ln -sfv ../../lib/$(readlink $LFS/usr/lib/libncursesw.so) $LFS/usr/lib/libncursesw.so
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf ncurses-6.2
+rm -rf ncurses-6.4
 
 #-----
-echo "# 6.4. Bash-5.0"
-tar -xf bash-5.0.tar.gz
-cd bash-5.0
+echo "# 6.4. Bash"
+tar -xf bash-5.2.15.tar.gz
+cd bash-5.2.15
 
 ./configure --prefix=/usr              \
             --host=$LFS_TGT            \
-            --build=$(support/config.guess) \
-	    --without-bash-malloc
+            --build=$(sh support/config.guess) \
+	         --without-bash-malloc
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
 
-mv $LFS/usr/bin/bash $LFS/bin/bash
 ln -sv bash $LFS/bin/sh
 
 cd $LFS/sources
@@ -101,44 +97,41 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf bash-5.0
+rm -rf bash-5.2.15
 
 #-----
-echo "# 6.5. Coreutils-8.32"
-tar -xf coreutils-8.32.tar.xz
-cd coreutils-8.32
+echo "# 6.5. Coreutils"
+tar -xf coreutils-9.3.tar.xz
+cd coreutils-9.3
 
 ./configure --prefix=/usr               \
             --host=$LFS_TGT             \
             --build=$(build-aux/config.guess) \
-	    --enable-install-program=hostname \
-	    --enable-no-install-program=kill,uptime
+	         --enable-install-program=hostname \
+	         --enable-no-install-program=kill,uptime \
+            gl_cv_macro_MB_CUR_MAX_good=y
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
 
-mv -v $LFS/usr/bin/{cat,chgrp,chmod,chown,cp,date,dd,df,echo} $LFS/bin
-mv -v $LFS/usr/bin/{false,ln,ls,mkdir,mknod,mv,pwd,rm}        $LFS/bin
-mv -v $LFS/usr/bin/{rmdir,stty,sync,true,uname}               $LFS/bin
-mv -v $LFS/usr/bin/{head,nice,sleep,touch}                    $LFS/bin
-mv -v $LFS/usr/bin/chroot                                     $LFS/usr/sbin
+mv -v $LFS/usr/bin/chroot                 $LFS/usr/sbin
 mkdir -pv $LFS/usr/share/man/man8
-mv -v $LFS/usr/share/man/man1/chroot.1                        $LFS/usr/share/man/man8/chroot.8
-sed -i 's/"1"/"8"/'                                           $LFS/usr/share/man/man8/chroot.8
+mv -v $LFS/usr/share/man/man1/chroot.1    $LFS/usr/share/man/man8/chroot.8
+sed -i 's/"1"/"8"/'                       $LFS/usr/share/man/man8/chroot.8
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf coreutils-8.32
+rm -rf coreutils-9.3
 
 #-----
-echo "# 6.6. Diffutils-3.7"
-tar -xf diffutils-3.7.tar.xz
-cd diffutils-3.7
+echo "# 6.6. Diffutils"
+tar -xf diffutils-3.10.tar.xz
+cd diffutils-3.10
 
-./configure --prefix=/usr --host=$LFS_TGT
+./configure --prefix=/usr --host=$LFS_TGT --build=$(./build-aux/config.guess)
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
@@ -148,53 +141,46 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf diffutils-3.7
+rm -rf diffutils-3.10
 
 #-----
-echo "# 6.7. File-5.39"
-tar -xf file-5.39.tar.gz
-cd file-5.39
+echo "# 6.7. File"
+tar -xf file-5.45.tar.gz
+cd file-5.45
 
-./configure --prefix=/usr --host=$LFS_TGT
-
+mkdir build
+pushd build
+../configure --disable-bzlib \
+             --disable-libseccomp \
+             --disable-xzlib \
+             --disable-zlib
 make || exit 1
-make DESTDIR=$LFS install || exit 1
+popd
 
-cd $LFS/sources
-read -p "Press Y to continue: " answer
-if [ "$answer" != "Y" ]; then
-   return
-fi
-rm -rf file-5.39
-
-#-----
-echo "# 6.8. Findutils-4.7.0"
-tar -xf findutils-4.7.0.tar.xz
-cd findutils-4.7.0
-
-./configure --prefix=/usr --host=$LFS_TGT --build=$(build-aux/config.guess)
-
-make || exit 1
-make DESTDIR=$LFS install || exit 1
-
-mv -v $LFS/usr/bin/find $LFS/bin
-sed -i 's|find:=${BINDIR}|find:=/bin|' $LFS/usr/bin/updatedb
-
-cd $LFS/sources
-read -p "Press Y to continue: " answer
-if [ "$answer" != "Y" ]; then
-   return
-fi
-rm -rf findutils-4.7.0
-
-#-----
-echo "# 6.9. Gawk-5.1.0"
-tar -xf gawk-5.1.0.tar.xz
-cd gawk-5.1.0
-
-sed -i 's/extras//' Makefile.in
 ./configure --prefix=/usr --host=$LFS_TGT --build=$(./config.guess)
 
+make FILE_COMPILE=$(pwd)/build/sec/file || exit 1
+make DESTDIR=$LFS install || exit 1
+
+rm -v $LFS/usr/lib/libmagic.la
+
+cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
+rm -rf file-5.45
+
+#-----
+echo "# 6.8. Findutils"
+tar -xf findutils-4.9.0.tar.xz
+cd findutils-4.9.0
+
+./configure --prefix=/usr \
+            --localstatedir=/var/lib/locate \
+            --host=$LFS_TGT \
+            --build=$(build-aux/config.guess)
+
 make || exit 1
 make DESTDIR=$LFS install || exit 1
 
@@ -203,14 +189,15 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf gawk-5.1.0
+rm -rf findutils-4.9.0
 
 #-----
-echo "# 6.10. Grep-3.4"
-tar -xf grep-3.4.tar.xz
-cd grep-3.4
+echo "# 6.9. Gawk"
+tar -xf gawk-5.2.2.tar.xz
+cd gawk-5.2.2
 
-./configure --prefix=/usr --host=$LFS_TGT --bindir=/bin
+sed -i 's/extras//' Makefile.in
+./configure --prefix=/usr --host=$LFS_TGT --build=$(./build-aux/config.guess)
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
@@ -220,30 +207,46 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf grep-3.4
+rm -rf gawk-5.2.2
 
 #-----
-echo "# 6.11. Gzip-1.10"
-tar -xf gzip-1.10.tar.xz
-cd gzip-1.10
+echo "# 6.10. Grep"
+tar -xf grep-3.11.tar.xz
+cd grep-3.11
+
+./configure --prefix=/usr --host=$LFS_TGT --build=$(./build-aux/config.guess)
+
+make || exit 1
+make DESTDIR=$LFS install || exit 1
+
+cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
+rm -rf grep-3.11
+
+#-----
+echo "# 6.11. Gzip"
+tar -xf gzip-1.12.tar.xz
+cd gzip-1.12
 
 ./configure --prefix=/usr --host=$LFS_TGT
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
-mv -v $LFS/usr/bin/gzip $LFS/bin
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf gzip-1.10
+rm -rf gzip-1.12
 
 #-----
-echo "# 6.12. Make-4.3"
-tar -xf make-4.3.tar.gz
-cd make-4.3
+echo "# 6.12. Make"
+tar -xf make-4.4.1.tar.gz
+cd make-4.4.1
 
 ./configure --prefix=/usr \
 	    --host=$LFS_TGT \
@@ -258,14 +261,14 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf make-4.3
+rm -rf make-4.4.1
 
 #-----
-echo "# 6.13. Patch-2.7.6"
+echo "# 6.13. Patch"
 tar -xf patch-2.7.6.tar.xz
 cd patch-2.7.6
 
-./configure --prefix=/usr --host=$LFS_TGT --build=$(build-aux/config.guess)
+./configure --prefix=/usr --host=$LFS_TGT --build=$(./build-aux/config.guess)
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
@@ -278,31 +281,11 @@ fi
 rm -rf patch-2.7.6
 
 #-----
-echo "# 6.14. Sed-4.8"
-tar -xf sed-4.8.tar.xz
-cd sed-4.8
+echo "# 6.14. Sed"
+tar -xf sed-4.9.tar.xz
+cd sed-4.9
 
-./configure --prefix=/usr --host=$LFS_TGT --bindir=/bin
-
-make || exit 1
-make DESTDIR=$LFS install || exit 1
-
-cd $LFS/sources
-read -p "Press Y to continue: " answer
-if [ "$answer" != "Y" ]; then
-   return
-fi
-rm -rf sed-4.8
-
-#-----
-echo "# 6.15. Tar-1.32"
-tar -xf tar-1.32.tar.xz
-cd tar-1.32
-
-./configure --prefix=/usr    \
-	    --host=$LFS_TGT  \
-	    --build=$(build-aux/config.guess) \
-	    --bindir=/bin
+./configure --prefix=/usr --host=$LFS_TGT --build=$(./build-aux/config.guess)
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
@@ -312,98 +295,111 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf tar-1.32
+rm -rf sed-4.9
 
 #-----
-echo "# 6.16. Xz-5.2.5"
-tar -xf xz-5.2.5.tar.xz
-cd xz-5.2.5
+echo "# 6.15. Tar"
+tar -xf tar-1.35.tar.xz
+cd tar-1.35
+
+./configure --prefix=/usr --host=$LFS_TGT --build=$(./build-aux/config.guess)
+
+make || exit 1
+make DESTDIR=$LFS install || exit 1
+
+cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   return
+fi
+rm -rf tar-1.35
+
+#-----
+echo "# 6.16. Xz"
+tar -xf xz-5.4.4.tar.xz
+cd xz-5.4.4
 
 ./configure --prefix=/usr            \
-	    --host=$LFS_TGT          \
-	    --build=$(build-aux/config.guess) \
-	    --disable-static         \
-	    --docdir=/usr/share/doc/xz-5.2.5
+	         --host=$LFS_TGT          \
+	         --build=$(build-aux/config.guess) \
+	         --disable-static         \
+	         --docdir=/usr/share/doc/xz-5.4.4
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
 
-mv -v $LFS/usr/bin/{lzma,unlzma,lzcat,xz,unxz,xzcat}  $LFS/bin
-mv -v $LFS/usr/lib/liblzma.so.*                       $LFS/lib
-ln -sfv ../../lib/$(readlink $LFS/usr/lib/liblzma.so) $LFS/usr/lib/liblzma.so
+rm -v $LFS/usr/lib/liblzma.la
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf xz-5.2.5
+rm -rf xz-5.4.4
 
 #-----
-echo "# 6.17. Binutils-2.35 - Pass 2"
-tar -xf binutils-2.35.tar.xz
-cd binutils-2.35
+echo "# 6.17. Binutils - Pass 2"
+tar -xf binutils-2.41.tar.xz
+cd binutils-2.41
+
+sed '6009s/$add_dir//' -i ltmain.sh
 
 mkdir -v build && cd build
 ../configure --prefix=/usr            \
-	     --host=$LFS_TGT          \
-	     --build=$(../config.guess) \
+	          --host=$LFS_TGT          \
+	          --build=$(../config.guess) \
              --disable-nls              \
              --disable-shared           \
-	     --disable-werror           \
-	     --enable-64-bit-bfd
+             --enable-gprofng=no  \
+	          --disable-werror           \
+	          --enable-64-bit-bfd
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
+rm -v $LFS/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes,sframe}.{a,la}
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf binutils-2.35
+rm -rf binutils-2.41
 
 fi
 
 #-----
-echo "# 6.18. gcc-10.2.0 - Pass 2"
-tar -xf gcc-10.2.0.tar.xz
-cd gcc-10.2.0
+echo "# 6.18. gcc - Pass 2"
+tar -xf gcc-13.2.0.tar.xz
+cd gcc-13.2.0
 
-tar -xf ../mpfr-4.1.0.tar.xz
-mv -v mpfr-4.1.0 mpfr
-tar -xf ../gmp-6.2.0.tar.xz
-mv -v gmp-6.2.0 gmp
-tar -xf ../mpc-1.1.0.tar.gz
-mv -v mpc-1.1.0 mpc
+tar -xf ../mpfr-4.2.0.tar.xz
+mv -v mpfr-4.2.0 mpfr
+tar -xf ../gmp-6.3.0.tar.xz
+mv -v gmp-6.3.0 gmp
+tar -xf ../mpc-1.3.1.tar.gz
+mv -v mpc-1.3.1 mpc
 
-case $(uname -m) in
-	x86_64)
-		sed -e '/m64=/s/lib64/lib/' \
-			-i.orig gcc/config/i386/t-linux64
-	;;
-esac
+sed '/thread_header =/s/@.*@/gthr-posix.h/' \
+   -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in
 
 mkdir -v build && cd build
-mkdir -pv $LFS_TGT/libgcc
-ln -s ../../../libgcc/gthr-posix.h $LFS_TGT/libgcc/gthr-default.h
-
-../configure --prefix=/usr                                \
-	     --host=$LFS_TGT                              \
+../configure --prefix=/usr                           \
 	     --build=$(../config.guess)                   \
-	     CC_FOR_TARGET=$LFS_TGT-gcc                   \
+	     --host=$LFS_TGT                              \
+        --target=$LFS_TGT                            \
+        LDFLAGS_FOR_TARGET=-L$PWD/$LFS_TGT/libgcc    \
 	     --with-build-sysroot=$LFS                    \
-	     --enable-initfini-array                      \
+        --enable-default-pie                         \
+        --enable-default-ssp                         \
 	     --disable-nls                                \
 	     --disable-multilib                           \
-	     --disable-decimal-float                      \
 	     --disable-libatomic                          \
 	     --disable-libgomp                            \
 	     --disable-libquadmath                        \
+        --disable-libsanitizer                       \
 	     --disable-libssp                             \
-             --disable-libvtv                             \
-	     --disable-libstdcxx                          \
-             --enable-languages=c,c++ 
+        --disable-libvtv                             \
+        --enable-languages=c,c++ 
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
@@ -415,7 +411,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf gcc-10.2.0
+rm -rf gcc-13.2.0
 
 
 echo ""

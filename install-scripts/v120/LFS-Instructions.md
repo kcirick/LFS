@@ -46,6 +46,26 @@ To format the partition:
 
 There is no need to create a dedicated swap partition! A swap file can be added at any time later on and is more flexible while offering the same performance
 
+To create swapfile:
+
+    sudo fallocate -l 1G /swapfile
+      - or - 
+    sudo dd if=/dev/zero of=/swapfile bs=1024
+    
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+
+
+To show the status of swapfile:
+
+    sudo swapon --show
+
+To unmount swapfile:
+
+    sudo swapoff -v /swapfile
+    sudo rm /swapfile
+
 ### 2.6/2.7 Setting the $LFS Variable
 
     export LFS=/mnt/lfs
@@ -148,7 +168,7 @@ Then load the profile:
 
 ## Chapter 6
 
- -  Follow 100-chapter6.sh
+ -  Follow chapter6.sh
 
 -----
 <a name="chapter7" />
@@ -167,8 +187,6 @@ Then load the profile:
 ### 7.3 Preparing Virtual Kernel File Systems
 
     sudo mkdir -pv $LFS/{dev,proc,sys,run}
-    sudo mknod -m 600 $LFS/dev/console c 5 1
-    sudo mknod -m 666 $LFS/dev/null c 1 3
 
 Now mount system:
 
@@ -180,55 +198,60 @@ Now mount system:
 
     if [ -h $LFS/dev/shm ]; then
        sudo mkdir -pv $LFS/$(readlink $LFS/dev/shm)
+    else
+       mount -t tmpfs -o nosuid,nodev tmpfs $LFS/dev/shm
     fi
+
 
 ### 7.4 Entering the Chroot Environment
 
-    sudo chroot "$LFS" /tools/bin/env -i \
-        HOME=/root                  \
-        TERM="$TERM"                \
-        PS1='(chroot) \u:\w\$ '              \
-        PATH=/bin:/usr/bin:/sbin:/usr/sbin \
-        /bin/bash --login +h
+    sudo chroot "$LFS" /tools/bin/env -i     \
+        HOME=/root                           \
+        TERM="$TERM"                         \
+        PS1='(lfs chroot) \u:\w\$ '          \
+        PATH=/usr/bin:/usr/sbin              \
+        /bin/bash --login
 
 It will say "I have no name!" in bash prompt.
 
 ### 7.5 and 7.6
- -  Follow 100-chapter7-setup.sh
 
-### 7.7 to 7.13
+ -  Follow chapter7-setup.sh
 
- -  Follow 100-chapter7.sh
+### 7.7 to 7.12
 
-### 7.14 Cleaning up and Saving the Temporary System
+ -  Follow chapter7.sh
+
+### 7.13 Cleaning up and Saving the Temporary System
 
 Delete unneeded files and documents:
 
     find /usr/{lib,libexec} -name \*.la -delete
     rm -rf /usr/share/{info,man,doc}/*
+    rm -rf /tools
     exit
 
 Following are done outside of the chroot environment:
 
-    sudo umount $LFS/dev{/pts,}
-    sudo umount $LFS/{sys,proc,run}
+    sudo mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
+    sudo umount $LFS/dev/pts
+    sudo umount $LFS/{sys,proc,run,dev}
 
 Strip off debugging symbols:
 
      strip --strip-debug $LFS/usr/lib/*
      strip --strip-unneeded $LFS/usr/{,s}bin/*
-     strip --strip-unneeded $LFS/tools/bin/*
 
 Create a back up file
 
-     cd $LFS &&
-     tar -cJpf $HOME/lfs-temp-tools-10.0-systemd.tar.xz .
+     cd $LFS
+     tar -cJpf $HOME/lfs-temp-tools-12.0-systemd.tar.xz .
 
 If a restore is needed:
 
-     cd $LFS &&
-     rm -rf ./* &&
-     tar -xpf $HOME/lfs-temp-tools-10.0-systemd.tar.xz
+     cd $LFS
+     rm -rf ./* 
+     tar -xpf $HOME/lfs-temp-tools-12.0-systemd.tar.xz
 
 
 -----
