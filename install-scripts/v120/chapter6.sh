@@ -19,7 +19,9 @@ fi
 
 cd $LFS/sources
 
-if [ $1 -eq 1 ]; then
+if [[ $1 -eq 1 ]]; then
+
+fi
 
 #-----
 echo "# 6.2. M4"
@@ -159,7 +161,7 @@ popd
 
 ./configure --prefix=/usr --host=$LFS_TGT --build=$(./config.guess)
 
-make FILE_COMPILE=$(pwd)/build/sec/file || exit 1
+make FILE_COMPILE=$(pwd)/build/src/file || exit 1
 make DESTDIR=$LFS install || exit 1
 
 rm -v $LFS/usr/lib/libmagic.la
@@ -364,8 +366,6 @@ if [ "$answer" != "Y" ]; then
    return
 fi
 rm -rf binutils-2.41
-
-fi
 
 #-----
 echo "# 6.18. gcc - Pass 2"

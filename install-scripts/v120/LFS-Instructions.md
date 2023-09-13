@@ -266,15 +266,15 @@ If a restore is needed:
 Think about using pfstool for LFS. Currently used only for BLFS.
 
 
-### 8.3 to 8.74
+### 8.3 to 8.79
 
  -  follow chapter8.sh
-   - Perform tests after 8.26
+   - Perform tests after 8.27
  -  Create root password
 
  -  Run 'logout' to log out before proceeding to section 8.76
 
-### 8.76 Stripping Again
+### 8.81 Stripping Again
 
 Re-enter the chroot environment:
 
@@ -283,52 +283,11 @@ Re-enter the chroot environment:
         PATH=/bin:/usr/bin:/sbin:/usr/sbin   \
         /tools/bin/bash --login
 
-Then strip:
-    
-    save_lib="ld-2.32.so libc-2.32.so libpthread-2.32.so libthread_db-1.0.so"
-    
-    cd /lib
-    
-    for LIB in $save_lib; do
-        objcopy --only-keep-debug $LIB $LIB.dbg
-        strip --strip-unneeded $LIB
-        objcopy --add-gnu-debuglink=$LIB.dbg $LIB
-    done
-
-    save_usrlib="libquadmath.so.0.0.0 libstdc++.so.6.0.28
-                 libitm.so.1.0.0 libatomic.so.1.2.0"
-
-    cd /usr/lib
-
-    for LIB in $save_usrlib; do
-        objcopy --only-keep-debug $LIB $LIB.dbg
-        strip --strip-unneeded $LIB
-        objcopy --add-gnu-debuglink=$LIB.dbg $LIB
-    done
-
-    unset LIB save_lib save_usrlib
-
-
-    find /usr/lib -type f -name \*.a \
-	-exec /tools/bin/strip --strip-debug {} ';'
-
-    find /lib /usr/lib -type f -name \*.so* ! -name \*dbg \
-	-exec /tools/bin/strip --strip-unneeded {} ';'
-
-    find /{bin,sbin} /usr/{bin,sbin,libexec} -type f \
-	-exec /tools/bin/strip --strip-all {} ';'
-
+Then strip by running chapter8-stripping.sh
 
 ### 8.77 Cleaning up
 
     rm -rf /tmp/*
-
-    rm -f /usr/lib/lib{bfd,opcodes}.a
-    rm -f /usr/lib/libbz2.a
-    rm -f /usr/lib/lib{com_err,e2p,ext2fs,ss}.a
-    rm -f /usr/lib/libltdl.a
-    rm -f /usr/lib/libfl.a
-    rm -f /usr/lib/libz.a
 
     find /usr/lib /usr/libexec -name \*.la -delete
 
@@ -355,10 +314,6 @@ For my purpose it will be DHCP configuration
     [DHCP]
     UseDomains=true
     EOF
-
-Link systemd-resolved DNS configuration: 
-
-    ln -sfv /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 
 Configure the hostname and /etc/hosts file
@@ -525,7 +480,7 @@ Create /etc/lsb-release (optional)
     EOF
 
 
-### 9.3 Rebooting the system
+### 11.3 Rebooting the system
 
 First logout from the chroot environment:
 
@@ -534,6 +489,7 @@ First logout from the chroot environment:
 Then unmount whatever is mounted:
 
     unmount -v $LFS/dev/pts
+    mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
     unmount -v $LFS/dev
     unmount -v $LFS/run
     unmount -v $LFS/proc
