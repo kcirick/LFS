@@ -38,6 +38,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf binutils-2.41
 
 
@@ -96,8 +100,8 @@ cd $LFS/sources
 
 #-----
 echo "# 5.4. Linux API Headers"
-tar -xf linux-6.4.12.tar.xz
-cd linux-6.4.12
+tar -xf linux-6.1.62.tar.xz
+cd linux-6.1.62
 
 make mrproper || exit 1
 make headers || exit 1
@@ -106,7 +110,7 @@ find usr/include -type f ! -name '*.h' -delete
 cp -rv usr/include $LFS/usr
 
 cd $LFS/sources
-rm -rf linux-6.4.12
+rm -rf linux-6.1.62
 
 
 #-----

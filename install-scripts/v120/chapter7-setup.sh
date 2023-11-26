@@ -50,7 +50,7 @@ systemd-timesync:x:78:78:systemd Time Synchronization:/:/usr/bin/false
 systemd-coredump:x:79:79:systemd Core Dumper:/:/usr/bin/false
 uuidd:x:80:80:UUID Generation Daemon User:/dev/null:/usr/bin/false
 systemd-oom:x:81:81:systemd Out Of Memory Daemon:/:/usr/bin/false
-nobody:x:99:99:Unprivileged User:/dev/null:/usr/bin/false
+nobody:x:65534:65534:Unprivileged User:/dev/null:/usr/bin/false
 EOF
 
 cat > /etc/group << "EOF"
@@ -86,8 +86,8 @@ systemd-coredump:x:79:
 uuidd:x:80:
 systemd-oom:x:81:
 wheel:x:97:
-nogroup:x:99:
 users:x:999:
+nogroup:x:65534:
 EOF
 
 

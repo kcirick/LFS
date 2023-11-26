@@ -1,13 +1,11 @@
 # Installation Instructions
 
  -  Version: 12.0-Systemd [Link](https://www.linuxfromscratch.org/lfs/view/12.0-systemd/)
- - System: Raspberry Pi 3
-    - Quad Core 1.2GHz Broadcom BCM2837 64bit CPU (armv7)
-    - 1024MB SDRAM
+ - System: Raspberry Pi 2
+    - Quad Core 900MHz Broadcom BCM2836 CPU (armv7)
+    - 1024MB RAM
     - HDMI port
     - four USB 2.0 ports
-    - Bluetooth 4.2, Bluetooth Low Energy (BLE), onboard antenna
-    - CSI-2 camera connector 
  -  Host: Raspbian Bullseye armhf 
     - Additional software needed: git, bison, gawk, m4, texinfo, vim, parted
 
@@ -110,6 +108,11 @@ Download the packages and patches
          sudo ln -sv usr/$i $LFS/$i
      done
 
+     case $(uname -m) in
+         x86_64) mkdir -pv $LFS/lib64 ;;
+     esac
+
+
 ### 4.3 Adding the LFS User
 
      sudo groupadd lfs
@@ -199,7 +202,7 @@ Now mount system:
     if [ -h $LFS/dev/shm ]; then
        sudo mkdir -pv $LFS/$(readlink $LFS/dev/shm)
     else
-       mount -t tmpfs -o nosuid,nodev tmpfs $LFS/dev/shm
+       sudo mount -t tmpfs -o nosuid,nodev tmpfs $LFS/dev/shm
     fi
 
 
@@ -239,13 +242,13 @@ Following are done outside of the chroot environment:
 
 Strip off debugging symbols:
 
-     strip --strip-debug $LFS/usr/lib/*
-     strip --strip-unneeded $LFS/usr/{,s}bin/*
+     sudo strip --strip-debug $LFS/usr/lib/*
+     sudo strip --strip-unneeded $LFS/usr/{,s}bin/*
 
 Create a back up file
 
      cd $LFS
-     tar -cJpf $HOME/lfs-temp-tools-12.0-systemd.tar.xz .
+     sudo tar --exlude='sources' -cJpf $HOME/lfs-temp-tools-12.0-systemd.tar.xz .
 
 If a restore is needed:
 

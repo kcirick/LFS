@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=iw
-VERSION=5.4
+VERSION=5.19
 SOURCE=${TARGET}-${VERSION}.tar.xz
 SOURCEDIR=$TARGET-$VERSION
 
@@ -46,7 +46,7 @@ chown -R root:root .
 sed -i "/INSTALL.*gz/s/.gz//" Makefile 
 
 make
-make DESTDIR=$PKGDIR SBINDIR=/sbin install
+make DESTDIR=$PKGDIR install
 
 
 #--- Should not have to touch below this

@@ -20,7 +20,7 @@ fi
 cd $LFS/sources
 
 if [[ $1 -eq 1 ]]; then
-
+   "nothing to do"
 fi
 
 #-----

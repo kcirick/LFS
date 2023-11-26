@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TARGET=wpa-supplicant
-VERSION=2.9
+VERSION=2.10
 SOURCE=wpa_supplicant-${VERSION}.tar.gz
 SOURCEDIR=wpa_supplicant-$VERSION        # Usually $TARGET-$VERSION
 MARCH=$( uname -m )
@@ -53,7 +53,7 @@ cat $CWD/config.default > wpa_supplicant/.config || exit 1
 
 cd wpa_supplicant
 
-make BINDIR=/sbin LIBDIR=/lib
+make BINDIR=/usr/sbin LIBDIR=/usr/lib
 
 if [ $MAKEQT -eq 1 ]; then
    pushd wpa_gui-qt4 &&
@@ -63,19 +63,19 @@ if [ $MAKEQT -eq 1 ]; then
 fi
 
 # copy files
-mkdir -p $PKGDIR/sbin
-install -v -m755 wpa_{cli,passphrase,supplicant} $PKGDIR/sbin/
+mkdir -p $PKGDIR/usr/sbin
+install -v -m755 wpa_{cli,passphrase,supplicant} $PKGDIR/usr/sbin/
 mkdir -p $PKGDIR/usr/share/man/man{5,8}
 install -v -m644 doc/docbook/wpa_supplicant.conf.5 $PKGDIR/usr/share/man/man5/
 install -v -m644 doc/docbook/wpa_{cli,passphrase,supplicant}.8 $PKGDIR/usr/share/man/man8/
 
-mkdir -p $PKGDIR/lib/systemd/system
-install -v -m644 systemd/*.service $PKGDIR/lib/systemd/system/
+mkdir -p $PKGDIR/usr/lib/systemd/system
+install -v -m644 systemd/*.service $PKGDIR/usr/lib/systemd/system/
 
 mkdir -p $PKGDIR/usr/share/dbus-1/system-services
 install -v -m644 dbus/fi.{epitest.hostap.WPASupplicant,w1.wpa_supplicant1}.service \
    $PKGDIR/usr/share/dbus-1/system-services/
-mkdir -p $PKGDIR/etc/dbus-1/system.d
+install -v -d -m755 $PKGDIR/etc/dbus-1/system.d
 install -v -m644 dbus/dbus-wpa_supplicant.conf \
    $PKGDIR/etc/dbus-1/system.d/wpa_supplicant.conf
 

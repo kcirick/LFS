@@ -2,17 +2,13 @@
 
 if [[ "$(whoami)" != "root" ]] ; then
    echo "Not running as root! Exiting..."
-   return;
+   exit 
 fi
-
-if ! [[ -d /tools ]]; then
-   echo "/tools not found. Maybe not under chroot?"
-   return;
-fi
-
 
 cd $LFS/sources
 
+if [[ $1 -eq 1 ]]; then
+   "nothing to do"
 
 #-----
 echo "# 8.3. Man-pages"
@@ -24,6 +20,10 @@ rm -v man3/crypt*
 make prefix=/usr install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf man-pages-6.05.01
 
 
@@ -35,6 +35,10 @@ cd iana-etc-20230810
 cp services protocols /etc
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf iana-etc-20230810
 
 #-----
@@ -132,7 +136,12 @@ EOF
 mkdir -pv /etc/ld.so.conf.d
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf glibc-2.38
+
 
 #-----
 echo "# 8.6. Zlib"
@@ -147,6 +156,10 @@ make install || exit 1
 rm -fv /usr/lib/libz.a
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf zlib-1.2.13
 
 #-----
@@ -175,6 +188,10 @@ done
 rm -fv /usr/lib/libbz2.a
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf bzip2-1.0.8
 
 #-----
@@ -190,6 +207,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf xz-5.4.4
 
 #-----
@@ -203,6 +224,10 @@ make prefix=/usr install || exit 1
 rm -v /usr/lib/libzstd.a
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf zstd-1.5.5
 
 #-----
@@ -216,6 +241,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf file-5.45
 
 #-----
@@ -237,6 +266,10 @@ make SHLIB_LIBS="-lncursesw" || exit 1
 make SHLIB_LIBS="-lncursesw" install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf readline-8.2
 
 #-----
@@ -250,6 +283,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf m4-1.4.19
 
 #-----
@@ -263,6 +300,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf bc-6.6.0
 
 #-----
@@ -281,6 +322,10 @@ ln -sv flex /usr/bin/lex
 ln -sv flex.1 /usr/share/man/man1/lex.1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf flex-2.6.4
 
 #-----
@@ -321,6 +366,10 @@ ln -sfv tclsh8.6 /usr/bin/tclsh
 mv /usr/share/man/man3/{Thread,Tcl_Thread}.3
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf tcl8.6.13
 
 #-----
@@ -339,6 +388,10 @@ make install || exit 1
 ln -sfv expect5.45.4/libexpect5.45.4.so /usr/lib
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf expect5.45.4
 
 #-----
@@ -357,6 +410,10 @@ install -v -dm755 /usr/share/doc/dejagnu-1.6.3
 install -v -m644  doc/dejagnu.{html,txt} /usr/share/doc/dejagnu-1.6.3
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf dejagnu-1.6.3
 
 #-----
@@ -381,6 +438,10 @@ make tooldir=/usr install || exit 1
 rm -fv /usr/lib/lib{bfd,ctf,ctf-nobfd,gprofng,opcodes,sframe}.a
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf binutils-2.41
 
 #-----
@@ -399,6 +460,10 @@ make install || exit 1
 make install-html || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf gmp-6.3.0
 
 #-----
@@ -421,6 +486,10 @@ make install || exit 1
 make install-html || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf mpfr-4.2.0
 
 #-----
@@ -438,6 +507,10 @@ make install || exit 1
 make install-html || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf mpc-1.3.1
 
 #-----
@@ -454,11 +527,15 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf attr-2.5.1
 
 #-----
 echo "8.23. Acl"
-tar -xf acl-2.3.1.tar.gz
+tar -xf acl-2.3.1.tar.xz
 cd acl-2.3.1
 
 ./configure --prefix=/usr \
@@ -469,6 +546,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf acl-2.3.1
 
 #-----
@@ -481,6 +562,10 @@ make prefix=/usr lib=lib || exit 1
 make prefix=/usr lib=lib install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf libcap-2.69
 
 #-----
@@ -498,6 +583,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf libxcrypt-4.4.36
 
 #-----
@@ -537,12 +626,23 @@ sed -i '/MAIL/s/yes/no/' /etc/default/useradd
 # Root password will be set at the end of the script to prevent a stop here
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf shadow-4.8.1
 
 #-----
 echo "# 8.27. GCC"
 tar -xf gcc-13.2.0.tar.xz
 cd gcc-13.2.0
+
+case $(uname -m) in
+	x86_64)
+		sed -e '/m64=/s/lib64/lib/' \
+		    -i.orig gcc/config/i386/t-linux64
+	;;
+esac
 
 mkdir -v build && cd build
 ../configure --prefix=/usr            \
@@ -581,10 +681,9 @@ if [ "$answer" != "Y" ]; then
 fi
 rm -rf gcc-13.2.0
 
-
 #-----
 echo "# 8.28. Pkgconf"
-tar -zxf pkgconf-2.0.1.tar.xz
+tar -xf pkgconf-2.0.1.tar.xz
 cd pkgconf-2.0.1
 
 ./configure --prefix=/usr         \
@@ -598,6 +697,10 @@ ln -sv pkgconf /usr/bin/pkg-config
 ln -sv pkgconf.1 /usr/share/man/man1/pkg-config.1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf pkgconf-2.0.1
 
 #-----
@@ -631,6 +734,10 @@ echo "INPUT(-lncursesw)" > /usr/lib/libcursesw.so
 ln -sfv libncurses.so      /usr/lib/libcurses.so
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf ncurses-6.4
 
 #-----
@@ -647,6 +754,10 @@ install -d -m755           /usr/share/doc/sed-4.9
 install -m644 doc/sed.html /usr/share/doc/sed-4.9
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf sed-4.9
 
 #-----
@@ -660,6 +771,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf psmisc-23.6
 
 #-----
@@ -676,6 +791,10 @@ make install || exit 1
 chmod -v 0755 /usr/lib/preloadable_libintl.so
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf gettext-0.22
 
 #-----
@@ -689,6 +808,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf bison-3.8.2
 
 #-----
@@ -704,6 +827,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf grep-3.11
 
 #-----
@@ -722,6 +849,10 @@ make install || exit 1
 # Don't know of a good way to keep running the script after entering bash here.
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf bash-5.2.15
 
 #-----
@@ -736,6 +867,10 @@ make install || exit 1
 rm -fv /usr/lib/libltdl.a
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf libtool-2.4.7
 
 #-----
@@ -751,6 +886,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf gdbm-1.23
 
 #-----
@@ -764,6 +903,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf gperf-3.1
 
 #-----
@@ -779,6 +922,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf expat-2.5.0
 
 #-----
@@ -802,6 +949,10 @@ make install || exit 1
 mv -v /usr/{,s}bin/ifconfig
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf inetutils-2.4
 
 #-----
@@ -815,6 +966,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf less-643
 
 #-----
@@ -843,6 +998,10 @@ make install || exit 1
 unset BUILD_ZLIB BUILD_BZIP2
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf perl-5.38.0
 
 #-----
@@ -855,6 +1014,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf XML-Parser-2.46
 
 #-----
@@ -871,6 +1034,10 @@ make install || exit 1
 install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf intltool-0.51.0
 
 #-----
@@ -888,6 +1055,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf autoconf-2.69
 
 #-----
@@ -901,6 +1072,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf automake-1.16.5
 
 #-----
@@ -922,6 +1097,10 @@ mv -v /usr/share/doc/openssl /usr/share/doc/openssl-3.1.2
 cp -vfr doc/* /usr/share/doc/openssl-3.1.2
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf openssl-3.1.2
 
 #-----
@@ -945,6 +1124,10 @@ done
 ln -sfv kmod /usr/bin/lsmod
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf kmod-30
 
 #-----
@@ -954,7 +1137,7 @@ cd elfutils-0.189
 
 ./configure --prefix=/usr           \
             --disable-debuginfod    \
-            --enable-libdebuginford=dummy
+            --enable-libdebuginfod=dummy
 
 make || exit 1
 make -C libelf install || exit 1
@@ -962,6 +1145,10 @@ install -vm644 config/libelf.pc /usr/lib/pkgconfig
 rm /usr/lib/libelf.a
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf elfutils-0.189
 
 #----
@@ -975,6 +1162,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf libffi-3.4.4
 
 #-----
@@ -999,6 +1190,10 @@ tar --strip-components=1 \
     -xvf ../python-3.11.4-docs-html.tar.bz2
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf Python-3.11.4
 
 #-----
@@ -1011,6 +1206,10 @@ pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 pip3 install --no-index --no-user --find-links dist flit_core
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf flit_core-3.9.0
 
 #-----
@@ -1023,6 +1222,10 @@ pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 pip3 install --no-index --find-links=dist wheel
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf wheel-0.41.1
 
 #-----
@@ -1037,6 +1240,10 @@ install -vDm644 misc/bash-completion /usr/share/bash-completion/completions/ninj
 install -vDm644 misc/zsh-completion /usr/share/zsh/site-functions/_ninja
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf ninja-1.11.1
 
 #-----
@@ -1051,6 +1258,10 @@ install -vDm644 data/shell-completions/bash/meson /usr/share/bash-completion/com
 install -vDm644 data/shell-completions/zsh/_meson /usr/share/zsh/site-functions/_meson
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf meson-1.2.1
 
 #-----
@@ -1072,6 +1283,10 @@ mv -v /usr/share/man/man1/chroot.1 /usr/share/man/man8/chroot.8
 sed -i s/\"1\"/\"8\"/1 /usr/share/man/man8/chroot.8
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf coreutils-9.3
 
 #-----
@@ -1085,6 +1300,10 @@ make || exit 1
 make docdir=/usr/share/doc/check-0.15.2 install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf check-0.15.2
 
 #-----
@@ -1098,6 +1317,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf diffutils-3.10
 
 #-----
@@ -1113,6 +1336,10 @@ make LN='ln -f' install || exit 1
 ln -sv gawk.1 /usr/share/man/man1/awk.1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf gawk-5.2.2
 
 #-----
@@ -1126,6 +1353,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf findutils-4.9.0
 
 #-----
@@ -1138,26 +1369,35 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf groff-1.23.0
 
 #-----
 echo "# 8.62. GRUB"
-tar -xf grub-2.06.tar.xz
-cd grub-2.06
+echo " ---> Skipping! "
+#tar -xf grub-2.06.tar.xz
+#cd grub-2.06
 
-patch -Np1 -i ../grub-2.06-upstream_fixes-1.patch
+#patch -Np1 -i ../grub-2.06-upstream_fixes-1.patch
 
-./configure --prefix=/usr          \
-            --sysconfdir=/etc      \
-            --disable-efiemu       \
-            --disable-werror
+#./configure --prefix=/usr          \
+#            --sysconfdir=/etc      \
+#            --disable-efiemu       \
+#            --disable-werror
 
-make || exit 1
-make install || exit 1
-mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
+#make || exit 1
+#make install || exit 1
+#mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
 
-cd $LFS/sources
-rm -rf grub-2.06
+#cd $LFS/sources
+#read -p "Press Y to continue: " answer
+#if [ "$answer" != "Y" ]; then
+#   exit
+#fi
+#rm -rf grub-2.06
 
 #-----
 echo "# 8.63. Gzip"
@@ -1170,6 +1410,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf gzip-1.12
 
 #-----
@@ -1184,6 +1428,10 @@ make NETNS_RUN_DIR=/run/netns || exit 1
 make SBINDIR=/usr/sbin install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf iproute2-6.4.0
 
 #-----
@@ -1201,6 +1449,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf kbd-2.6.1
 
 #-----
@@ -1213,6 +1465,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf libpipeline-1.5.7
 
 #-----
@@ -1225,6 +1481,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf make-4.4.1
 
 #-----
@@ -1237,6 +1497,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf patch-2.7.6
 
 #-----
@@ -1252,6 +1516,10 @@ make install || exit 1
 make -C doc install-html docdir=/usr/share/doc/tar-1.35 || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf tar-1.35
 
 #-----
@@ -1266,6 +1534,10 @@ make install || exit 1
 make TEXMF=/usr/share/texmf install-tex || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf texinfo-7.0.3
 
 #-----
@@ -1314,6 +1586,10 @@ endif
 EOF
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf vim-9.0.1677
 
 #-----
@@ -1326,6 +1602,10 @@ pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 pip3 install --no-index --no-user --find-links dist Markupsafe
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf MarkupSafe-2.1.3
 
 #-----
@@ -1338,6 +1618,10 @@ pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 pip3 install --no-index --no-user --find-links dist Jinja2
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf Jinja2-3.1.2
 
 #-----
@@ -1380,11 +1664,15 @@ systemctl preset-all
 systemctl disable systemd-sysupdate{,-reboot}
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf systemd-254
 
 #-----
 echo "# 8.75. D-Bus"
-tar -xf dbus-1.14.8.tar.gz
+tar -xf dbus-1.14.8.tar.xz
 cd dbus-1.14.8
 
 ./configure --prefix=/usr                       \
@@ -1404,6 +1692,10 @@ make install || exit 1
 ln -sfv /etc/machine-id /var/lib/dbus
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf dbus-1.14.8
 
 #-----
@@ -1424,7 +1716,13 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf man-db-2.11.2
+
+fi
 
 #-----
 echo "# 8.77. Procps-ng"
@@ -1441,6 +1739,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf procps-ng-4.0.3
 
 #-----
@@ -1468,6 +1770,10 @@ make || exit 1
 make install || exit 1
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf util-linux-2.39.1
 
 #-----
@@ -1492,6 +1798,10 @@ gunzip -v /usr/share/info/libext2fs.info.gz
 install-info --dir-file=/usr/share/info/dir /usr/share/info/libext2fs.info
 
 cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
 rm -rf e2fsprogs-1.47.0
 
 

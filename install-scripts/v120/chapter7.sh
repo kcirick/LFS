@@ -13,6 +13,10 @@ fi
 
 cd $LFS/sources
 
+if [[ $1 -eq 1 ]]; then
+   "nothing to do"
+fi
+
 #-----
 echo "# 7.7. Gettext"
 tar -xf gettext-0.22.tar.xz
@@ -26,7 +30,7 @@ cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /usr/bin
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
-   return
+   exit
 fi
 rm -rf gettext-0.22
 
@@ -43,7 +47,7 @@ make install || exit 1
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
-   return
+   exit
 fi
 rm -rf bison-3.8.2
 
