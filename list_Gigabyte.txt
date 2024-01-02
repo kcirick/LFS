@@ -4,7 +4,8 @@
 
 ## --- Essentials --------------------------------------------------------
 lfs                                 12.0systemd    Y
-   linux                            6.1.62                     /usr/src/linux
+   linux                            6.1.62                     6.1.69 - /usr/src/linux
+   linux-firmware                   20231111       Y
 pfstool                             1.3            Y
 
 linux-pam                           1.5.3          Y
@@ -29,8 +30,10 @@ wpa_supplicant                      2.10           Y
    libnl                            3.7.0          Y
 iw                                  5.19           Y
    (libnl)
+wireless-regdb                      2023.09.01     Y
+   (iw)
 wget                                1.21.4         Y
-   gnutls                           3.8.1          Y
+   gnutls                           3.8.1          Y           3.8.2
       nettle                        3.9.1          Y
       libunistring                  1.1            Y
       make-ca                       1.12           Y
@@ -52,12 +55,12 @@ glib                                2.78.0         Y
       docbook-xsl                   1.79.2         Y
          (libxml2)
 cmake                               3.72.2         Y
-   curl                             8.3.0          Y
+   curl                             8.3.0          Y           8.5.0
       (make-ca)
       (gnutls)
    libarchive                       3.7.1          Y
    libuv                            1.46.0         Y
-   nghttp2                          1.55.1         Y
+   nghttp2                          1.55.1         Y           1.58.0
       (libxml2)
 rustc                               1.71.1         Y
    (curl)
@@ -65,13 +68,15 @@ rustc                               1.71.1         Y
    (llvm)
 vala                                0.56.11        Y
    (glib)
-
+go                                  1.21.5         Y
 
 ## --- System tools ------------------------------------------------------
+strace                              6.6            Y
+   libunwind                        1.6.2          Y
 pciutils                            3.10.0         Y
-udisks2                             2.10.0         Y
+udisks2                             2.10.0         Y           2.10.1
    libatasmart                      0.19           Y
-   libblockdev                      3.0.2          Y
+   libblockdev                      3.0.2          Y           3.0.4
       (glib)
       cryptsetup                    2.4.3          Y
          json-c                     0.17           Y
@@ -164,6 +169,10 @@ conky                               1.11.6
    (wireless_tools)
    lua                              5.4.0          
 calc                                2.15.0.1       Y
+gdb                                 13.2           Y
+   (py-six)
+gotop                               4.2.0          Y
+   (go)
 git                                 2.42.0         Y
    (curl)
 bluez                               5.68           Y
@@ -189,6 +198,69 @@ ibus-anthy                          1.5.8          Y
       (py-gobject)
    anthy                            9100h          Y
    (py-gobject)
+cups                                2.4.6          Y
+   (gnutls)
+   (dbus)
+   (libusb)
+   colord                           1.4.6          Y
+      (dbus)
+      (glib)
+      (lcms2)
+      (polkit)
+      (sqlite)
+      (gobject-introspection)
+      (libgudev)
+      libgusb                       0.4.6          Y
+         (json-glib)
+         (libusb)
+         (gobject-introspection)
+         umockdev                   0.17.18        Y
+            (libgudev)
+            libpcap                 1.10.4         Y
+            (vala)
+         usbutils                   015            Y
+            (libusb)
+            (python2)
+      (systemd)
+      (vala)
+   xdg-utils                        1.1.3          Y
+      (xmlto)
+      lynx                          2.8.9rel.1     Y
+         (gnutls)
+cups-filters                        1.28.16        Y
+   (cups)
+   (glib)
+   ghostscript                      10.01.2        Y
+      (cups)
+      (fontconfig)
+      (freetype2)
+      (lcms2)
+      (libjpeg-turbo)
+      (libpng)
+      (libtiff)
+      (openjpeg)
+   (lcms2)
+   poppler                          23.08.0        Y
+      (cmake)
+      (fontconfig)
+      (gobject-introspection)
+      (boost)
+      (cairo)
+      (lcms)
+      (libjpeg-turbo)
+      (libpng)
+      (nss)
+      (openjpeg2)
+   qpdf                             11.5.0         Y
+      (cmake)
+      (libjpeg-turbo)
+   (ttf-dejavu)
+   (libexif)
+   (libjpeg-turbo)
+   (libpng)
+   (libtiff)
+   (mupdf)
+
 
 ## --- X11/Wayland -------------------------------------------------------
 xorg-libs                           -              Y
@@ -233,7 +305,7 @@ xorg-apps                           -              Y
       (util-macros)
    xcb-util                         0.4.1          Y
       (libxcb)
-xorg-server                         1.20.8         Y
+xorg-server                         21.1.8         Y           21.1.9
    libxcvt                          0.1.2          Y
    pixman                           0.42.2         Y
    xorg-fonts                       -              Y
@@ -251,6 +323,7 @@ xinit                               1.4.2          Y
       (xorg-server)
    xterm                            384            Y
       (xorg-apps)
+      libutempter                   1.2.1          Y
    xclock                           1.1.1          Y
       (xorg-libs)
 xf86-input-libinput                 1.3.0          Y
@@ -258,6 +331,14 @@ xf86-input-libinput                 1.3.0          Y
    libinput                         1.23.0         Y
       mtdev                         1.1.6          Y
       libevdev                      1.13.1         Y
+waylandpp                           1.0.0          Y
+   (wayland)
+   pugixml                          1.14           Y
+louvre                              1.0.1-1        
+   srm                              1.2.15         Y
+   freeimage                        3.18.0
+      libraw                        0.21.1         Y
+      openexr                       3.2.1          Y
 harfbuzz                            8.1.1          Y
    (glib)
    (gobject-introspection)
@@ -341,10 +422,7 @@ wmctrl                              1.07           Y
 wtype                               0.4            Y
    (wayland)
    (libxkbcommon)
-xdg-utils                           1.1.1                   
-   (xmlto)
-   links                            2.12                    
-xwayland                            23.2.0         Y
+xwayland                            23.2.0         Y           23.2.3
    (libxcvt)
    (pixman)
    (wayland-protocols)
@@ -352,11 +430,13 @@ xwayland                            23.2.0         Y
    (libepoxy)
    (libtirpc)
    (mesa)
-wlroots                             0.16.2         Y
+wlroots                             0.16.2         Y           0.17.0
+   wlr-protocols                    20231203       Y
    (wayland-protocols)
    (mesa)
    (libinput)
    (libxkbcommon)
+   libdisplay-info                  0.1.1          Y
    (pixman)
    (xwayland)
    (libxcb)
@@ -390,7 +470,7 @@ librsvg                             2.56.3         Y
    (rustc)
    (gobject-introspection)
    (vala)
-libwebp                             1.3.1          Y
+libwebp                             1.3.1          Y           1.3.2
    (libjpeg-turbo)
    (libpng)
    libtiff                          4.5.1          Y
@@ -406,6 +486,8 @@ pulseaudio                          16.1           Y           ** May need to be
       libvorbis                     1.3.7          Y
          libogg                     1.3.5          Y
    alsa-lib                         1.2.9          Y
+      alsa-ucm-conf                 1.2.10         Y
+      alsa-topology-conf            1.2.5.1        Y
    (dbus)
    (glib)
    speex                            1.2.1          Y
@@ -427,7 +509,7 @@ ffmpeg                              6.0            Y
       (libogg)
       (libvorbis)
    (libvorbis)
-   libvpx                           1.13.0         Y
+   libvpx                           1.13.0         Y           1.13.1
       (nasm)
       (which)
    (opus)
@@ -445,6 +527,25 @@ rxvt-unicode                        9.31           Y
    libptytty                        2.0            Y
       (cmake)
    (xorg-libs)
+foot                                1.16.2         Y
+   (fontconfig)
+   (libxkbcommon)
+   fcft                             3.1.6          Y
+      (tllist)
+      (fontconfig)
+      (harfbuzz)
+      (pixman)
+      libutf8proc                   2.9.0          Y
+   (llvm)
+   (wayland)
+   (wayland-protocols)
+kitty                               0.31.0         Y
+   (fontconfig)
+   (freetype2)
+   (libxkbcommon)
+   (lcms2)
+   (wayland)
+   xxhash                           0.8.2          Y
 
 # WM
 openbox                             3.6.1          Y
@@ -463,7 +564,7 @@ polybar                             3.6.3          Y
       xcb-util-image                0.4.1          Y
       xcb-util-renderutil           0.3.10         Y
    (pulseaudio)
-labwc                               0.6.5          Y
+labwc                               0.6.5          Y           0.7.0
    (wlroots)
    (xwayland)
    (libxml2)
@@ -510,7 +611,10 @@ blueman                             2.3.5          Y
          (cairo)
 notification-daemon                 3.20.0         Y
    (gtk3)
-dunst                               
+dunst                               1.9.2          Y
+   (dbus)
+   (gtk-pixbuf)
+   (libnotify)
 wbg                                 1.1.0          Y
    (wayland)
    (pixman)
@@ -520,6 +624,36 @@ grim                                1.4.1          Y
    (cairo)
    (libjpeg-turbo)
    (wayland)
+lightdm                             1.32.0         Y
+   lightdm-gtk-greeter              2.0.8          Y
+   (exo)
+   (libgcrypt)
+   itstool                          2.0.7          Y
+      (docbook-xml)
+   (linux-pam)
+   (xorg-server)
+   (gobject-introspection)
+   libxklavier                      5.4            Y
+      (glib)
+      (iso-codes)
+      (libxml2)
+      (xorg-libs)
+   (vala)
+swayidle                            1.8.0          Y
+   (wayland)
+   (wayland-protocols)
+swaylock                            1.7.2          Y
+   (cairo)
+   (gdk-pixbuf)
+   (linux-pam)
+   (wayland)
+   (wayland-protocols)
+wlopm                               0.1.0          Y
+   (wayland)
+   (wayland-protocols)
+ly                                  0.6.0          Y
+   (linux-pam)
+   (libxcb)
 
 # APPLICATIONS
 mpv                                 0.36.0         Y
@@ -534,17 +668,16 @@ nsxiv                               32             Y
    (imlib2) - with giflib
    (freetype2)
    (libexif)
-mupdf                               1.17.0         
-   (xorg-libs) 
-   freeglut                         3.2.1          
-      (cmake)
+mupdf                               1.22.2         Y
+   glu                              9.0.3          Y
       (mesa)
-      (glu)
+   (xorg-libs) 
    (harfbuzz)
    (libjpeg-turbo)
-   (openjpeg)
+   openjpeg                         2.5.0          Y
+      (cmake)
    (curl)
-firefox                             119.0.1        Y
+firefox                             119.0.1        Y           121.0
    (dbus-glib)
    (ffmpeg)
    (gtk3)
@@ -572,9 +705,6 @@ thunar                              4.18.6         Y
    (pcre2)
    (gvfs)
    libexif                          0.6.24         Y
-ristretto                           0.13.1         Y
-   (libexif)
-   (libxfce4ui)
    tumbler                          4.18.1         Y
       (glib)
 mousepad                            0.5.10         Y
@@ -584,7 +714,12 @@ mousepad                            0.5.10         Y
       (gtk3)
    desktop-file-utils               0.26           Y
       (glib)
-
+discord                             0.0.35         Y
+   (gtk3)
+   (nss)
+   (libnotify)
+   (cups)
+    
 
 ### NOT NEEDED 
 ###-----------------------------------------------------------------------
@@ -599,6 +734,11 @@ hexchat                             2.12.1
    (gtk2)
    (dbus-glib)
    (gdk-pixbuf)
+weechat                             3.0            
+   (gnutls)
+   (curl)
+   (libgcrypt)
+   (cmake)
 scim-anthy                          1.2.7
    scim                             1.4.15
       (gtk2)
@@ -641,45 +781,6 @@ scrot                               1.4
       (freetype2)
       (imlib2)
    autoconf-archive                 2019.01.06     
-cups                                2.1.3                    
-   (gnutls)
-   (dbus)
-   (libusb)
-   colord                           1.2.12                   
-      (sqlite)
-      (dbus)
-      (glib)
-      lcms2                         2.7                      
-         (libjpeg-turbo)
-         (libtiff)
-      (libgudev)
-      libgusb                       0.2.9                    
-         (libusb)
-         usbutils                   008                      
-            libusb                  1.0.20                   
-            (python2)
-      (systemd)
-cups-filters                        1.8.3                    
-   avahi                            0.6.32                   
-      (glib)
-      (gtk2)
-      (gobject-introspection)
-      libdaemon                     0.14                     
-   (cups)
-   (glib)
-   ijs                              0.35                     
-   (lcms2)
-   poppler                          0.43.0                   
-      (fontconfig)                     
-      (cairo)
-      (libjpeg-turbo)
-      openjpeg2                     2.1.0                    
-         (cmake)
-         (libtiff)                     
-         (libpng)
-         (lcms2)
-   qpdf                             6.0.0                    
-      (pcre)
 a2ps                                4.14                     
    psutils                          p17                      
 canon-mg5620-printer                5.00                     
@@ -703,12 +804,6 @@ pidgin                              2.10.12
             (glib)
 root                                6.06.02                          /home/rueno/.local/root
 geant4                              4.10.01                          /home/rueno/.local/geant4
-ghostscript                         9.18                                         9.19 (Skip)
-   (freetype2)
-   (libjpeg-turbo)
-   (libpng)
-   (libtiff)
-   (lcms2)
 texlive                             20150521                 
    (ghostscript)
    (fontconfig)
@@ -769,47 +864,14 @@ xf86-video-fbdev                    0.5.0
 xf86-video-intel                    0340718                  
    (xorg-server)
    (xcb-util)
-gtk2                                2.24.30                  
-   hicolor-icon-theme               0.15                     
-   atk                              2.20.0                   
-      (glib)
-      (gobject-introspection)
-   pango                            1.40.1                   
-      (fontconfig) - with harfbuzz
-      fribidi
-      (glib)
-      cairo                         1.14.6                   
-         (libpng)
-         (pixman)
-      (gobject-introspection)
-   gdk-pixbuf                       2.34.0                   
-      (gobject-introspection)
-      (xorg-libs)
-      (glib)
-      libjpeg-turbo                 1.4.2                    
-         nasm                       2.12.01                  
-      (libpng)
-      libtiff                       4.0.6                    
-         (libjpeg-turbo)
-         jbigkit                    2.1                      
-   (cups)
-gtkmm2                              2.24.4                   
-   (gtk2)
-   atkmm                            2.24.2                   
-      (atk)
-      glibmm                        2.48.1                   
-         (glib)
-         libsigc++                  2.8.0                    
-   pangomm                          2.40.0                   
-      cairomm                       1.12.0                   
-         (cairo)
-         (libsigc++)
-      (glibmm)
-      (pango)
 xfontsel                            1.0.5                    
    (xorg-libs)
 glista                              0.4                      
    (gtk2)
+ristretto                           0.13.1 
+   (libexif)
+   (libxfce4ui)
+   (tumbler)
 viewnior                            1.6                      
    gnome-common                     3.18.0                   
    exiv2                            0.25                     
@@ -923,11 +985,6 @@ veracrypt                           1.24.u7
    (yasm)
 tk                                  8.6.10         
    (xorg-libs)
-weechat                             3.0            
-   (gnutls)
-   (curl)
-   (libgcrypt)
-   (cmake)
 gimp                                2.8.16                  
    (gtk2)
    gegl                             0.3.6                   
@@ -1014,4 +1071,15 @@ lm-sensors                          3.4.0
 lsof                                4.89                   
    libtirpc                         1.0.1                  
 markdown                            1.0.1          
+gdm                                 44.1           
+   accountsservice                  23.13.9        
+      (polkit)
+      (gobject-introspection)
+      (vala)
+   (dconf)
+   libcanberra                      0.30           
+      (libvorbis)
+      (alsa-lib)
+      (gtk3)
+   (linux-pam)
 
