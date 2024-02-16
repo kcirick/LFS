@@ -23,7 +23,7 @@ done
 
 
 CWD=$(pwd)
-TMPDIR=/tmp
+TMPDIR=/sources/build
 PKGNAME=${TARGET}-${VERSION}
 PKGDIR=$TMPDIR/${PKGNAME}_package
 TARGETDIR=$CWD

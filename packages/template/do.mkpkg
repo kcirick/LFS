@@ -24,7 +24,7 @@ done
 
 #--- Download the source
 if [ ! -s $SOURCE ]; then 
-   wget http://to/$SOURCE
+   wget https://to/$SOURCE
 fi
 
 
@@ -39,10 +39,8 @@ mkdir -p $PKGDIR
 
 cd $TMPDIR
 rm -rf $SOURCEDIR
-tar -xvf $CWD/$SOURCE || exit 1
+tar -xf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
-chown -R root:root .
-
 
 ./configure --prefix=/usr 
 

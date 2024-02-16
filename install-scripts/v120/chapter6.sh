@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ "$(whoami)" != "lfs" ] ; then
    echo "Not running as user lfs, you should be!"
    return;
@@ -15,7 +14,6 @@ if [ $(stat -c %U $LFS/tools) != "lfs" ] ; then
    echo "$LFS/tools should be owned by user lfs!"
    return;
 fi
-
 
 cd $LFS/sources
 
@@ -378,6 +376,12 @@ tar -xf ../gmp-6.3.0.tar.xz
 mv -v gmp-6.3.0 gmp
 tar -xf ../mpc-1.3.1.tar.gz
 mv -v mpc-1.3.1 mpc
+
+case $(uname -m) in 
+	x86_64)
+		sed -e '/m64=/s/lib64/lib/' -i.orig gcc/config/i386/t-linux64
+	;;
+esac
 
 sed '/thread_header =/s/@.*@/gthr-posix.h/' \
    -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in

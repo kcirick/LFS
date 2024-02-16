@@ -9,6 +9,7 @@ cd $LFS/sources
 
 if [[ $1 -eq 1 ]]; then
    "nothing to do"
+fi
 
 #-----
 echo "# 8.3. Man-pages"
@@ -47,7 +48,8 @@ tar -xf glibc-2.38.tar.xz
 cd glibc-2.38
 
 patch -Np1 -i ../glibc-2.38-fhs-1.patch
-patch -Np1 -i ../glibc-2.38-memalign_fix-1.patch
+#patch -Np1 -i ../glibc-2.38-memalign_fix-1.patch
+patch -Np1 -i ../glibc-2.38-upstream_fixes-3.patch
 
 mkdir -v build && cd build
 echo "rootsbindir=/usr/sbin" > configparms
@@ -70,7 +72,7 @@ cp -v ../nscd/nscd.conf /etc/nscd.conf
 mkdir -pv /var/cache/nscd
 
 install -v -Dm644 ../nscd/nscd.tmpfiles /usr/lib/tmpfiles.d/nscd.conf
-install -v -Dm644 ../nscd/nscd.service /lib/systemd/system/nscd.service
+install -v -Dm644 ../nscd/nscd.service /usr/lib/systemd/system/nscd.service
 
 mkdir -pv /usr/lib/locale
 localedef -i POSIX -f UTF-8 C.UTF-8 2> /dev/null || true
@@ -105,6 +107,7 @@ rpc: files
 EOF
 
 tar -xf ../../tzdata2023c.tar.gz
+
 ZONEINFO=/usr/share/zoneinfo
 mkdir -pv $ZONEINFO/{posix,right}
 
@@ -354,6 +357,7 @@ sed -e "s|$SRCDIR/unix/pkgs/itcl4.2.3|/usr/lib/itcl4.2.3|" \
     -e "s|$SRCDIR/pkgs/itcl4.2.3/generic|/usr/include|"    \
     -e "s|$SRCDIR/pkgs/itcl4.2.3|/usr/include|"            \
     -i pkgs/itcl4.2.3/itclConfig.sh
+
 unset SRCDIR
 
 make install || exit 1
@@ -499,7 +503,7 @@ cd mpc-1.3.1
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/mpc-1.3.0
+            --docdir=/usr/share/doc/mpc-1.3.1
 
 make || exit 1
 make html || exit 1
@@ -630,7 +634,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf shadow-4.8.1
+rm -rf shadow-4.13
 
 #-----
 echo "# 8.27. GCC"
@@ -729,6 +733,7 @@ for lib in ncurses form panel menu ; do
    echo "INPUT(-l${lib}w)" > /usr/lib/lib${lib}.so
    ln -sfv ${lib}w.pc        /usr/lib/pkgconfig/${lib}.pc
 done
+
 rm -vf                     /usr/lib/libcursesw.so
 echo "INPUT(-lncursesw)" > /usr/lib/libcursesw.so
 ln -sfv libncurses.so      /usr/lib/libcurses.so
@@ -1031,7 +1036,7 @@ sed -i 's:\\\${:\\\$\\{:' intltool-update.in
 
 make || exit 1
 make install || exit 1
-install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO
+#install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
@@ -1059,7 +1064,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf autoconf-2.69
+rm -rf autoconf-2.71
 
 #-----
 echo "# 8.46. Automake"
@@ -1118,8 +1123,8 @@ cd kmod-30
 make || exit 1
 make install || exit 1
 
-for target in depmod insmod lsmod modinfo modprobe rmmod; do
-   ln -sv ../bin/kmod /usr/sbin/$target
+for target in depmod insmod modinfo modprobe rmmod; do
+   ln -sfv ../bin/kmod /usr/sbin/$target
 done
 ln -sfv kmod /usr/bin/lsmod
 
@@ -1181,6 +1186,12 @@ cd Python-3.11.4
 
 make || exit 1
 make install || exit 1
+
+cat > /etc/pip.conf << EOF
+[global]
+root-user-action = ignore
+disable-pip-version-check = true
+EOF
 
 install -v -dm755 /usr/share/doc/python-3.11.4/html
 tar --strip-components=1 \
@@ -1270,6 +1281,10 @@ tar -xf coreutils-9.3.tar.xz
 cd coreutils-9.3
 
 patch -Np1 -i ../coreutils-9.3-i18n-1.patch 
+
+# CVE-2024-0684 fix
+sed -e '/n_out += n_hold/,+4 s|.*bufsize.*|//&|' -i src/split.c
+
 autoreconf -fiv
 FORCE_UNSAFE_CONFIGURE=1 \
 ./configure --prefix=/usr            \
@@ -1377,27 +1392,26 @@ rm -rf groff-1.23.0
 
 #-----
 echo "# 8.62. GRUB"
-echo " ---> Skipping! "
-#tar -xf grub-2.06.tar.xz
-#cd grub-2.06
+tar -xf grub-2.06.tar.xz
+cd grub-2.06
 
-#patch -Np1 -i ../grub-2.06-upstream_fixes-1.patch
+patch -Np1 -i ../grub-2.06-upstream_fixes-1.patch
 
-#./configure --prefix=/usr          \
-#            --sysconfdir=/etc      \
-#            --disable-efiemu       \
-#            --disable-werror
+./configure --prefix=/usr          \
+            --sysconfdir=/etc      \
+            --disable-efiemu       \
+            --disable-werror
 
-#make || exit 1
-#make install || exit 1
-#mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
+make || exit 1
+make install || exit 1
+mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
 
-#cd $LFS/sources
-#read -p "Press Y to continue: " answer
-#if [ "$answer" != "Y" ]; then
-#   exit
-#fi
-#rm -rf grub-2.06
+cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
+rm -rf grub-2.06
 
 #-----
 echo "# 8.63. Gzip"
@@ -1633,7 +1647,6 @@ sed -i -e 's/GROUP="render"/GROUP="video"/' \
        -e 's/GROUP="sgx", //' rules.d/50-udev-default.rules.in
 
 mkdir -p build ; cd build
-LANG=en_US.UTF-8 \
 meson setup \
       --prefix=/usr          \
       --buildtype=release    \
@@ -1652,8 +1665,8 @@ meson setup \
       -Ddocdir=/usr/share/doc/systemd-254 \
       .. &> log.txt
 
-LANG=en_US.UTF-8 ninja || exit 1
-LANG=en_US.UTF-8 ninja install || exit 1
+ninja || exit 1
+ninja install || exit 1
 
 tar -xf ../../ systemd-man-pages-254.tar.xz \
       --no-same-owner --strip-components=1 \
@@ -1721,8 +1734,6 @@ if [ "$answer" != "Y" ]; then
    exit
 fi
 rm -rf man-db-2.11.2
-
-fi
 
 #-----
 echo "# 8.77. Procps-ng"

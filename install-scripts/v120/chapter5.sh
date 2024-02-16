@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ "$(whoami)" != "lfs" ] ; then
    echo "Not running as user lfs, you should be!"
    return;
@@ -16,9 +15,9 @@ if [ $(stat -c %U $LFS/tools) != "lfs" ] ; then
    return;
 fi
 
-
 cd $LFS/sources
 
+if [[ $1 -eq 1 ]]; then
 
 #-----
 echo "# 5.2. Binutils-2.41 - Pass 1"
@@ -97,11 +96,12 @@ cd $LFS/sources
 # We still need this for 5.6
 #rm -rf gcc-13.2.0
 
+fi #########
 
 #-----
 echo "# 5.4. Linux API Headers"
-tar -xf linux-6.1.62.tar.xz
-cd linux-6.1.62
+tar -xf linux-6.4.12.tar.xz
+cd linux-6.4.12
 
 make mrproper || exit 1
 make headers || exit 1
@@ -110,7 +110,7 @@ find usr/include -type f ! -name '*.h' -delete
 cp -rv usr/include $LFS/usr
 
 cd $LFS/sources
-rm -rf linux-6.1.62
+rm -rf linux-6.4.12
 
 
 #-----
@@ -118,6 +118,11 @@ echo "# 5.5. Glibc-2.38"
 tar -xf glibc-2.38.tar.xz
 cd glibc-2.38
 
+case $(uname -m) in
+	x86_64) ln -sfv ../lib/ld-linux-x86-64.so.2 $LFS/lib64
+		ln -sfv ../lib/ld-linux-x86-64.so.2 $LFS/lib64/ld-lsb-x86-64.so.3
+		;;
+esac
 
 patch -Np1 -i $LFS/sources/glibc-2.38-fhs-1.patch
 
@@ -132,6 +137,8 @@ echo "rootsbindir=/usr/sbin" > configparms
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
+
+sed '/RTLDLIST=/s@/usr@@g' -i $LFS/usr/bin/ldd
 
 cd $LFS/sources
 
@@ -161,7 +168,7 @@ cd gcc-13.2.0
 mkdir -pv build && cd build
 ../libstdc++-v3/configure --host=$LFS_TGT                 \
                           --build=$(../config.guess)      \
-			                 --prefix=/usr                   \
+			  --prefix=/usr                   \
                           --disable-multilib              \
                           --disable-nls                   \
                           --disable-libstdcxx-pch         \
