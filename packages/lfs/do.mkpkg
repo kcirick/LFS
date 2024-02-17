@@ -9,7 +9,7 @@ MARCH=$( uname -m )
 DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
-   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   count=`ls -1 /var/log/packages/installed_packages | egrep "^$dep-[0-9]" | wc -l`
    if [ ! "$count" -eq 1 ]; then
       echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
       read -p "Continue? [y/N]: " ans
@@ -30,6 +30,7 @@ TARGETDIR=$CWD
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
+chown -R root:root $PKGDIR
 
 mkdir -p $PKGDIR/etc
 cat > $PKGDIR/etc/os-release << "EOF"
@@ -40,7 +41,7 @@ PRETTY_NAME="Linux From Scratch 12.0-systemd"
 VERSION_CODENAME="lfs12"
 EOF
 
-cat > /etc/lsb-release << "EOF"
+cat > $PKGDIR/etc/lsb-release << "EOF"
 DISTRIB_ID="Linux From Scratch"
 DISTRIB_RELEASE="12.0-systemd"
 DISTRIB_CODENAME="lfs12"
