@@ -10,7 +10,7 @@ SOURCEDIR=$TARGET-$VERSION
 DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
-   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   count=`ls -1 /var/log/packages/installed_packages | egrep "^$dep-[0-9]" | wc -l`
    if [ ! "$count" -eq 1 ]; then
       echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
       read -p "Continue? [y/N]: " ans
@@ -36,12 +36,16 @@ TARGETDIR=$CWD
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
+chown -R root:root $PKGDIR
 
 cd $TMPDIR
 rm -rf $SOURCEDIR
 tar -xf $CWD/$SOURCE || exit 1
 cd $SOURCEDIR || exit 1
 
+#--- Patch (if necessary)
+
+#--- Build
 ./configure --prefix=/usr 
 
 make || exit 1

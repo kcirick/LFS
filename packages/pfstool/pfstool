@@ -1,17 +1,17 @@
 #!/bin/bash
+# pfstool version 1.4
 
 # Setup tmp directory
 VARDIR=/var/log
-if [ ! -d $VARDIR/packages ]; then
-   mkdir -p $VARDIR/packages
+if [ ! -d $VARDIR/packages/installed_packages ]; then
+   mkdir -p $VARDIR/packages/installed_packages
 fi
-if [ ! -d $VARDIR/removed_packages ]; then
-   mkdir -p $VARDIR/removed_packages
+if [ ! -d $VARDIR/packages/removed_packages ]; then
+   mkdir -p $VARDIR/packages/removed_packages
 fi
 
 TMPDIR=$VARDIR/pfstool_setup
 if [ ! -d $TMPDIR ]; then
-   rm -rf $TMPDIR
    mkdir -p $TMPDIR
    chmod 700 $TMPDIR
 fi
@@ -19,6 +19,9 @@ fi
 install_package(){
    package=$1
    pkgname=$(echo $(basename $package _package.tar.xz))
+   package_name=$(echo $pkgname | rev | cut -d- -f2- | rev)
+   package_version=$(echo $pkgname | awk -F'-' '{print $NF}')
+
    dirname=$(echo $(dirname $package))
    if [ "$dirname" == "." ]; then
       dirname=$PWD
@@ -43,20 +46,21 @@ install_package(){
       SIZE_UNCOMPRESSED="$(expr ${SIZE_UNCOMPRESSED} / 1024)M"
    fi
    rm -rf $TMPDIR/tmpsize$$
+   rm -rf $TMPDIR/tmplist$$
 
    echo "Package size of $pkgname: $SIZE_COMPRESSED -> $SIZE_UNCOMPRESSED"
    
    # Write package information database entry
-   echo "PACKAGE NAME:              $pkgname"             > $VARDIR/packages/${pkgname}_package.txt
-   echo "COMPRESSED SIZE:           $SIZE_COMPRESSED"    >> $VARDIR/packages/${pkgname}_package.txt
-   echo "UNCOMPRESSED SIZE:         $SIZE_UNCOMPRESSED"  >> $VARDIR/packages/${pkgname}_package.txt
-   echo "PACKAGE LOCATION:          $dirname/${pkgname}_package.tar.xz" >> $VARDIR/packages/${pkgname}_package.txt
+   echo "PACKAGE NAME:              $pkgname"             > $VARDIR/packages/installed_packages/${pkgname}_package.txt
+   echo "COMPRESSED SIZE:           $SIZE_COMPRESSED"    >> $VARDIR/packages/installed_packages/${pkgname}_package.txt
+   echo "UNCOMPRESSED SIZE:         $SIZE_UNCOMPRESSED"  >> $VARDIR/packages/installed_packages/${pkgname}_package.txt
+   echo "PACKAGE LOCATION:          $dirname/${pkgname}_package.tar.xz" >> $VARDIR/packages/installed_packages/${pkgname}_package.txt
    # Extract file and put the file list into the database
-   echo "FILE LIST:" >> $VARDIR/packages/${pkgname}_package.txt
+   echo "FILE LIST:" >> $VARDIR/packages/installed_packages/${pkgname}_package.txt
    (cd / ; /bin/tar --strip-components=1 -xpvf $dirname/${pkgname}_package.tar.xz) >> $TMPDIR/${pkgname}_package 2> /dev/null
    if [ "$(head $TMPDIR/${pkgname}_package -n 1 | awk -F'/' '{print $1}')" = "${pkgname}_package" ]; then
       # Good
-      cat $TMPDIR/${pkgname}_package | sed -e 's/\//:\//' >> $VARDIR/packages/${pkgname}_package.txt
+      cat $TMPDIR/${pkgname}_package | sed -e 's/\//:\//' >> $VARDIR/packages/installed_packages/${pkgname}_package.txt
    else
       echo "WARNING: Package was not created properly. Please retry again."
       exit 1
@@ -64,7 +68,7 @@ install_package(){
    rm -rf $TMPDIR/${pkgname}_package
 
    install_date=`date +%m-%d-%Y`
-   echo "INSTALL DATE:         $install_date"              >> $VARDIR/packages/${pkgname}_package.txt
+   echo "INSTALL DATE:         $install_date"              >> $VARDIR/packages/installed_packages/${pkgname}_package.txt
 
    # Go through the post-installation scripts
    if [ -x /sbin/ldconfig ]; then
@@ -77,29 +81,46 @@ install_package(){
       rm -rf /install;
    fi
 
+   echo "Updating pfs_packages.db ..."
+   sqlite3 $VARDIR/packages/pfs_packages.db "INSERT OR REPLACE INTO installed \
+      (package_id, package_name, package_version, install_date) values \
+      ((SELECT package_id from installed where package_name = \"$package_name\"), \
+      \"$package_name\", \"$package_version\", \"$install_date\")"
+
    echo "Package $pkgname was successfully installed!"
    echo
 }
 
 uninstall_package(){
    pkgname=$(echo $(basename $1 _package.tar.xz))
+   package_name=$(echo $pkgname | rev | cut -d- -f2- | rev)
+   package_version=$(echo $pkgname | awk -F'-' '{print $NF}')
 
    echo "Uninstalling $pkgname ..."
-   if [ ! -e $VARDIR/packages/${pkgname}_package.txt ]; then
+   if [ ! -e $VARDIR/packages/installed_packages/${pkgname}_package.txt ]; then
       echo "Package ${pkgname} doesn't exists in the database!"
       exit 1
    fi
 
-   cat $VARDIR/packages/${pkgname}_package.txt | grep "^${pkgname}_package" | \
+   cat $VARDIR/packages/installed_packages/${pkgname}_package.txt | grep "^${pkgname}_package" | \
       awk -F':' '{print $2}' | sort -r > $TMPDIR/delete_list$$
 
    for line in $(cat $TMPDIR/delete_list$$); do
       rm -fd $line
    done
+   rm -rf $TMPDIR/delete_list$$
 
    rm_date=`date +%m-%d-%Y`
-   mv $VARDIR/packages/${pkgname}_package.txt $VARDIR/removed_packages/
-   echo "UNINSTALL DATE:       $rm_date"               >> $VARDIR/removed_packages/${pkgname}_package.txt
+   mv $VARDIR/packages/installed_packages/${pkgname}_package.txt $VARDIR/packages/removed_packages/
+   echo "UNINSTALL DATE:       $rm_date"               >> $VARDIR/packages/removed_packages/${pkgname}_package.txt
+
+   if [ $2 = true ]; then
+      echo "Updating pfs_packages.db ..."
+      sqlite3 $VARDIR/packages/pfs_packages.db "INSERT OR REPLACE INTO uninstalled \
+         (package_id, package_name, package_version, uninstall_date) values \
+         ((SELECT package_id from uninstalled where package_name = \"$package_name\"), \
+         \"$package_name\", \"$package_version\", \"$rm_date\")"
+   fi
 
    echo "Package $pkgname was successfully uninstalled!"
    echo
@@ -108,12 +129,12 @@ uninstall_package(){
 upgrade_package(){
    pkgname=$(echo $(basename $1 _package.tar.xz) | rev | cut -d- -f2- | rev)
 
-   if [ ! -e $VARDIR/packages/${pkgname}*_package.txt ]; then
+   if [ ! -e $VARDIR/packages/installed_packages/${pkgname}*_package.txt ]; then
       echo "Package ${pkgname} doesn't exists in the database!"
       exit 1
    fi
    newversion=$(echo $(basename $1 _package.tar.xz) | awk -F'-' '{print $NF}')
-   oldversion=$(cat $VARDIR/packages/${pkgname}*_package.txt | grep "PACKAGE NAME" | awk -F'-' '{print $NF}')
+   oldversion=$(cat $VARDIR/packages/installed_packages/${pkgname}*_package.txt | grep "PACKAGE NAME" | awk -F'-' '{print $NF}')
 
    echo ">>> Upgrading $pkgname from $oldversion -> $newversion ..."
    read -p "Continue? [y/N]: " ans
@@ -123,7 +144,7 @@ upgrade_package(){
       exit 1
    fi
 
-   uninstall_package ${pkgname}-${oldversion} || exit 1
+   uninstall_package ${pkgname}-${oldversion} false || exit 1
    install_package $1 || exit 1
 }
 
@@ -133,38 +154,49 @@ list_package(){
 
    if [ "$mode" == "all" -o "$mode" == "installed" ]; then
       echo "--- INSTALLED LIST ---"
-      for file in `ls -1tr $VARDIR/packages`; do
-         this_package=$(basename $(echo $file) _package.txt)
-         this_package_name=$(echo $this_package | rev | cut -d- -f2- | rev)
-         this_package_version=$(echo $this_package | awk -F'-' '{print $NF}')
-         inst_date=`cat $VARDIR/packages/$file | grep "INSTALL DATE" | awk -F' ' '{print $3}'`
-
-         if [ "$search_tag" != "" ]; then
-            if [[ $this_package == *"$search_tag"* ]]; then
-               printf "%30s : %15s : $inst_date\n" $this_package_name $this_package_version
-            fi
-         else
-            printf "%30s : %15s : $inst_date\n" $this_package_name $this_package_version
-         fi
-      done
+      sqlite3 $VARDIR/packages/pfs_packages.db ".mode column" \
+         "SELECT package_name, package_version, install_date from installed
+               WHERE package_name LIKE \"%$search_tag%\""
+      
+      #echo -e "\nLEGACY LIST (to be removed):::"
+      #for file in `ls -1tr $VARDIR/packages/installed_packages`; do
+      #   this_package=$(basename $(echo $file) _package.txt)
+      #   this_package_name=$(echo $this_package | rev | cut -d- -f2- | rev)
+      #   this_package_version=$(echo $this_package | awk -F'-' '{print $NF}')
+      #   inst_date=`cat $VARDIR/packages/installed_packages/$file | grep "INSTALL DATE" | awk -F' ' '{print $3}'`
+      #
+      #   if [ "$search_tag" != "" ]; then
+      #      if [[ $this_package == *"$search_tag"* ]]; then
+      #         printf "%30s : %15s : $inst_date\n" $this_package_name $this_package_version
+      #      fi
+      #   else
+      #      printf "%30s : %15s : $inst_date\n" $this_package_name $this_package_version
+      #   fi
+      #done
       echo
    fi
 
    if [ "$mode" == "all" -o "$mode" == "uninstalled" ]; then
       echo "--- UNINSTALLED LIST ---"
-      for file in `ls -1tr $VARDIR/removed_packages`; do
-         this_package=$(basename $(echo $file) _package.txt)
-         this_package_name=$(echo $this_package | rev | cut -d- -f2- | rev)
-         this_package_version=$(echo $this_package | awk -F'-' '{print $NF}')
-         rm_date=`cat $VARDIR/removed_packages/$file | grep "UNINSTALL DATE" | awk -F' ' '{print $3}'`
-         if [ "$search_tag" != "" ]; then
-            if [[ $this_package == *"$search_tag"* ]]; then
-               printf "%30s : %15s : $rm_date\n" $this_package_name $this_package_version
-            fi
-         else
-            printf "%30s : %15s : $rm_date\n" $this_package_name $this_package_version
-         fi
-      done
+      sqlite3 $VARDIR/packages/pfs_packages.db ".mode column" \
+         "SELECT package_name, package_version, uninstall_date from uninstalled
+               WHERE package_name LIKE \"%$search_tag%\""
+      
+      #echo -e "\nLEGACY LIST (to be removed):::"
+      #for file in `ls -1tr $VARDIR/packages/removed_packages`; do
+      #   this_package=$(basename $(echo $file) _package.txt)
+      #   this_package_name=$(echo $this_package | rev | cut -d- -f2- | rev)
+      #   this_package_version=$(echo $this_package | awk -F'-' '{print $NF}')
+      #   rm_date=`cat $VARDIR/packages/removed_packages/$file | grep "UNINSTALL DATE" | awk -F' ' '{print $3}'`
+      #   if [ "$search_tag" != "" ]; then
+      #      if [[ $this_package == *"$search_tag"* ]]; then
+      #         printf "%30s : %15s : $rm_date\n" $this_package_name $this_package_version
+      #      fi
+      #   else
+      #      printf "%30s : %15s : $rm_date\n" $this_package_name $this_package_version
+      #   fi
+      #done
+      echo
    fi
 }
 
@@ -187,7 +219,7 @@ if [ "$MODE" == "INSTALL" ]; then
    install_package $2
 fi
 if [ "$MODE" == "UNINSTALL" ]; then
-   uninstall_package $2
+   uninstall_package $2 true
 fi
 if [ "$MODE" == "UPGRADE" ]; then
    upgrade_package $2
@@ -196,7 +228,7 @@ if [ "$MODE" == "LIST" ]; then
    list_package $2 $3
 fi
 if [ "$MODE" == "HELP" ]; then
-   echo "pfstool v1.3"
+   echo "pfstool v1.4"
    echo
    echo "Usage: pfstool --install [package]"
    echo "               --uninstall [package]"
