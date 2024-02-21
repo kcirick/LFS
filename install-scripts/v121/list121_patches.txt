@@ -1,0 +1,7 @@
+https://www.linuxfromscratch.org/patches/lfs/12.1/bash-5.2.21-upstream_fixes-1.patch
+https://www.linuxfromscratch.org/patches/lfs/12.1/bzip2-1.0.8-install_docs-1.patch
+https://www.linuxfromscratch.org/patches/lfs/12.1/coreutils-9.4-i18n-1.patch
+https://www.linuxfromscratch.org/patches/lfs/12.1/glibc-2.39-fhs-1.patch
+https://www.linuxfromscratch.org/patches/lfs/12.1/kbd-2.6.4-backspace-1.patch
+https://www.linuxfromscratch.org/patches/lfs/12.1/readline-8.2-upstream_fixes-3.patch
+https://www.linuxfromscratch.org/patches/lfs/12.1/systemd-255-upstream_fixes-1.patch
