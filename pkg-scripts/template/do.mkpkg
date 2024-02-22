@@ -1,13 +1,15 @@
 #!/bin/sh
 
+#--- Package information (edit as necessary)
 TARGET=a
 VERSION=1.0
 SOURCE=${TARGET}-${VERSION}.tar.xz
-SOURCEDIR=$TARGET-$VERSION
-
+SOURCEDIR=${TARGET}-${VERSION}
+PATCH=
+DEP=()
+#---
 
 #--- Check for dependency (but only warn) 
-DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages/installed_packages | egrep "^$dep-[0-9]" | wc -l`
@@ -26,24 +28,30 @@ done
 if [ ! -s $SOURCE ]; then 
    wget https://to/$SOURCE
 fi
+if [ ! -z $PATCH ] && [ ! -s $PATCH ]; then
+   wget https://to/$PATCH
+fi
 
-
+#--- Set up directories
 CWD=$(pwd)
 TMPDIR=/sources/build
-PKGNAME=${TARGET}-${VERSION}
-PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=$CWD
+TARGETDIR=/sources/packages
+PKGNAME=${TARGET}-${VERSION}_package
+PKGDIR=$TMPDIR/${PKGNAME}
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
 chown -R root:root $PKGDIR
 
-cd $TMPDIR
-rm -rf $SOURCEDIR
-tar -xf $CWD/$SOURCE || exit 1
-cd $SOURCEDIR || exit 1
+#--- Extract source
+rm -rf $TMPDIR/$SOURCEDIR
+tar -xf $CWD/$SOURCE -C $TMPDIR || exit 1
+cd $TMPDIR/$SOURCEDIR || exit 1
 
 #--- Patch (if necessary)
+if [ -z $PATCH ]; then
+   patch -Np1 -i $CWD/$PATCH || exit 1
+fi
 
 #--- Build
 ./configure --prefix=/usr 
@@ -60,5 +68,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf $TARGETDIR/${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}.tar.xz ${PKGNAME}
 

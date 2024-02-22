@@ -1,12 +1,11 @@
 #!/bin/sh
 
 TARGET=lfs
-VERSION=12.0systemd
+VERSION=12.1systemd
 MARCH=$( uname -m )
-
+DEP=()
 
 #--- Check for dependency (but only warn) 
-DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
    count=`ls -1 /var/log/packages/installed_packages | egrep "^$dep-[0-9]" | wc -l`
@@ -24,9 +23,9 @@ done
 
 CWD=$(pwd)
 TMPDIR=/sources/build
-PKGNAME=${TARGET}-${VERSION}
-PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=$CWD
+TARGETDIR=/sources/packages
+PKGNAME=${TARGET}-${VERSION}_package
+PKGDIR=$TMPDIR/${PKGNAME}
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
@@ -35,26 +34,25 @@ chown -R root:root $PKGDIR
 mkdir -p $PKGDIR/etc
 cat > $PKGDIR/etc/os-release << "EOF"
 NAME="Linux From Scratch"
-VERSION="12.0-systemd"
+VERSION="12.1-systemd"
 ID=lfs
-PRETTY_NAME="Linux From Scratch 12.0-systemd"
-VERSION_CODENAME="lfs12"
+PRETTY_NAME="Linux From Scratch 12.1-systemd"
+VERSION_CODENAME="lfs121"
 EOF
 
 cat > $PKGDIR/etc/lsb-release << "EOF"
 DISTRIB_ID="Linux From Scratch"
-DISTRIB_RELEASE="12.0-systemd"
-DISTRIB_CODENAME="lfs12"
+DISTRIB_RELEASE="12.1-systemd"
+DISTRIB_CODENAME="lfs121"
 DISTRIB_DESCRIPTION="Linux From Scratch"
 EOF
 
-echo 12.0-systemd > $PKGDIR/etc/lfs-release
+echo 12.1-systemd > $PKGDIR/etc/lfs-release
 
 
 mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}.tar.xz ${PKGNAME}
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR

@@ -3,13 +3,12 @@
 TARGET=pfstool
 VERSION=1.4
 MARCH=$( uname -m )
-
+DEP=()
 
 #--- Check for dependency (but only warn) 
-DEP=()
 for dep in ${DEP[@]}; do
    #echo $dep
-   count=`ls -1 /var/log/packages | egrep "^$dep-[0-9]" | wc -l`
+   count=`ls -1 /var/log/packages/installed_packages | egrep "^$dep-[0-9]" | wc -l`
    if [ ! "$count" -eq 1 ]; then
       echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
       read -p "Continue? [y/N]: " ans
@@ -24,9 +23,9 @@ done
 
 CWD=$(pwd)
 TMPDIR=/sources/build
-PKGNAME=${TARGET}-${VERSION}
-PKGDIR=$TMPDIR/${PKGNAME}_package
-TARGETDIR=$CWD
+TARGETDIR=/sources/packages
+PKGNAME=${TARGET}-${VERSION}_package
+PKGDIR=$TMPDIR/${PKGNAME}
 
 rm -rf $PKGDIR
 mkdir -p $PKGDIR
@@ -43,6 +42,5 @@ mkdir -p $PKGDIR/install
 cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
 
 cd $TMPDIR
-tar -Jcf ${PKGNAME}_package.tar.xz ${PKGNAME}_package
+tar -Jcf $TARGETDIR/${PKGNAME}.tar.xz ${PKGNAME}
 
-mv ${PKGNAME}_package.tar.xz $TARGETDIR
