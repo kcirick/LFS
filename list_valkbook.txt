@@ -1,0 +1,472 @@
+### LFS/BLFS
+###-----------------------------------------------------------------------
+# NAME                              VERSION        INSTALLED   NOTES
+
+## --- Essentials --------------------------------------------------------
+lfs                                 12.1systemd    Y
+   linux                            6.6.18         S           /usr/src/linux
+   linux-headers                    6.6.18         Y
+   linux-firmware                   20240220       Y
+pfstool                             1.4            Y
+
+glib                                2.78.4         Y
+   pcre2                            10.42          Y
+   libxslt                          1.1.39         Y
+      libxml2                       2.12.5         Y
+         icu                        74.2           Y
+      docbook-xml                   4.5            Y
+         (libxml2)
+         sgml-common                0.6.3          Y
+         unzip                      6.0            Y
+      docbook-xsl-nons              1.79.2         Y
+         (libxml2)
+linux-pam                           1.6.0          Y
+polkit                              124            Y
+   (glib)
+   (linux-pam)
+   duktape                          2.7.0          Y
+   gobject-introspection            1.78.1         Y
+      (glib)
+   (libxslt)
+shadow                              4.14.5         Y
+   (linux-pam)
+systemd                             255            Y
+   (linux-pam)
+   (polkit)
+dbus                                1.14.10        Y
+   (systemd)
+
+wpa_supplicant                      2.10           Y
+   libnl                            3.9.0          Y
+iw                                  6.7            Y
+   (libnl)
+wireless-regdb                      2023.09.01     Y
+   (iw)
+wget                                1.21.4         
+   libpsl                           0.21.5         Y
+      libidn2                       2.3.7          Y
+      (libunistring)
+   gnutls                           3.8.2          Y
+      nettle                        3.9.1          Y
+      (make-ca)
+      libunistring                  1.1            Y
+   make-ca                          1.13           Y
+      p11-kit                       0.25.3         Y
+         libtasn1                   4.19.0         Y
+
+
+## --- Libraries ---------------------------------------------------------
+rustc                               1.76.0         Y
+   (curl)
+   (cmake)
+   (llvm)
+vala                                0.56.14        Y
+   (glib)
+go                                  1.22.1         Y
+lua52                               5.2.4          Y
+luajit                              2.1.20240302   Y
+lua52-lpeg                          1.1.0          Y
+   (lua52)
+lua52-mpack                         1.0.10         Y
+   (lua52)
+   libmpack                         1.0.5          Y
+
+## --- System tools ------------------------------------------------------
+pciutils                            3.10.0         Y
+keyd                                2.4.3          Y
+cmake                               3.28.3         Y
+   curl                             8.6.0          Y
+      (libpsl)
+      (gnutls)
+      (make-ca)
+   libarchive                       3.7.2          Y
+   libuv                            1.48.0         Y
+   nghttp2                          1.59.0         Y
+      (libxml2)
+udisks2                             2.10.1         Y
+   libatasmart                      0.19           Y
+   libblockdev                      3.1.0          Y
+      (glib)
+      cryptsetup                    2.7.0          Y
+         json-c                     0.17           Y
+            (cmake)
+         (lvm2)
+         popt                       1.19           Y
+      (gobject-introspection)
+      keyutils                      1.6.1          Y
+      libbytesize                   2.10           Y
+         (pcre2)
+         py-pygments                2.17.2         Y
+            py-hatchling            1.12.2         Y
+               py-editables         0.3            Y
+               py-packaging         23.2           Y
+               py-pathspec          0.10.3         Y
+               py-pluggy            1.4.0          Y
+                  py-setuptools-scm 7.1.0          Y
+                  py-typing-extensions 4.4.0       Y
+         py-six                     1.16.0         Y
+      libnvme                       1.8            Y
+      lvm2                          2.03.23        Y
+         libaio                     0.3.113        Y
+   libgudev                         238            Y
+      (glib)
+   (libxslt)
+   (polkit)
+   (systemd)
+bluez                               5.72           Y
+   (dbus)
+   (glib)
+   libical                          3.0.17         Y
+      (cmake)
+git                                 2.44.0         Y
+   (curl)
+sudo                                1.9.14p3       
+   (linux-pam)
+gdb                                 13.2           
+   (py-six)
+neovim                              0.9.5          Y
+   (cmake)
+   (git)
+gpgme                               1.23.2         Y
+   libassuan                        2.5.6          Y
+      libgpg-error                  1.47           Y
+
+## --- Wayland -----------------------------------------------------------
+fontconfig                          2.14.2         Y
+   freetype2                        2.14.2         Y
+      harfbuzz                      8.3.0          Y
+         (glib)
+         (gobject-introspection)
+         graphite2                  1.3.14         Y
+            (cmake)
+         (freetype2) --> re-install after installing harfbuzz
+      (libpng)
+      which                         2.21           Y
+xorg-libs                           -              Y           Needed for firefox
+   (fontconfig)
+   libxcb                           1.16           Y
+      libXau                        1.0.11         Y
+         xorg-protocols             2023.2         Y
+            util-macros             1.20.0         Y
+      xcb-protocols                 1.16.0         Y
+      libXdmcp                      1.1.4          Y
+         (xorg-protocols)
+mesa                                24.0.1         
+   libglvnd                         1.7.0          Y
+   glslang                          14.0.0         Y
+      spirv-tools                   1.3.275.0      Y
+         spirv-headers              1.3.275.0      Y
+            (cmake)
+   libdrm                           2.4.120        Y
+   py-mako                          1.3.2          Y
+   libva                            2.20.0         M
+      (libdrm)
+      (mesa) ---> Install without, then rebuild libva
+      intel-media                                              Runtime 
+         (cmake)
+         intel_gmmlib
+         (libva)
+   llvm                             17.0.6         Y           With clang & compiler RT
+      (cmake)
+   (wayland-protocols)
+   vulkan-loader                    1.3.277        Y
+      (cmake)
+      vulkan-headers                1.3.277        Y
+      (wayland)
+wlroots                             0.17.1         Y
+   wayland-protocols                1.33           Y
+      wayland                       1.22.0         Y
+         (libxml2)
+   (mesa)
+   libinput                         1.25.0         Y
+      mtdev                         1.1.6          Y
+      libevdev                      1.13.1         Y
+   libxkbcommon                     1.6.0          Y
+      xkeyboard-config              2.41           Y
+      (xorg-libs)
+      (wayland)
+   pixman                           0.43.2         Y
+   seatd                            0.8.0          Y
+   libdisplay-info                  0.1.1          Y
+      hwdata                        0.379          Y
+   libliftoff                       0.4.1          Y
+gtk3                                3.24.41        
+   at-spi2-core                     2.50.1         Y
+      (dbus)
+      (glib)
+      gsettings-desktop-schemas     45.0           Y
+         (gobject-introspection) 
+      (gobject-introspection)
+   gdk-pixbuf                       2.42.10        Y
+      (glib)
+      (libjpeg-turbo)
+      (libpng)
+      (librsvg)                                    Runtime
+      (libtiff)
+      shared-mime-info              2.4            Y
+         (glib)
+         (libxml2)
+   libepoxy                         1.5.10         Y
+      (mesa)
+   pango                            1.51.2         Y
+      (fontconfig)
+      fribidi                       1.0.13         Y
+      (glib)
+      cairo                         1.17.6         Y
+         (glib)
+         (libpng)
+         (pixman)
+         (fontconfig)
+      (gobject-introspection)
+   (docbook-xsl)
+   iso-codes                        4.16.0         Y
+   (libxkbcommon)
+   (libxslt)
+   sassc                            3.6.2          Y
+   (wayland-protocols)
+gtkmm3                              3.24.8         Y
+   (gtk3)
+   atkmm                            2.28.4         Y
+      (at-spi2-core)
+      glibmm                        2.66.5         Y
+         (glib)
+         libsigc++                  2.12.1         Y
+            boost                   1.84.0         Y
+               (which)
+            (libxslt)
+   pangomm                          2.46.4         Y
+      cairomm                       1.14.0         Y
+         (cairo)
+         (libsigc++)
+         (boost)
+      (glibmm)
+      (pango)
+
+# FONT AND ICON
+ttf-dejavu                          2.37           Y
+ttf-dejavu-powerline                2015-12-04     
+ttf-fontawesome                     6.4.2          Y
+hicolor-icon-theme                  0.17           Y
+
+## --- Multimedia Libraries ----------------------------------------------
+libpng                              1.6.42         Y
+libjpeg-turbo                       3.0.1          Y
+   (cmake)
+   nasm                             2.16.01        Y
+librsvg                             2.57.1         Y
+   (cairo)
+   (gdk-pixbuf)
+   (pango)
+   (rustc)
+   (gobject-introspection)
+   (vala)
+libwebp                             1.3.1          
+   (libjpeg-turbo)
+   (libpng)
+libtiff                             4.6.0          Y
+   (cmake)
+pulseaudio                          16.1           Y
+   libsndfile                       1.2.2          Y
+      flac                          1.4.3          Y
+      opus                          1.4            Y
+      libvorbis                     1.3.7          Y
+         libogg                     1.3.5          Y
+   alsa-lib                         1.2.11         Y
+      (systemd)
+   (glib)
+   speex                            1.2.1          Y
+      (libogg)
+   (bluez)
+   sbc                              2.0            Y
+      (libsndfile)
+ffmpeg                              6.0            
+   libaom                           3.6.1          
+      (cmake)
+      (nasm)
+   libass                           0.17.1         
+      (fontconfig)
+      (fribidi)
+      (nasm)
+   fdk-aac                          2.0.2          
+   (freetype2)
+   lame                             3.100          
+   libtheora                        1.1.1          
+      (libvorbis)
+   (libvorbis)
+   libvpx                           1.13.0         
+      (nasm)
+      (which)
+   (opus)
+   x264                             20230215       
+      (nasm)
+   x265                             20230215       
+      (cmake)
+      (nasm)
+   (nasm)
+alsa-ucm-chromebook                 20240308       Y
+alsa-ucm-conf                       1.2.11         Y
+alsa-firmware                       1.2.4          Y
+sof-firmware                        2023.12.1      Y
+
+## --- Applications ------------------------------------------------------
+# WM
+waybar                              0.9.24         Y
+   (gtkmm3)
+   (wayland)
+   gtk-layer-shell                  0.8.2          Y
+      (gtk3)
+      (wayland)
+      (gobject-introspection)
+   libappindicator                  12.10.0r298    Y
+      libdbusmenu                   16.04.0r498    Y
+         (gtk3)
+         json-glib                  1.8.0          Y
+         gnome-common               3.18.0         Y
+            gtk-doc                 1.33.2         Y
+               (docbook-xml)
+               (docbook-xsl)
+               (libxslt)
+         (gobject-introspection)
+      dbus-glib                     0.112          Y
+         (dbus)
+         (glib)
+   (libxkbcommon)
+   json-cpp                         1.9.5          Y
+   (pulseaudio)
+   spdlog                           1.13.0         Y
+      fmt                           10.2.0         Y
+         (cmake)
+
+# UTILITIES
+foot                                1.16.2         Y
+   (fontconfig)
+   (libxkbcommon)
+   libsixel                         1.10.3                    Runtime
+      (gdk-pixbuf)
+   fcft                             3.1.8          Y
+      tllist                        1.1.0          Y
+      (fontconfig)
+      (pixman)
+      libutf8proc                   2.9.0          Y
+   (llvm)
+   (wayland-protocols)
+kitty                               0.32.2         
+   (fontconfig)
+   (xorg-libs)
+   (libxkbcommon)
+   (lcms2)
+   xxhash                           0.8.2          
+   (wayland-protocols)
+lf                                  31             Y
+   (go)
+pulsemixer                          1.5.1          Y
+   (pulseaudio)
+wbg                                 1.1.0          Y
+   (wayland)
+   (pixman)
+   (libjpeg-turbo)
+   (tllist)
+swayidle                            1.8.0          
+   (wayland-protocols)
+swaylock                            1.7.2          
+   (cairo)
+   (gdk-pixbuf)
+   (linux-pam)
+   (libxkbcommon)
+   (wayland-protocols)
+wlopm                               0.1.0          
+   (wayland-protocols)
+grim                                1.4.1          
+   (cairo)
+   (libjpeg-turbo)
+   (wayland)
+mako                                1.8.0          
+   (dbus)
+   (gdk-pixbuf)
+   (pango)
+   libnotify                        0.8.2          
+      (gtk3)
+wlr-randr                           0.4.0          
+   (wayland)
+fuzzel                              1.9.2          Y
+   (fcft)
+   (libxkbcommon)
+   (wayland-protocols)
+   scdoc                            1.11.3         Y
+greetd                              0.9.0          
+   (linux-pam)
+   (systemd)
+   (rustc)
+
+# OTHERS
+l3afpad                             0.8.18.1.11    
+   (gtk3)
+imv                                 4.5.0          Y
+   (libglvnd)
+   (libxkbcommon)
+   (libpng)
+   (libjpeg-turbo)
+   (librsvg)
+firefox                             123.0          Y
+   (dbus-glib)
+   (xorg-libs)
+   (gtk3)
+   (pulseaudio)
+   (ffmpeg)                                                   Runtime
+   nss                              3.98           Y
+      nspr                          4.35           Y
+      (sqlite)
+      (p11-kit)
+mpv                                 0.37.0         
+   (pulseaudio)
+   (ffmpeg)
+   (libass)
+   lcms2                            2.14           
+   (lua52)
+   libplacebo                       6.338.2        
+      (ffmpeg)
+      (glslang)
+      py-glad                       2.0.4          
+      (lcms2)
+      (vulkan-headers)
+   (libglvnd)
+   libuchardet
+flatpak                             1.15.6         
+   appstream                        1.0.1          
+      (gobject-introspection)
+      (curl)
+      (libxml2)
+      itstool                       2.0.7          
+         (docbook-xml)
+      libyaml                       0.2.5          
+   bubblewrap                       0.8.0          
+   fuse3                            3.16.1         
+   libsseccomp                      2.5.4          
+   (json-glib)
+   (libarchive)
+   ostree                           2024.3         
+      (curl)
+      libsoup                       3.4.2          
+         glib-networking            2.76.1         
+            (glib)
+            (gnutls)
+         (libpsl)
+         (libxml2)
+         (nghttp2)
+         (sqlite)
+      (gpgme)
+   (polkit)
+   xdg-desktop-portal
+   xdg-utils                        1.1.3          
+      (xmlto)
+      lynx                          2.8.9rel.1     
+   (gobject-introspection)
+   xmlto                            0.0.28         
+      (docbook-xml)
+      (docbook-xsl)
+      (libxslt)
+   py-pyparsing                     3.1.1          
+   (wayland-protocols)
+
+
+###-----------------------------------------------------------------------

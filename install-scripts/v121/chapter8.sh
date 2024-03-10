@@ -9,7 +9,6 @@ cd $LFS/sources
 
 if [[ $1 -eq 1 ]]; then
    echo "nothing to do"
-fi #########
 
 #-----
 echo "# 8.3. Man-pages"
@@ -136,10 +135,9 @@ if [ "$answer" != "Y" ]; then
 fi
 rm -rf glibc-2.39
 
-
 #-----
 echo "# 8.6. Zlib"
-tar -xf zlib-1.3.1.tar.xz
+tar -xf zlib-1.3.1.tar.gz
 cd zlib-1.3.1
 
 ./configure --prefix=/usr
@@ -699,7 +697,7 @@ rm -rf gcc-13.2.0
 
 #-----
 echo "# 8.29. Ncurses"
-tar -xf ncurses-6.4-20230520.tar.gz
+tar -xf ncurses-6.4-20230520.tar.xz
 cd ncurses-6.4-20230520
 
 ./configure --prefix=/usr           \
@@ -1163,8 +1161,8 @@ rm -rf libffi-3.4.4
 
 #-----
 echo "# Extra: Sqlite"
-tar -xf sqlite-autoconf-3420000.tar.gz
-cd sqlite-autoconf-3420000
+tar -xf sqlite-autoconf-3450100.tar.gz
+cd sqlite-autoconf-3450100
 
 ./configure --prefix=/usr \
             --disable-static \
@@ -1183,7 +1181,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf sqlite-autoconf-3420000 
+rm -rf sqlite-autoconf-3450100
 
 #-----
 echo "# 8.51. Python"
@@ -1455,12 +1453,10 @@ rm -rf popt-1.19
 
 #-----
 echo "# Extra: efivar"
-tar -xf efivar-38.tar.bz2
-cd efivar-38
+tar -xf efivar-39.tar.gz
+cd efivar-39
 
-sed '/prep :/a\\touch prep' -i src/Makefile
-
-make ERRORS= || exit 1
+make || exit 1
 make install LIBDIR=/usr/lib || exit 1
 
 cd $LFS/sources
@@ -1468,7 +1464,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf efivar-38
+rm -rf efivar-39
 
 #-----
 echo "# Extra: efibootmgr"
@@ -1485,26 +1481,29 @@ if [ "$answer" != "Y" ]; then
 fi
 rm -rf efibootmgr-18
 
+fi #########
+
 #-----
 echo "# 8.63. GRUB for EFI"
 tar -xf grub-2.12.tar.xz
 cd grub-2.12
 
-mkdir -pv /usr/share/fonts/unifont
-gunzip -c ../unifont-15.1.04.pcf.gz > /usr/share/fonts/unifont/unifont.pcf
+#mkdir -pv /usr/share/fonts/unifont
+#gunzip -c ../unifont-15.1.04.pcf.gz > /usr/share/fonts/unifont/unifont.pcf
 
-echo depends bli part_gpt > grub-core/extra-deps.lst
+echo depends bli part_gpt > grub-core/extra_deps.lst
 
 ./configure --prefix=/usr          \
             --sysconfdir=/etc      \
             --disable-efiemu       \
-            --enable-grub-mkfont   \
             --with-platform=efi    \
             --target=x86_64        \
             --disable-werror
 
+unset TARGET_CC &&
 make || exit 1
 make install || exit 1
+
 mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
 
 cd $LFS/sources

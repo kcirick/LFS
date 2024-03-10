@@ -105,8 +105,8 @@ rm -rf gcc-13.2.0
 
 #-----
 echo "# 5.4. Linux API Headers"
-tar -xf linux-6.6.17.tar.xz
-cd linux-6.6.17
+tar -xf linux-6.6.18.tar.xz
+cd linux-6.6.18
 
 make mrproper || exit 1
 make headers || exit 1
@@ -119,7 +119,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf linux-6.6.17
+rm -rf linux-6.6.18
 
 
 #-----
