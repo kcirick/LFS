@@ -2,7 +2,7 @@
 
 if [[ "$(whoami)" != "root" ]] ; then
    echo "Not running as root! Exiting..."
-   exit 
+   exit
 fi
 
 cd $LFS/sources
@@ -10,27 +10,28 @@ cd $LFS/sources
 if [[ $1 -eq 1 ]]; then
    echo "nothing to do"
 
+
 #-----
 echo "# 8.3. Man-pages"
-tar -xf man-pages-6.06.tar.xz
-cd man-pages-6.06
+tar -xf man-pages-6.12.tar.xz
+cd man-pages-6.12
 
 rm -v man3/crypt*
 
-make prefix=/usr install || exit 1
+make -R GIT=false prefix=/usr install || exit 1
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf man-pages-6.06
+rm -rf man-pages-6.12
 
 
 #-----
 echo "# 8.4. Iana-etc"
-tar -xf iana-etc-20240125.tar.gz
-cd iana-etc-20240125
+tar -xf iana-etc-20250123.tar.gz
+cd iana-etc-20250123
 
 cp services protocols /etc
 
@@ -39,20 +40,20 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf iana-etc-20240125
+rm -rf iana-etc-20250123
 
 #-----
 echo "# 8.5. Glibc"
-tar -xf glibc-2.39.tar.xz
-cd glibc-2.39
+tar -xf glibc-2.41.tar.xz
+cd glibc-2.41
 
-patch -Np1 -i ../glibc-2.39-fhs-1.patch
+patch -Np1 -i ../glibc-2.41-fhs-1.patch
 
 mkdir -v build && cd build
 echo "rootsbindir=/usr/sbin" > configparms
 ../configure --prefix=/usr                   \
              --disable-werror                \
-             --enable-kernel=4.19            \
+             --enable-kernel=5.4             \
              --enable-stack-protector=strong \
              --disable-nscd                  \
              libc_cv_slibdir=/usr/lib
@@ -73,17 +74,13 @@ localedef -i en_CA -f ISO-8859-1 en_CA
 localedef -i en_CA -f UTF-8 en_CA.UTF-8
 localedef -i ja_JP -f EUC-JP ja_JP
 localedef -i ja_JP -f UTF-8 ja_JP.UTF-8
-localedef -i de_DE -f ISO-8859-1 de_DE
-localedef -i de_DE -f UTF-8 de_DE.UTF-8
-localedef -i fr_FR -f ISO-8859-1 fr_FR
-localedef -i fr_FR -f UTF-8 fr_FR.UTF-8
 
 # 8.5.2
 cat > /etc/nsswitch.conf << "EOF"
 # Begin /etc/nsswitch.conf
 
 passwd: files systemd
-group: files systemd 
+group: files systemd
 shadow: files systemd
 
 hosts: mymachines resolve [!UNAVAIL=return] files myhostname dns
@@ -97,7 +94,7 @@ rpc: files
 # End /etc/nsswitch.conf
 EOF
 
-tar -xf ../../tzdata2024a.tar.gz
+tar -xf ../../tzdata2025a.tar.gz
 
 ZONEINFO=/usr/share/zoneinfo
 mkdir -pv $ZONEINFO/{posix,right}
@@ -133,7 +130,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf glibc-2.39
+rm -rf glibc-2.41
 
 #-----
 echo "# 8.6. Zlib"
@@ -188,12 +185,12 @@ rm -rf bzip2-1.0.8
 
 #-----
 echo "# 8.8. Xz"
-tar -xf xz-5.4.6.tar.xz
-cd xz-5.4.6
+tar -xf xz-5.6.4.tar.xz
+cd xz-5.6.4
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/xz-5.4.6
+            --docdir=/usr/share/doc/xz-5.6.4
 
 make || exit 1
 make install || exit 1
@@ -203,12 +200,28 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf xz-5.4.6
+rm -rf xz-5.6.4
 
 #-----
-echo "# 8.9. Zstd"
-tar -xf zstd-1.5.5.tar.gz
-cd zstd-1.5.5
+echo "# 8.9 Lz4"
+tar -xf lz4-1.10.0.tar.gz
+cd lz4-1.10.0
+
+make BUILD_STATIC=no PREFIX=/usr
+
+make BUILD_STATIC=no PREFIX=/usr install
+
+cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
+rm -rf lz4-1.10.0
+
+#-----
+echo "# 8.10. Zstd"
+tar -xf zstd-1.5.7.tar.gz
+cd zstd-1.5.7
 
 make prefix=/usr || exit 1
 make prefix=/usr install || exit 1
@@ -220,12 +233,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf zstd-1.5.5
+rm -rf zstd-1.5.7
 
 #-----
-echo "# 8.10. File"
-tar -xf file-5.45.tar.gz
-cd file-5.45
+echo "# 8.11. File"
+tar -xf file-5.46.tar.gz
+cd file-5.46
 
 ./configure --prefix=/usr
 
@@ -237,22 +250,22 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf file-5.45
+rm -rf file-5.46
 
 #-----
-echo "# 8.11. Readline"
-tar -xf readline-8.2.tar.gz
-cd readline-8.2
+echo "# 8.12. Readline"
+tar -xf readline-8.2.13.tar.gz
+cd readline-8.2.13
 
 sed -i '/MV.*old/d' Makefile.in
 sed -i '/{OLDSUFF}/c:' support/shlib-install
 
-patch -Np1 -i ../readline-8.2-upstream_fixes-3.patch
+sed -i 's/-Wl,-rpath,[^ ]*//' support/shobj-conf
 
 ./configure --prefix=/usr    \
             --disable-static \
-	         --with-curses    \
-            --docdir=/usr/share/doc/readline-8.2
+	    --with-curses    \
+            --docdir=/usr/share/doc/readline-8.2.13
 
 make SHLIB_LIBS="-lncursesw" || exit 1
 make SHLIB_LIBS="-lncursesw" install || exit 1
@@ -262,10 +275,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf readline-8.2
+rm -rf readline-8.2.13
 
 #-----
-echo "# 8.12. M4"
+echo "# 8.13. M4"
 tar -xf m4-1.4.19.tar.xz
 cd m4-1.4.19
 
@@ -282,9 +295,9 @@ fi
 rm -rf m4-1.4.19
 
 #-----
-echo "# 8.13 BC"
-tar -xf bc-6.7.5.tar.xz
-cd bc-6.7.5
+echo "# 8.14 BC"
+tar -xf bc-7.0.3.tar.xz
+cd bc-7.0.3
 
 CC=gcc ./configure --prefix=/usr -G -O3 -r
 
@@ -296,10 +309,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf bc-6.7.5
+rm -rf bc-7.0.3
 
 #-----
-echo "# 8.14. Flex"
+echo "# 8.15. Flex"
 tar -xf flex-2.6.4.tar.gz
 cd flex-2.6.4
 
@@ -321,13 +334,13 @@ fi
 rm -rf flex-2.6.4
 
 #-----
-echo "# 8.15 Tcl"
-tar -xf tcl8.6.13-src.tar.gz
-cd tcl8.6.13
+echo "# 8.16 Tcl"
+tar -xf tcl8.6.16-src.tar.gz
+cd tcl8.6.16
 
 SRCDIR=$(pwd)
 cd unix
-./configure --prefix=/usr --mandir=/usr/share/man 
+./configure --prefix=/usr --mandir=/usr/share/man --disable-rpath
 
 make || exit 1
 
@@ -335,23 +348,23 @@ sed -e "s|$SRCDIR/unix|/usr/lib|" \
     -e "s|$SRCDIR|/usr/include|"  \
     -i tclConfig.sh
 
-sed -e "s|$SRCDIR/unix/pkgs/tdbc1.1.5|/usr/lib/tdbc1.1.5|" \
-    -e "s|$SRCDIR/pkgs/tdbc1.1.5/generic|/usr/include|"    \
-    -e "s|$SRCDIR/pkgs/tdbc1.1.5/library|/usr/lib/tcl8.6|" \
-    -e "s|$SRCDIR/pkgs/tdbc1.1.5|/usr/include|"            \
-    -i pkgs/tdbc1.1.5/tdbcConfig.sh
+sed -e "s|$SRCDIR/unix/pkgs/tdbc1.1.10|/usr/lib/tdbc1.1.10|" \
+    -e "s|$SRCDIR/pkgs/tdbc1.1.10/generic|/usr/include|"    \
+    -e "s|$SRCDIR/pkgs/tdbc1.1.10/library|/usr/lib/tcl8.6|" \
+    -e "s|$SRCDIR/pkgs/tdbc1.1.10|/usr/include|"            \
+    -i pkgs/tdbc1.1.10/tdbcConfig.sh
 
-sed -e "s|$SRCDIR/unix/pkgs/itcl4.2.3|/usr/lib/itcl4.2.3|" \
-    -e "s|$SRCDIR/pkgs/itcl4.2.3/generic|/usr/include|"    \
-    -e "s|$SRCDIR/pkgs/itcl4.2.3|/usr/include|"            \
-    -i pkgs/itcl4.2.3/itclConfig.sh
+sed -e "s|$SRCDIR/unix/pkgs/itcl4.3.2|/usr/lib/itcl4.3.2|" \
+    -e "s|$SRCDIR/pkgs/itcl4.3.2/generic|/usr/include|"    \
+    -e "s|$SRCDIR/pkgs/itcl4.3.2|/usr/include|"            \
+    -i pkgs/itcl4.3.2/itclConfig.sh
 
 unset SRCDIR
 
 make install || exit 1
 
 chmod -v u+w /usr/lib/libtcl8.6.so
-make install-private-headers
+make install-private-headers || exit 1
 
 ln -sfv tclsh8.6 /usr/bin/tclsh
 
@@ -362,17 +375,20 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf tcl8.6.13
+rm -rf tcl8.6.16
 
 #-----
-echo "# 8.16. Expect"
+echo "# 8.17. Expect"
 tar -xf expect5.45.4.tar.gz
 cd expect5.45.4
 
+patch -Np1 -i ../expect-5.45.4-gcc14-1.patch
+
 ./configure --prefix=/usr                 \
             --with-tcl=/usr/lib           \
-	         --enable-shared               \
-	         --mandir=/usr/share/man       \
+	    --enable-shared               \
+	    --disable-rpath		  \
+	    --mandir=/usr/share/man       \
             --with-tclinclude=/usr/include
 
 make || exit 1
@@ -387,7 +403,7 @@ fi
 rm -rf expect5.45.4
 
 #-----
-echo "# 8.17. DejaGNU"
+echo "# 8.18. DejaGNU"
 tar -xf dejagnu-1.6.3.tar.gz
 cd dejagnu-1.6.3
 
@@ -409,13 +425,13 @@ fi
 rm -rf dejagnu-1.6.3
 
 #-----
-echo "# 8.18. Pkgconf"
-tar -xf pkgconf-2.1.1.tar.xz
-cd pkgconf-2.1.1
+echo "# 8.19. Pkgconf"
+tar -xf pkgconf-2.3.0.tar.xz
+cd pkgconf-2.3.0
 
 ./configure --prefix=/usr           \
             --disable-static        \
-            --docdir=/usr/share/doc/pkgconf-2.1.1
+            --docdir=/usr/share/doc/pkgconf-2.3.0
 
 make || exit 1
 make install || exit 1
@@ -428,39 +444,40 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf pkgconf-2.1.1
+rm -rf pkgconf-2.3.0
 
 #-----
-echo "# 8.19. Binutils"
-tar -xf binutils-2.42.tar.xz
-cd binutils-2.42
+echo "# 8.20. Binutils"
+tar -xf binutils-2.44.tar.xz
+cd binutils-2.44
 
 mkdir -v build && cd build
 ../configure --prefix=/usr       \
              --sysconfdir=/etc   \
-	          --enable-gold       \
-	          --enable-ld=default \
-	          --enable-plugins    \
+	     --enable-ld=default \
+	     --enable-plugins    \
              --enable-shared     \
              --disable-werror    \
-	          --enable-64-bit-bfd \
-	          --with-system-zlib  \
+	     --enable-64-bit-bfd \
+	     --enable-new-dtags  \
+	     --with-system-zlib  \
              --enable-default-hash-style=gnu
 
 make tooldir=/usr || exit 1
 make tooldir=/usr install || exit 1
 
-rm -fv /usr/lib/lib{bfd,ctf,ctf-nobfd,gprofng,opcodes,sframe}.a
+rm -rfv /usr/lib/lib{bfd,ctf,ctf-nobfd,gprofng,opcodes,sframe}.a \
+	/usr/share/doc/gprofng/
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf binutils-2.42
+rm -rf binutils-2.44
 
 #-----
-echo "# 8.20. GMP"
+echo "# 8.21. GMP"
 tar -xf gmp-6.3.0.tar.xz
 cd gmp-6.3.0
 
@@ -482,7 +499,7 @@ fi
 rm -rf gmp-6.3.0
 
 #-----
-echo "# 8.21. MPFR"
+echo "# 8.22. MPFR"
 tar -xf mpfr-4.2.1.tar.xz
 cd mpfr-4.2.1
 
@@ -504,7 +521,7 @@ fi
 rm -rf mpfr-4.2.1
 
 #-----
-echo "# 8.22. MPC"
+echo "# 8.23. MPC"
 tar -xf mpc-1.3.1.tar.gz
 cd mpc-1.3.1
 
@@ -525,7 +542,7 @@ fi
 rm -rf mpc-1.3.1
 
 #-----
-echo "8.23. Attr"
+echo "8.24. Attr"
 tar -xf attr-2.5.2.tar.gz
 cd attr-2.5.2
 
@@ -545,7 +562,7 @@ fi
 rm -rf attr-2.5.2
 
 #-----
-echo "8.24. Acl"
+echo "8.25. Acl"
 tar -xf acl-2.3.2.tar.xz
 cd acl-2.3.2
 
@@ -564,9 +581,9 @@ fi
 rm -rf acl-2.3.2
 
 #-----
-echo "8.25. Libcap"
-tar -xf libcap-2.69.tar.xz
-cd libcap-2.69
+echo "8.26. Libcap"
+tar -xf libcap-2.73.tar.xz
+cd libcap-2.73
 
 sed -i '/install -m.*STA/d' libcap/Makefile
 
@@ -578,12 +595,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf libcap-2.69
+rm -rf libcap-2.73
 
 #-----
-echo "# 8.26. Libxcrypt"
-tar -xf libxcrypt-4.4.36.tar.xz
-cd libxcrypt-4.4.36
+echo "# 8.27. Libxcrypt"
+tar -xf libxcrypt-4.4.38.tar.xz
+cd libxcrypt-4.4.38
 
 ./configure --prefix=/usr                 \
             --enable-hashes=strong,glibc  \
@@ -599,12 +616,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf libxcrypt-4.4.36
+rm -rf libxcrypt-4.4.38
 
 #-----
-echo "# 8.26. Shadow"
-tar -xf shadow-4.14.5.tar.xz
-cd shadow-4.14.5
+echo "# 8.28. Shadow"
+tar -xf shadow-4.17.3.tar.xz
+cd shadow-4.17.3
 
 sed -i 's/groups$(EXEEXT) //' src/Makefile.in
 find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
@@ -644,12 +661,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf shadow-4.14.5
+rm -rf shadow-4.17.3
 
 #-----
-echo "# 8.28. GCC"
-tar -xf gcc-13.2.0.tar.xz
-cd gcc-13.2.0
+echo "# 8.29. GCC"
+tar -xf gcc-14.2.0.tar.xz
+cd gcc-14.2.0
 
 case $(uname -m) in
 	x86_64)
@@ -660,10 +677,11 @@ esac
 
 mkdir -v build && cd build
 ../configure --prefix=/usr            \
-	          LD=ld                    \
+	     LD=ld                    \
              --enable-languages=c,c++ \
              --enable-default-pie     \
              --enable-default-ssp     \
+	     --enable-host-pie	      \
              --disable-multilib       \
              --disable-bootstrap      \
              --disable-fixincludes    \
@@ -672,10 +690,10 @@ mkdir -v build && cd build
 make || exit 1
 make install || exit 1
 
-chown -v -R root:root /usr/lib/gcc/$(gcc -dumpmachine)/13.2.0/include{,-fixed}
+chown -v -R root:root /usr/lib/gcc/$(gcc -dumpmachine)/14.2.0/include{,-fixed}
 ln -svr /usr/bin/cpp /usr/lib
 ln -sv gcc.1 /usr/share/man/man1/cc.1
-ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/13.2.0/liblto_plugin.so /usr/lib/bfd-plugins/
+ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/14.2.0/liblto_plugin.so /usr/lib/bfd-plugins/
 
 cd $LFS/sources
 
@@ -693,12 +711,12 @@ read -p "Press Y to contiue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf gcc-13.2.0
+rm -rf gcc-14.2.0
 
 #-----
-echo "# 8.29. Ncurses"
-tar -xf ncurses-6.4-20230520.tar.xz
-cd ncurses-6.4-20230520
+echo "# 8.30. Ncurses"
+tar -xf ncurses-6.5.tar.gz
+cd ncurses-6.5
 
 ./configure --prefix=/usr           \
             --mandir=/usr/share/man \
@@ -707,13 +725,13 @@ cd ncurses-6.4-20230520
             --without-normal        \
             --with-cxx-shared       \
             --enable-pc-files       \
-            --enable-widec          \
             --with-pkg-config-libdir=/usr/lib/pkgconfig
 
 make || exit 1
-make DESTDIR=$PWD/dest install
-install -vm755 dest/usr/lib/libncursesw.so.6.4 /usr/lib
-rm -v dest/usr/lib/libncursesw.so.6.4
+make DESTDIR=$PWD/dest install || exit 1
+
+install -vm755 dest/usr/lib/libncursesw.so.6.5 /usr/lib
+rm -v dest/usr/lib/libncursesw.so.6.5
 sed -e 's/^#if.*XOPEN.*$/#if 1/' -i dest/usr/include/curses.h
 cp -av dest/* /
 
@@ -729,10 +747,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf ncurses-6.4-20230520
+rm -rf ncurses-6.5
 
 #-----
-echo "# 8.30. Sed"
+echo "# 8.31. Sed"
 tar -xf sed-4.9.tar.xz
 cd sed-4.9
 
@@ -752,9 +770,9 @@ fi
 rm -rf sed-4.9
 
 #-----
-echo "# 8.31. Psmisc"
-tar -xf psmisc-23.6.tar.xz
-cd psmisc-23.6
+echo "# 8.32. Psmisc"
+tar -xf psmisc-23.7.tar.xz
+cd psmisc-23.7
 
 ./configure --prefix=/usr
 
@@ -766,16 +784,16 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf psmisc-23.6
+rm -rf psmisc-23.7
 
 #-----
-echo "# 8.32. Gettext"
-tar -xf gettext-0.22.4.tar.xz
-cd gettext-0.22.4
+echo "# 8.33. Gettext"
+tar -xf gettext-0.24.tar.xz
+cd gettext-0.24
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/gettext-0.22.4
+            --docdir=/usr/share/doc/gettext-0.24
 
 make || exit 1
 make install || exit 1
@@ -786,10 +804,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf gettext-0.22.4
+rm -rf gettext-0.24
 
 #-----
-echo "# 8.33. Bison"
+echo "# 8.34. Bison"
 tar -xf bison-3.8.2.tar.xz
 cd bison-3.8.2
 
@@ -806,7 +824,7 @@ fi
 rm -rf bison-3.8.2
 
 #-----
-echo "# 8.34. Grep"
+echo "# 8.35. Grep"
 tar -xf grep-3.11.tar.xz
 cd grep-3.11
 
@@ -825,16 +843,14 @@ fi
 rm -rf grep-3.11
 
 #-----
-echo "# 8.35. Bash"
-tar -xf bash-5.2.21.tar.gz
-cd bash-5.2.21
-
-patch -Np1 -i ../bash-5.2.21-upstream_fixes-1.patch || exit 1
+echo "# 8.36. Bash"
+tar -xf bash-5.2.37.tar.gz
+cd bash-5.2.37
 
 ./configure --prefix=/usr              \
             --without-bash-malloc      \
             --with-installed-readline  \
-            --docdir=/usr/share/doc/bash-5.2.21
+            --docdir=/usr/share/doc/bash-5.2.37
 
 make || exit 1
 make install || exit 1
@@ -846,12 +862,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf bash-5.2.21
+rm -rf bash-5.2.37
 
 #-----
-echo "# 8.36. Libtool"
-tar -xf libtool-2.4.7.tar.xz
-cd libtool-2.4.7
+echo "# 8.37. Libtool"
+tar -xf libtool-2.5.4.tar.xz
+cd libtool-2.5.4
 
 ./configure --prefix=/usr
 
@@ -864,12 +880,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf libtool-2.4.7
+rm -rf libtool-2.5.4
 
 #-----
-echo "# 8.37. GDBM"
-tar -xf gdbm-1.23.tar.gz
-cd gdbm-1.23
+echo "# 8.38. GDBM"
+tar -xf gdbm-1.24.tar.gz
+cd gdbm-1.24
 
 ./configure --prefix=/usr     \
             --disable-static  \
@@ -883,10 +899,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf gdbm-1.23
+rm -rf gdbm-1.24
 
 #-----
-echo "8.38. Gperf"
+echo "8.39. Gperf"
 tar -xf gperf-3.1.tar.gz
 cd gperf-3.1
 
@@ -903,13 +919,13 @@ fi
 rm -rf gperf-3.1
 
 #-----
-echo "8.39. Expat"
-tar -xf expat-2.6.0.tar.xz
-cd expat-2.6.0
+echo "8.40. Expat"
+tar -xf expat-2.6.4.tar.xz
+cd expat-2.6.4
 
 ./configure --prefix=/usr     \
             --disable-static  \
-            --docdir=/usr/share/doc/expat-2.6.0
+            --docdir=/usr/share/doc/expat-2.6.4
 
 make || exit 1
 make install || exit 1
@@ -919,12 +935,14 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf expat-2.6.0
+rm -rf expat-2.6.4
 
 #-----
-echo "# 8.40. Inetutils"
-tar -xf inetutils-2.5.tar.xz
-cd inetutils-2.5
+echo "# 8.41. Inetutils"
+tar -xf inetutils-2.6.tar.xz
+cd inetutils-2.6
+
+sed -i 's/def HAVE_TERMCAP_TGETENT/ 1/' telnet/telnet.c
 
 ./configure --prefix=/usr        \
             --bindir=/usr/bin    \
@@ -946,12 +964,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf inetutils-2.5
+rm -rf inetutils-2.6
 
 #-----
-echo "# 8.41. Less"
-tar -xf less-643.tar.gz
-cd less-643
+echo "# 8.42. Less"
+tar -xf less-668.tar.gz
+cd less-668
 
 ./configure --prefix=/usr --sysconfdir=/etc
 
@@ -963,30 +981,30 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf less-643
+rm -rf less-668
 
 #-----
-echo "# 8.42. Perl"
-tar -xf perl-5.38.2.tar.xz
-cd perl-5.38.2
+echo "# 8.43. Perl"
+tar -xf perl-5.40.1.tar.xz
+cd perl-5.40.1
 
 export BUILD_ZLIB=False
 export BUILD_BZIP2=0
 
 sh Configure -des                                           \
-             -Dprefix=/usr                                  \
-             -Dvendorprefix=/usr                            \
-		       -Dprivlib=/usr/lib/perl5/5.38/core_perl        \
-		       -Darchlib=/usr/lib/perl5/5.38/core_perl        \
-		       -Dsitelib=/usr/lib/perl5/5.38/site_perl        \
-		       -Dsitearch=/usr/lib/perl5/5.38/site_perl       \
-		       -Dvendorlib=/usr/lib/perl5/5.38/vendor_perl    \
-		       -Dvendorarch=/usr/lib/perl5/5.38/vendor_perl   \
-             -Dman1dir=/usr/share/man/man1                  \
-             -Dman3dir=/usr/share/man/man3                  \
-             -Dpager="/usr/bin/less -isR"                   \
-             -Duseshrplib			                           \
-		       -Dusethreads
+             -D prefix=/usr                                  \
+             -D vendorprefix=/usr                            \
+	     -D privlib=/usr/lib/perl5/5.40/core_perl        \
+	     -D archlib=/usr/lib/perl5/5.40/core_perl        \
+	     -D sitelib=/usr/lib/perl5/5.40/site_perl        \
+	     -D sitearch=/usr/lib/perl5/5.40/site_perl       \
+	     -D vendorlib=/usr/lib/perl5/5.40/vendor_perl    \
+	     -D vendorarch=/usr/lib/perl5/5.40/vendor_perl   \
+             -D man1dir=/usr/share/man/man1                  \
+             -D man3dir=/usr/share/man/man3                  \
+             -D pager="/usr/bin/less -isR"                   \
+             -D useshrplib	                             \
+	     -D usethreads
 
 make || exit 1
 make install || exit 1
@@ -997,14 +1015,15 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf perl-5.38.2
+rm -rf perl-5.40.1
 
 #-----
-echo "8.43. XML::Parser"
+echo "8.44. XML::Parser"
 tar -xf XML-Parser-2.47.tar.gz
 cd XML-Parser-2.47
 
 perl Makefile.PL
+
 make || exit 1
 make install || exit 1
 
@@ -1016,7 +1035,7 @@ fi
 rm -rf XML-Parser-2.47
 
 #-----
-echo "8.44. Intltool"
+echo "8.45. Intltool"
 tar -xf intltool-0.51.0.tar.gz
 cd intltool-0.51.0
 
@@ -1036,7 +1055,7 @@ fi
 rm -rf intltool-0.51.0
 
 #-----
-echo "# 8.45. Autoconf"
+echo "# 8.46. Autoconf"
 tar -xf autoconf-2.72.tar.xz
 cd autoconf-2.72
 
@@ -1053,11 +1072,11 @@ fi
 rm -rf autoconf-2.72
 
 #-----
-echo "# 8.46. Automake"
-tar -xf automake-1.16.5.tar.xz
-cd automake-1.16.5
+echo "# 8.47. Automake"
+tar -xf automake-1.17.tar.xz
+cd automake-1.17
 
-./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.16.5
+./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.17
 
 make || exit 1
 make install || exit 1
@@ -1067,12 +1086,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf automake-1.16.5
+rm -rf automake-1.17
 
 #-----
-echo "# 8.47 OpenSSL"
-tar -xf openssl-3.2.1.tar.gz
-cd openssl-3.2.1
+echo "# 8.48 OpenSSL"
+tar -xf openssl-3.4.1.tar.gz
+cd openssl-3.4.1
 
 ./config --prefix=/usr           \
 	      --openssldir=/etc/ssl   \
@@ -1084,7 +1103,7 @@ make || exit 1
 sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
 make MANSUFFIX=ssl install || exit 1
 
-mv -v /usr/share/doc/openssl /usr/share/doc/openssl-3.1.2
+mv -v /usr/share/doc/openssl /usr/share/doc/openssl-3.4.1
 #cp -vfr doc/* /usr/share/doc/openssl-3.1.2
 
 cd $LFS/sources
@@ -1092,39 +1111,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf openssl-3.2.1
-
-#-----
-echo "# 8.48. Kmod"
-tar -xf kmod-31.tar.xz
-cd kmod-31
-
-./configure --prefix=/usr          \
-            --sysconfdir=/etc      \
-            --with-openssl         \
-            --with-xz              \
-            --with-zstd            \
-            --with-zlib
-
-make || exit 1
-make install || exit 1
-
-for target in depmod insmod modinfo modprobe rmmod; do
-   ln -sfv ../bin/kmod /usr/sbin/$target
-done
-ln -sfv kmod /usr/bin/lsmod
-
-cd $LFS/sources
-read -p "Press Y to continue: " answer
-if [ "$answer" != "Y" ]; then
-   exit
-fi
-rm -rf kmod-31
+rm -rf openssl-3.4.1
 
 #-----
 echo "# 8.49. Libelf from Elfutils"
-tar -xf elfutils-0.190.tar.bz2
-cd elfutils-0.190
+tar -xf elfutils-0.192.tar.bz2
+cd elfutils-0.192
 
 ./configure --prefix=/usr           \
             --disable-debuginfod    \
@@ -1140,12 +1132,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf elfutils-0.190
+rm -rf elfutils-0.192
 
 #----
 echo "# 8.50. Libffi"
-tar -xf libffi-3.4.4.tar.gz
-cd libffi-3.4.4
+tar -xf libffi-3.4.7.tar.gz
+cd libffi-3.4.7
 
 ./configure --prefix=/usr --disable-static --with-gcc-arch=native
 
@@ -1157,12 +1149,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf libffi-3.4.4
+rm -rf libffi-3.4.7
 
 #-----
 echo "# Extra: Sqlite"
-tar -xf sqlite-autoconf-3450100.tar.gz
-cd sqlite-autoconf-3450100
+tar -xf sqlite-autoconf-3490100.tar.gz
+cd sqlite-autoconf-3490100
 
 ./configure --prefix=/usr \
             --disable-static \
@@ -1170,8 +1162,7 @@ cd sqlite-autoconf-3450100
             CPPFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1 \
                       -DSQLITE_ENABLE_UNLOCK_NOTIFY=1   \
                       -DSQLITE_ENBALE_DBSTAT_VTAB=1     \
-                      -DSQLITE_SECURE_DELETE=1          \
-                      -DSQLITE_ENABLE_FTS3_TOKENIZER=1"
+                      -DSQLITE_SECURE_DELETE=1"
 
 make || exit 1
 make install || exit 1
@@ -1181,12 +1172,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf sqlite-autoconf-3450100
+rm -rf sqlite-autoconf-3490100
 
 #-----
 echo "# 8.51. Python"
-tar -xf Python-3.12.2.tar.xz
-cd Python-3.12.2
+tar -xf Python-3.13.2.tar.xz
+cd Python-3.13.2
 
 ./configure --prefix=/usr        \
 	         --enable-shared      \
@@ -1214,12 +1205,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf Python-3.12.2
+rm -rf Python-3.13.2
 
 #-----
 echo "# 8.52. Flit-Core"
-tar -xf flit_core-3.9.0.tar.gz
-cd flit_core-3.9.0
+tar -xf flit_core-3.11.0.tar.gz
+cd flit_core-3.11.0
 
 pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps $PWD
 
@@ -1230,28 +1221,28 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf flit_core-3.9.0
+rm -rf flit_core-3.11.0
 
 #-----
 echo "# 8.53. Wheel"
-tar -xf wheel-0.42.0.tar.gz
-cd wheel-0.42.0
+tar -xf wheel-0.45.1.tar.gz
+cd wheel-0.45.1
 
 pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps $PWD
 
-pip3 install --no-index --find-links=dist wheel
+pip3 install --no-index --find-links dist wheel
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf wheel-0.42.0
+rm -rf wheel-0.45.1
 
 #-----
 echo "# 8.54 Setuptools"
-tar -xf setuptools-69.1.0.tar.gz
-cd setuptools-69.1.0
+tar -xf setuptools-75.8.1.tar.gz
+cd setuptools-75.8.1
 
 pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps $PWD
 
@@ -1262,56 +1253,76 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf setuptools-69.1.0 
+rm -rf setuptools-75.8.1
 
 #-----
 echo "# 8.55 Ninja"
-tar -xf ninja-1.11.1.tar.gz
-cd ninja-1.11.1
+tar -xf ninja-1.12.1.tar.gz
+cd ninja-1.12.1
 
 python3 configure.py --bootstrap || exit 1
 
 install -vm755 ninja /usr/bin/
 install -vDm644 misc/bash-completion /usr/share/bash-completion/completions/ninja
-install -vDm644 misc/zsh-completion  /usr/share/zsh/site-functions/_ninja
+#install -vDm644 misc/zsh-completion  /usr/share/zsh/site-functions/_ninja
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf ninja-1.11.1
+rm -rf ninja-1.12.1
 
 #-----
 echo "# 8.56 Meson"
-tar -xf meson-1.3.2.tar.gz
-cd meson-1.3.2
+tar -xf meson-1.7.0.tar.gz
+cd meson-1.7.0
 
 pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps $PWD
 
 pip3 install --no-index --find-links dist meson
 
 install -vDm644 data/shell-completions/bash/meson /usr/share/bash-completion/completions/meson
-install -vDm644 data/shell-completions/zsh/_meson /usr/share/zsh/site-functions/_meson
+#install -vDm644 data/shell-completions/zsh/_meson /usr/share/zsh/site-functions/_meson
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf meson-1.3.2
+rm -rf meson-1.7.0
 
 #-----
-echo "# 8.57. Coreutils"
-tar -xf coreutils-9.4.tar.xz
-cd coreutils-9.4
+echo "# 8.57. Kmod"
+tar -xf kmod-34.tar.xz
+cd kmod-34
 
-patch -Np1 -i ../coreutils-9.4-i18n-1.patch 
+mkdir -p build
+cd build
+meson setup --prefix=/usr          \
+            --sbindir=/usr/sbin    \
+            --buildtype=release    \
+            -D manpages=false ..
 
-# CVE-2024-0684 fix
-sed -e '/n_out += n_hold/,+4 s|.*bufsize.*|//&|' -i src/split.c
+ninja || exit 1
+ninja install || exit 1
 
-autoreconf -fiv
+cd $LFS/sources
+read -p "Press Y to continue: " answer
+if [ "$answer" != "Y" ]; then
+   exit
+fi
+rm -rf kmod-34
+
+#-----
+echo "# 8.58. Coreutils"
+tar -xf coreutils-9.6.tar.xz
+cd coreutils-9.6
+
+patch -Np1 -i ../coreutils-9.6-i18n-1.patch 
+
+autoreconf -fv
+automake -af
 FORCE_UNSAFE_CONFIGURE=1 \
 ./configure --prefix=/usr --enable-no-install-program=kill,uptime
 
@@ -1327,10 +1338,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf coreutils-9.4
+rm -rf coreutils-9.6
 
 #-----
-echo "# 8.58 Check"
+echo "# 8.59 Check"
 tar -xf check-0.15.2.tar.gz
 cd check-0.15.2
 
@@ -1347,9 +1358,9 @@ fi
 rm -rf check-0.15.2
 
 #-----
-echo "# 8.59. Diffutils"
-tar -xf diffutils-3.10.tar.xz
-cd diffutils-3.10
+echo "# 8.60. Diffutils"
+tar -xf diffutils-3.11.tar.xz
+cd diffutils-3.11
 
 ./configure --prefix=/usr
 
@@ -1361,12 +1372,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf diffutils-3.10
+rm -rf diffutils-3.11
 
 #-----
-echo "# 8.60. Gawk"
-tar -xf gawk-5.3.0.tar.xz
-cd gawk-5.3.0
+echo "# 8.61. Gawk"
+tar -xf gawk-5.3.1.tar.xz
+cd gawk-5.3.1
 
 sed -i 's/extras//' Makefile.in
 ./configure --prefix=/usr
@@ -1380,12 +1391,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf gawk-5.3.0
+rm -rf gawk-5.3.1
 
 #-----
-echo "# 8.61. Findutils"
-tar -xf findutils-4.9.0.tar.xz
-cd findutils-4.9.0
+echo "# 8.62. Findutils"
+tar -xf findutils-4.10.0.tar.xz
+cd findutils-4.10.0
 
 ./configure --prefix=/usr --localstatedir=/var/lib/locate
 
@@ -1397,10 +1408,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf findutils-4.9.0
+rm -rf findutils-4.10.0
 
 #-----
-echo "# 8.62. Groff"
+echo "# 8.63. Groff"
 tar -xf groff-1.23.0.tar.gz
 cd groff-1.23.0
 
@@ -1416,23 +1427,23 @@ fi
 rm -rf groff-1.23.0
 
 #-----
-echo "# Extra: mandoc"
-tar -xf mandoc-1.14.6.tar.gz
-cd mandoc-1.14.6
+echo "# Extra: mandoc  --> Skip"
+#tar -xf mandoc-1.14.6.tar.gz
+#cd mandoc-1.14.6
 
-./configure --prefix=/usr
+#./configure --prefix=/usr
 
-make || exit 1
+#make || exit 1
 
-install -vm755 mandoc   /usr/bin
-install -vm644 mandoc.1 /usr/share/man/man1
+#install -vm755 mandoc   /usr/bin
+#install -vm644 mandoc.1 /usr/share/man/man1
 
-cd $LFS/sources
+#cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf mandoc-1.14.6 
+#rm -rf mandoc-1.14.6
 
 #-----
 echo "# Extra: popt"
@@ -1456,8 +1467,8 @@ echo "# Extra: efivar"
 tar -xf efivar-39.tar.gz
 cd efivar-39
 
-make || exit 1
-make install LIBDIR=/usr/lib || exit 1
+make ENABLE_DOCS=0 || exit 1
+make install ENABLE_DOCS=0 LIBDIR=/usr/lib || exit 1
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
@@ -1481,7 +1492,6 @@ if [ "$answer" != "Y" ]; then
 fi
 rm -rf efibootmgr-18
 
-fi #########
 
 #-----
 echo "# 8.63. GRUB for EFI"
@@ -1489,7 +1499,7 @@ tar -xf grub-2.12.tar.xz
 cd grub-2.12
 
 #mkdir -pv /usr/share/fonts/unifont
-#gunzip -c ../unifont-15.1.04.pcf.gz > /usr/share/fonts/unifont/unifont.pcf
+#gunzip -c ../unifont-16.0.01.pcf.gz > /usr/share/fonts/unifont/unifont.pcf
 
 echo depends bli part_gpt > grub-core/extra_deps.lst
 
@@ -1500,7 +1510,7 @@ echo depends bli part_gpt > grub-core/extra_deps.lst
             --target=x86_64        \
             --disable-werror
 
-unset TARGET_CC &&
+#unset TARGET_CC &&
 make || exit 1
 make install || exit 1
 
@@ -1514,7 +1524,7 @@ fi
 rm -rf grub-2.12
 
 #-----
-echo "# 8.64. Gzip"
+echo "# 8.65. Gzip"
 tar -xf gzip-1.13.tar.xz
 cd gzip-1.13
 
@@ -1531,9 +1541,9 @@ fi
 rm -rf gzip-1.13
 
 #-----
-echo "# 8.65 IPRoute2"
-tar -xf iproute2-6.7.0.tar.xz
-cd iproute2-6.7.0
+echo "# 8.66 IPRoute2"
+tar -xf iproute2-6.13.0.tar.xz
+cd iproute2-6.13.0
 
 sed -i /ARPD/d Makefile
 rm -fv man/man8/arpd.8
@@ -1546,14 +1556,14 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf iproute2-6.7.0
+rm -rf iproute2-6.13.0
 
 #-----
-echo "# 8.66. Kbd"
-tar -xf kbd-2.6.4.tar.xz
-cd kbd-2.6.4
+echo "# 8.67. Kbd"
+tar -xf kbd-2.7.1.tar.xz
+cd kbd-2.7.1
 
-patch -Np1 -i ../kbd-2.6.4-backspace-1.patch
+patch -Np1 -i ../kbd-2.7.1-backspace-1.patch
 
 sed -i '/RESIZECONS_PROGS=/s/yes/no/' configure
 sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
@@ -1567,12 +1577,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf kbd-2.6.4
+rm -rf kbd-2.7.1
 
 #-----
-echo "# 8.67. Libpipeline"
-tar -xf libpipeline-1.5.7.tar.gz
-cd libpipeline-1.5.7
+echo "# 8.68. Libpipeline"
+tar -xf libpipeline-1.5.8.tar.gz
+cd libpipeline-1.5.8
 
 ./configure --prefix=/usr
 
@@ -1584,10 +1594,10 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf libpipeline-1.5.7
+rm -rf libpipeline-1.5.8
 
 #-----
-echo "# 8.68. Make"
+echo "# 8.69. Make"
 tar -xf make-4.4.1.tar.gz
 cd make-4.4.1
 
@@ -1603,7 +1613,7 @@ fi
 rm -rf make-4.4.1
 
 #-----
-echo "# 8.69. Patch"
+echo "# 8.70. Patch"
 tar -xf patch-2.7.6.tar.xz
 cd patch-2.7.6
 
@@ -1619,12 +1629,12 @@ fi
 rm -rf patch-2.7.6
 
 #-----
-echo "# 8.70. Tar"
+echo "# 8.71. Tar"
 tar -xf tar-1.35.tar.xz
 cd tar-1.35
 
 FORCE_UNSAFE_CONFIGURE=1  \
-./configure --prefix=/usr 
+./configure --prefix=/usr
 
 make || exit 1
 make install || exit 1
@@ -1638,9 +1648,9 @@ fi
 rm -rf tar-1.35
 
 #-----
-echo "# 8.71. Texinfo"
-tar -xf texinfo-7.1.tar.xz
-cd texinfo-7.1
+echo "# 8.72. Texinfo"
+tar -xf texinfo-7.2.tar.xz
+cd texinfo-7.2
 
 ./configure --prefix=/usr
 
@@ -1653,7 +1663,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf texinfo-7.1
+rm -rf texinfo-7.2
 
 #-----
 ### SKIP vim : Install nano instead
@@ -1710,14 +1720,14 @@ rm -rf texinfo-7.1
 #rm -rf vim-9.0.1677
 
 #-----
-echo "# 8.72 nano"
-tar -xf nano-7.2.tar.xz
-cd nano-7.2
+echo "# 8.73 nano"
+tar -xf nano-8.3.tar.xz
+cd nano-8.3
 
 ./configure --prefix=/usr     \
             --sysconfdir=/etc \
             --enable-utf8     \
-            --docdir=/usr/share/doc/nano-7.2
+            --docdir=/usr/share/doc/nano-8.3
 
 make || exit 1
 make install || exit 1
@@ -1739,12 +1749,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf nano-7.2 
+rm -rf nano-8.3
 
 #-----
-echo "# 8.73 MarkupSafe"
-tar -xf MarkupSafe-2.1.5.tar.gz
-cd MarkupSafe-2.1.5
+echo "# 8.74 MarkupSafe"
+tar -xf markupsafe-3.0.2.tar.gz
+cd markupsafe-3.0.2
 
 pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps $PWD
 
@@ -1755,12 +1765,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf MarkupSafe-2.1.5
+rm -rf markupsafe-3.0.2
 
 #-----
-echo "# 8.74 Jinja2"
-tar -xf Jinja2-3.1.3.tar.gz
-cd Jinja2-3.1.3
+echo "# 8.75 Jinja2"
+tar -xf jinja2-3.1.5.tar.gz
+cd jinja2-3.1.5
 
 pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps $PWD
 
@@ -1771,75 +1781,66 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf Jinja2-3.1.3
+rm -rf Jinja2-3.1.5
 
 #-----
-echo "# 8.75. Systemd"
-tar -xf systemd-255.tar.gz
-cd systemd-255
+echo "# 8.76. Systemd"
+tar -xf systemd-257.3.tar.gz
+cd systemd-257.3
 
 sed -i -e 's/GROUP="render"/GROUP="video"/' \
        -e 's/GROUP="sgx", //' rules.d/50-udev-default.rules.in
 
-patch -Np1 -i ../systemd-255-upstream_fixes-1.patch || exit 1 
-
 mkdir -p build; cd build
 meson setup --prefix=/usr          \
             --buildtype=release    \
-            -Ddefault-dnssec=no    \
-            -Dfirstboot=false	     \
-            -Dinstall-tests=false  \
-            -Dldconfig=false       \
-            -Dsysusers=false        \
-            -Drpmmacrosdir=no       \
-            -Dhomed=false           \
-            -Duserdb=false          \
-            -Dman=false             \
-            -Dmode=release          \
-            -Dpamconfdir=no         \
-            -Ddev-kvm-mode=0660     \
-            -Dnobody-group=nogroup  \
-            -Dsysupdate=disabled    \
-            -Dukify=disabled        \
-            -Ddocdir=/usr/share/doc/systemd-255 \
+            -D default-dnssec=no    \
+            -D firstboot=false	     \
+            -D install-tests=false  \
+            -D ldconfig=false       \
+            -D sysusers=false        \
+            -D rpmmacrosdir=no       \
+            -D homed=disabled        \
+            -D userdb=false          \
+            -D man=disabled          \
+            -D mode=release          \
+            -D pamconfdir=no         \
+            -D dev-kvm-mode=0660     \
+            -D nobody-group=nogroup  \
+            -D sysupdate=disabled    \
+            -D ukify=disabled        \
+            -D docdir=/usr/share/doc/systemd-257.3 \
             .. &> log.txt
 
 ninja || exit 1
 ninja install || exit 1
 
-tar -xf ../../ systemd-man-pages-255.tar.xz \
+tar -xf ../../ systemd-man-pages-257.3.tar.xz \
       --no-same-owner --strip-components=1 \
       -C /usr/share/man
 
 systemd-machine-id-setup
 systemctl preset-all
-#systemctl disable systemd-sysupdate{,-reboot}
 
 cd $LFS/sources
 read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf systemd-255
+rm -rf systemd-257.3
 
 #-----
-echo "# 8.76. D-Bus"
-tar -xf dbus-1.14.10.tar.xz
-cd dbus-1.14.10
+echo "# 8.77. D-Bus"
+tar -xf dbus-1.16.0.tar.xz
+cd dbus-1.16.0
 
-./configure --prefix=/usr                          \
-            --sysconfdir=/etc                      \
-            --localstatedir=/var                   \
-            --runstatedir=/run                     \
-            --enable-user-session                  \
-            --disable-static                       \
-            --disable-doxygen-docs                 \
-            --disable-xml-docs                     \
-            --docdir=/usr/share/doc/dbus-1.14.10   \
-            --with-system-socket=/run/dbus/system_bus_socket
+mkdir build; cd build
+meson setup --prefix=/usr \
+	    --buildtype=release \
+            --wrap-mode=nofallback ..
 
-make || exit 1
-make install || exit 1
+ninja || exit 1
+ninja install || exit 1
 
 ln -sfv /etc/machine-id /var/lib/dbus
 
@@ -1848,18 +1849,18 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf dbus-1.14.10
+rm -rf dbus-1.16.0
 
 #-----
-echo "# 8.77. Man-DB"
-tar -xf man-db-2.12.0.tar.xz
-cd man-db-2.12.0
+echo "# 8.78. Man-DB"
+tar -xf man-db-2.13.0.tar.xz
+cd man-db-2.13.0
 
 ./configure --prefix=/usr                          \
-            --docdir=/usr/share/doc/man-db-2.12.0  \
+            --docdir=/usr/share/doc/man-db-2.13.0  \
             --sysconfdir=/etc                      \
             --disable-setuid                       \
-	         --enable-cache-owner=bin               \
+	    --enable-cache-owner=bin               \
             --with-browser=/usr/bin/lynx           \
             --with-vgrind=/usr/bin/vgrind          \
             --with-grap=/usr/bin/grap
@@ -1872,20 +1873,24 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf man-db-2.12.0
+rm -rf man-db-2.13.0
+
+fi #####
 
 #-----
-echo "# 8.78. Procps-ng"
-tar -xf procps-ng-4.0.4.tar.xz
-cd procps-ng-4.0.4
+echo "# 8.79. Procps-ng"
+tar -xf procps-ng-4.0.5.tar.xz
+cd procps-ng-4.0.5
 
+PKG_CONFIG_PATH=/usr/lib64/pkgconfig \
 ./configure --prefix=/usr                            \
-            --docdir=/usr/share/doc/procps-ng-4.0.4  \
+            --docdir=/usr/share/doc/procps-ng-4.0.5  \
             --disable-static                         \
             --disable-kill                           \
+	    --enable-watch8bit			     \
             --with-systemd
 
-make src_w_LDADD='$(LDADD) -lsystemd' || exit 1
+make || exit 1
 make install || exit 1
 
 cd $LFS/sources
@@ -1893,17 +1898,15 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf procps-ng-4.0.4
+rm -rf procps-ng-4.0.5
 
 #-----
-echo "# 8.79. util-linux"
-tar -xf util-linux-2.39.3.tar.xz
-cd util-linux-2.39.3
-
-sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
+echo "# 8.80. util-linux"
+tar -xf util-linux-2.40.4.tar.xz
+cd util-linux-2.40.4
 
 ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime     \
-            --docdir=/usr/share/doc/util-linux-2.39.3 \
+            --docdir=/usr/share/doc/util-linux-2.40.4 \
             --bindir=/usr/bin    \
             --libdir=/usr/lib    \
             --runstatedir=/run   \
@@ -1915,6 +1918,7 @@ sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
             --disable-setpriv    \
             --disable-runuser    \
             --disable-pylibmount \
+	    --disable-liblastlog2 \
             --disable-static     \
             --without-python
 
@@ -1926,12 +1930,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf util-linux-2.39.3
+rm -rf util-linux-2.40.4
 
 #-----
-echo "# 8.80. E2fsprogs"
-tar -xf e2fsprogs-1.47.0.tar.gz
-cd e2fsprogs-1.47.0
+echo "# 8.81. E2fsprogs"
+tar -xf e2fsprogs-1.47.2.tar.gz
+cd e2fsprogs-1.47.2
 
 mkdir -v build && cd build
 ../configure --prefix=/usr           \
@@ -1954,7 +1958,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf e2fsprogs-1.47.0
+rm -rf e2fsprogs-1.47.2
 
 
 #-----
@@ -1962,9 +1966,8 @@ echo "Set root password:"
 passwd root
 
 echo "Continue to 8.82: Stripping"
-echo 
+echo
 
 echo ""
 echo "=== End of Chapter 8 ==="
 echo ""
-

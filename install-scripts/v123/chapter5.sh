@@ -24,8 +24,8 @@ fi #########
 #-----
 echo "# 5.2. Binutils - Pass 1"
 
-tar -xf binutils-2.42.tar.xz
-cd binutils-2.42
+tar -xf binutils-2.44.tar.xz
+cd binutils-2.44
 
 mkdir -v build && cd build
 ../configure --prefix=$LFS/tools    \
@@ -34,6 +34,7 @@ mkdir -v build && cd build
              --disable-nls          \
              --enable-gprofng=no    \
              --disable-werror       \
+             --enable-new-dtags     \
              --enable-default-hash-stype=gnu
 
 make || exit 1
@@ -44,14 +45,13 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf binutils-2.42
-
+rm -rf binutils-2.44
 
 #-----
 echo "# 5.3. gcc - Pass 1"
 
-tar -xf gcc-13.2.0.tar.xz
-cd gcc-13.2.0
+tar -xf gcc-14.2.0.tar.xz
+cd gcc-14.2.0
 
 tar -xf ../mpfr-4.2.1.tar.xz
 mv -v mpfr-4.2.1 mpfr
@@ -70,7 +70,7 @@ esac
 mkdir -v build && cd build
 ../configure --target=$LFS_TGT            \
              --prefix=$LFS/tools          \
-             --with-glibc-version=2.39    \
+             --with-glibc-version=2.41    \
              --with-sysroot=$LFS          \
              --with-newlib                \
              --without-headers            \
@@ -100,13 +100,13 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf gcc-13.2.0
+rm -rf gcc-14.2.0
 
 
 #-----
 echo "# 5.4. Linux API Headers"
-tar -xf linux-6.6.18.tar.xz
-cd linux-6.6.18
+tar -xf linux-6.12.17.tar.xz
+cd linux-6.12.17
 
 make mrproper || exit 1
 make headers || exit 1
@@ -119,28 +119,28 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf linux-6.6.18
+rm -rf linux-6.12.17
 
 
 #-----
 echo "# 5.5. Glibc"
-tar -xf glibc-2.39.tar.xz
-cd glibc-2.39
+tar -xf glibc-2.41.tar.xz
+cd glibc-2.41
 
 case $(uname -m) in
 	x86_64)  ln -sfv ../lib/ld-linux-x86-64.so.2 $LFS/lib64
-		      ln -sfv ../lib/ld-linux-x86-64.so.2 $LFS/lib64/ld-lsb-x86-64.so.3
+		 ln -sfv ../lib/ld-linux-x86-64.so.2 $LFS/lib64/ld-lsb-x86-64.so.3
 	;;
 esac
 
-patch -Np1 -i ../glibc-2.39-fhs-1.patch
+patch -Np1 -i ../glibc-2.41-fhs-1.patch
 
 mkdir -v build && cd build
 echo "rootsbindir=/usr/sbin" > configparms
 ../configure --prefix=/usr                      \
              --host=$LFS_TGT                    \
              --build=$(../scripts/config.guess) \
-             --enable-kernel=4.19               \
+             --enable-kernel=5.4                \
              --with-headers=$LFS/usr/include    \
              --disable-nscd                     \
 	          libc_cv_slibdir=/usr/lib
@@ -154,7 +154,7 @@ cd $LFS/sources
 
 echo "Checking the compiler..."
 echo 'int main(){}' | $LFS_TGT-gcc -xc -
-readelf -l a.out | grep '/ld-linux' > log-5.5.out
+readelf -l a.out | grep 'ld-linux' > log-5.5.out
 rm -v a.out
 
 echo "Check log-5.5.out. Does it say:"
@@ -165,21 +165,21 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf glibc-2.39
+rm -rf glibc-2.41
 
 #-----
 echo "# 5.6. Libstdc++ from gcc"
-tar -xf gcc-13.2.0.tar.xz
-cd gcc-13.2.0
+tar -xf gcc-14.2.0.tar.xz
+cd gcc-14.2.0
 
 mkdir -pv build && cd build
 ../libstdc++-v3/configure --host=$LFS_TGT                 \
                           --build=$(../config.guess)      \
-			                 --prefix=/usr                   \
+			  --prefix=/usr                   \
                           --disable-multilib              \
                           --disable-nls                   \
                           --disable-libstdcxx-pch         \
-                          --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/13.2.0
+                          --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/14.2.0
 
 make || exit 1
 make DESTDIR=$LFS install || exit 1
@@ -190,7 +190,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf gcc-13.2.0
+rm -rf gcc-14.2.0
 
 echo ""
 echo "=== End of Chapter 5 ==="

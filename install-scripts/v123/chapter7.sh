@@ -19,12 +19,13 @@ fi #########
 
 #-----
 echo "# 7.7. Gettext"
-tar -xf gettext-0.22.4.tar.xz
-cd gettext-0.22.4
+tar -xf gettext-0.24.tar.xz
+cd gettext-0.24
 
 ./configure --disable-shared
 
 make || exit 1
+
 cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /usr/bin
 
 cd $LFS/sources
@@ -32,7 +33,7 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    exit
 fi
-rm -rf gettext-0.22.4
+rm -rf gettext-0.24
 
 #-----
 echo "# 7.8. Bison"
@@ -53,19 +54,19 @@ rm -rf bison-3.8.2
 
 #-----
 echo "# 7.9. Perl"
-tar -xf perl-5.38.2.tar.xz
-cd perl-5.38.2
+tar -xf perl-5.40.1.tar.xz
+cd perl-5.40.1
 
 sh Configure -des                                         \
-             -Dprefix=/usr                                \
-             -Dvendorprefix=/usr                          \
-             -Duseshrplib                                 \
-		       -Dprivlib=/usr/lib/perl5/5.38/core_perl      \
-		       -Darchlib=/usr/lib/perl5/5.38/core_perl      \
-		       -Dsitelib=/usr/lib/perl5/5.38/site_perl      \
-		       -Dsitearch=/usr/lib/perl5/5.38/site_perl     \
-		       -Dvendorlib=/usr/lib/perl5/5.38/vendor_perl  \
-		       -Dvendorarch=/usr/lib/perl5/5.38/vendor_perl
+             -D prefix=/usr                                \
+             -D vendorprefix=/usr                          \
+             -D useshrplib                                 \
+	     -D privlib=/usr/lib/perl5/5.40/core_perl      \
+	     -D archlib=/usr/lib/perl5/5.40/core_perl      \
+	     -D sitelib=/usr/lib/perl5/5.40/site_perl      \
+	     -D sitearch=/usr/lib/perl5/5.40/site_perl     \
+	     -D vendorlib=/usr/lib/perl5/5.40/vendor_perl  \
+	     -D vendorarch=/usr/lib/perl5/5.40/vendor_perl
 
 make || exit 1
 make install || exit 1
@@ -75,12 +76,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf perl-5.38.2
+rm -rf perl-5.40.1
 
 #-----
 echo "# 7.10. Python"
-tar -xf Python-3.12.2.tar.xz
-cd Python-3.12.2
+tar -xf Python-3.13.2.tar.xz
+cd Python-3.13.2
 
 ./configure --prefix=/usr        \
 	         --enable-shared      \
@@ -94,12 +95,12 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf Python-3.12.2
+rm -rf Python-3.13.2
 
 #-----
 echo "# 7.11. Texinfo"
-tar -xf texinfo-7.1.tar.xz
-cd texinfo-7.1
+tar -xf texinfo-7.2.tar.xz
+cd texinfo-7.2
 
 ./configure --prefix=/usr
 
@@ -111,19 +112,19 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf texinfo-7.1
+rm -rf texinfo-7.2
 
 #-----
 echo "# 7.12. util-linux"
-tar -xf util-linux-2.39.3.tar.xz
-cd util-linux-2.39.3
+tar -xf util-linux-2.40.4.tar.xz
+cd util-linux-2.40.4
 
 mkdir -pv /var/lib/hwclock
 
 ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime     \
             --libdir=/usr/lib                         \
             --runstatedir=/run                        \
-            --docdir=/usr/share/doc/util-linux-2.39.3 \
+            --docdir=/usr/share/doc/util-linux-2.40.4 \
             --disable-chfn-chsh                       \
             --disable-login                           \
             --disable-nologin                         \
@@ -132,6 +133,7 @@ mkdir -pv /var/lib/hwclock
             --disable-runuser                         \
             --disable-pylibmount                      \
             --disable-static                          \
+	    --disable-liblastlog2		      \
             --without-python
 
 make || exit 1
@@ -142,11 +144,11 @@ read -p "Press Y to continue: " answer
 if [ "$answer" != "Y" ]; then
    return
 fi
-rm -rf util-linux-2.39.3
+rm -rf util-linux-2.40.4
 
 
 echo "Continue to 7.14: Cleaning up and saving the temporary system"
-echo 
+echo
 
 echo ""
 echo "=== End of Chapter 7 ==="

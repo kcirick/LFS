@@ -7,12 +7,12 @@ if [ "$answer" != "Y" ]; then
 fi
 
 # 7.5
-mkdir -pv /{boot,home,mnt,opt,srv}
+mkdir -pv /{boot,home,mnt,media,opt,srv}
 
 mkdir -pv /etc/{opt,sysconfig}
 mkdir -pv /lib/firmware
-mkdir -pv /media/{floppy,cdrom}
 mkdir -pv /usr/{,local/}{include,src}
+mkdir -pv /usr/lib/locale
 mkdir -pv /usr/local/{bin,lib,sbin}
 mkdir -pv /usr/{,local/}share/{color,dict,doc,info,locale,man}
 mkdir -pv /usr/{,local/}share/{misc,terminfo,zoneinfo}
@@ -28,7 +28,6 @@ install -dv -m 1777 /tmp /var/tmp
 
 
 # 7.6
-
 ln -sv /proc/self/mounts /etc/mtab
 
 cat > /etc/hosts << "EOF"
@@ -98,4 +97,3 @@ chmod -v 600  /var/log/btmp
 
 echo "Done Chapter 7 set up. Issue following command:"
 echo "exec /usr/bin/bash --login +h"
-
