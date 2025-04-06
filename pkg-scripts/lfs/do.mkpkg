@@ -1,52 +1,32 @@
 #!/bin/sh
 
+#--- Package information (edit as necessary)
 TARGET=lfs
-VERSION=12.3.systemd
-MARCH=$( uname -m )
+VERSION=12.3
 DEP=()
+#---
 
-#--- Check for dependency (but only warn) 
-for dep in ${DEP[@]}; do
-   #echo $dep
-   count=`ls -1 /var/log/packages/installed_packages | egrep "^$dep-[0-9]" | wc -l`
-   if [ ! "$count" -eq 1 ]; then
-      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
-      read -p "Continue? [y/N]: " ans
-      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
-         continue
-      else
-         exit 1
-      fi
-   fi
-done
+# source the common functions
+source ../common_fn.sh
 
+#--- Parse argument
+parse_args $@
 
-CWD=$(pwd)
-TMPDIR=/sources/build
-TARGETDIR=/packages
-PKGNAME=${TARGET}-${VERSION}_package
-PKGDIR=$TMPDIR/${PKGNAME}
+#--- Set up directories
+init_dirs
 
-rm -rf $PKGDIR
-mkdir -p $PKGDIR
-chown -R root:root $PKGDIR
-
+#--- Build 
 mkdir -p $PKGDIR/etc
 cat > $PKGDIR/etc/os-release << "EOF"
 NAME="Linux From Scratch"
 VERSION="VVV"
 ID=lfs
-PRETTY_NAME="Linux From Scratch $VERSION"
+PRETTY_NAME="Linux From Scratch VVV"
 EOF
 
-sed "s/VVV/$VERSION/" -i $PKGDIR/etc/os-release
+sed "s/VVV/$VERSION-systemd/" -i $PKGDIR/etc/os-release
 
-echo $VERSION > $PKGDIR/etc/lfs-release
+echo $VERSION-systemd > $PKGDIR/etc/lfs-release
 
-
-mkdir -p $PKGDIR/install
-cat $CWD/post_installation.sh > $PKGDIR/install/post_installation.sh
-
-cd $TMPDIR
-tar -Jcf $TARGETDIR/${PKGNAME}.tar.xz ${PKGNAME}
-
+#--- Create the package
+make_package

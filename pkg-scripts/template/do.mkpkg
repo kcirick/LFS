@@ -1,76 +1,45 @@
 #!/bin/sh
 
 #--- Package information (edit as necessary)
-TARGET=a
+TARGET=
 VERSION=1.0
 SOURCE=${TARGET}-${VERSION}.tar.xz
-SOURCEURL=https://to/$SOURCE
 SOURCEDIR=${TARGET}-${VERSION}
+SOURCEURL=https://to/
 PATCH=
-PATCHURL=https://to/$PATCH
 DEP=()
 #---
 
+# source the common functions
+source ../common_fn.sh
+
+#--- Parse argument 
+parse_args $@
+
 #--- Check for dependency (but only warn) 
-for dep in ${DEP[@]}; do
-   #echo $dep
-   count=`ls -1 /var/log/packages/installed_packages | egrep "^$dep-[0-9]" | wc -l`
-   if [ ! "$count" -eq 1 ]; then
-      echo ">>> WARNING!: Dependency package $dep doesn't seem to be installed!"
-      read -p "Continue? [y/N]: " ans
-      if [ "$ans" == "y" -o "$ans" == "Y" ]; then
-         continue
-      else
-         exit 1
-      fi
-   fi
-done
+check_deps 
 
 #--- Download the source
-if [ ! -s $SOURCE ]; then 
-   wget $SOURCEURL 
-fi
-if [ ! -z $PATCH ] && [ ! -s $PATCH ]; then
-   wget $PATCHURL
-fi
+do_download $SOURCE $SOURCEURL
+if [ ! -z $PATCH ]; then do_download $PATCH $PATCHURL; fi
+if [ "$DONLY" = true ]; then exit; fi
 
 #--- Set up directories
-CWD=$(pwd)
-TMPDIR=/tmp/build
-TARGETDIR=/tmp/packages
-PKGNAME=${TARGET}-${VERSION}_package
-PKGDIR=$TMPDIR/${PKGNAME}
-
-sudo rm -rf $PKGDIR
-sudo mkdir -p $PKGDIR
-sudo chown -R root:root $PKGDIR
-
-#--- Extract source
-rm -rf $TMPDIR/$SOURCEDIR
-tar -xf $CWD/$SOURCE -C $TMPDIR || exit 1
+init_dirs
 cd $TMPDIR/$SOURCEDIR || exit 1
 
 #--- Patch (if necessary)
-if [ ! -z $PATCH ]; then
-   patch -Np1 -i $CWD/$PATCH || exit 1
-fi
+if [ ! -z $PATCH ]; then apply_patch; fi
 
 #--- Build
-./configure --prefix=/usr 
+if [ ! "$NOWIPE" = true ]; then
+   ./configure --prefix=/usr 
+fi
 
 make || exit 1
 
-sudo make DESTDIR=$PKGDIR install || exit 1
+$SUDO make DESTDIR=$PKGDIR install || exit 1
 
 
-#--- Should not have to touch below this
-sudo find $PKGDIR | xargs file | grep -e "executable" -e "shared object" | grep ELF \
-  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-
-sudo mkdir -p $PKGDIR/install
-sudo cp -v $CWD/post_installation.sh $PKGDIR/install/
-
-cd $TMPDIR
-sudo mkdir -p $TARGETDIR
-sudo tar -Jcf $TARGETDIR/${PKGNAME}.tar.xz ${PKGNAME}
-
+#--- Create the package 
+make_package

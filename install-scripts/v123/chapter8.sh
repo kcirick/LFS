@@ -9,7 +9,7 @@ cd $LFS/sources
 
 if [[ $1 -eq 1 ]]; then
    echo "nothing to do"
-
+fi
 
 #-----
 echo "# 8.3. Man-pages"
@@ -1874,8 +1874,6 @@ if [ "$answer" != "Y" ]; then
    exit
 fi
 rm -rf man-db-2.13.0
-
-fi #####
 
 #-----
 echo "# 8.79. Procps-ng"
